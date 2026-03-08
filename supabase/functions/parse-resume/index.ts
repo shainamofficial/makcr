@@ -92,8 +92,13 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      // Convert to base64 for Claude's document support
-      const base64 = btoa(String.fromCharCode(...fileBytes));
+      // Convert to base64 for Claude's document support (chunk to avoid stack overflow)
+      let binary = "";
+      const chunkSize = 8192;
+      for (let i = 0; i < fileBytes.length; i += chunkSize) {
+        binary += String.fromCharCode(...fileBytes.subarray(i, i + chunkSize));
+      }
+      const base64 = btoa(binary);
 
       const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -150,7 +155,12 @@ Deno.serve(async (req: Request) => {
       if (extractedText.length < 50) {
         const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
         if (anthropicKey) {
-          const base64 = btoa(String.fromCharCode(...fileBytes));
+          let binary = "";
+          const chunkSize = 8192;
+          for (let i = 0; i < fileBytes.length; i += chunkSize) {
+            binary += String.fromCharCode(...fileBytes.subarray(i, i + chunkSize));
+          }
+          const base64 = btoa(binary);
           const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: {
