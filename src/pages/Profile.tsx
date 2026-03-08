@@ -14,9 +14,9 @@ import ResumeUpload from "@/components/interview/ResumeUpload";
 
 export default function Profile() {
   const { user } = useAuth();
-  const { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty } = useProfileData();
+  const { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty, allLoading } = useProfileData();
 
-  const loading = profileQuery.isLoading || workQuery.isLoading;
+  const loading = allLoading;
 
   if (loading) {
     return (
