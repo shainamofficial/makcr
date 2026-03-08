@@ -41,6 +41,11 @@ function clearActiveUpload() {
   activeUpload = null;
 }
 
+// Clear module-level state on page visibility changes (e.g., logout/navigation)
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", clearActiveUpload);
+}
+
 interface ResumeUploadProps {
   onComplete: (resumeText: string, fileName: string) => void;
   onSkip: () => void;

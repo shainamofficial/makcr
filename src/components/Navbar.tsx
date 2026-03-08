@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, Settings, LogOut, MessageSquare, User, FileText } from "lucide-react";
+import { Menu, LogOut, MessageSquare, User, FileText } from "lucide-react";
 
 const navLinks = [
   { to: "/interview", label: "AI Interview", icon: MessageSquare },

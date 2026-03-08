@@ -10,7 +10,7 @@ import WorkExperienceSection from "@/components/profile/WorkExperienceSection";
 import EducationSection from "@/components/profile/EducationSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProjectsSection from "@/components/profile/ProjectsSection";
-import ResumeUpload from "@/components/interview/ResumeUpload";
+
 
 export default function Profile() {
   const { user } = useAuth();
