@@ -1,0 +1,7 @@
+const Resumes = () => (
+  <div className="flex min-h-screen items-center justify-center bg-background">
+    <h1 className="text-4xl font-bold text-foreground">Resumes</h1>
+  </div>
+);
+
+export default Resumes;
