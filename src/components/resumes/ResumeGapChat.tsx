@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Send, Loader2, FileCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   sessionId: string;
