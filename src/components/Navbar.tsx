@@ -84,10 +84,6 @@ const Navbar = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     )}
                   </div>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Log Out
