@@ -199,7 +199,7 @@ export default function GenerateResumeTab({ userId }: Props) {
         <div className="flex items-center justify-between mt-1">
           <div>
             {isShort && (
-              <p className="text-sm text-amber-600 flex items-center gap-1">
+              <p className="text-sm text-destructive flex items-center gap-1">
                 <AlertTriangle className="h-3.5 w-3.5" />
                 This seems too short. Paste the full description.
               </p>
