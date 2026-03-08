@@ -27,9 +27,10 @@ interface Project {
 
 interface CareerSidebarProps {
   refreshKey?: number;
+  inline?: boolean;
 }
 
-const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
+const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
   const { user } = useAuth();
   const [workExps, setWorkExps] = useState<WorkExp[]>([]);
   const [educations, setEducations] = useState<Education[]>([]);
