@@ -418,11 +418,13 @@ ${careerGraphContext}
 CURRENT SESSION TYPE: ${currentSession?.session_type ?? "initial_interview"}
 CURRENT TOPIC: ${currentSession?.current_topic ?? "work_experience"}`;
 
-    // Build Claude messages
+    // Build Claude messages — truncate resume uploads to avoid context bloat
     const claudeMessages = [
       ...(history ?? []).map((m: { role: string; content: string }) => ({
         role: m.role === "assistant" ? "assistant" : "user",
-        content: m.content,
+        content: m.content.startsWith("[RESUME_UPLOAD]")
+          ? m.content.substring(0, 3000) + "\n\n[... resume text truncated for context window ...]"
+          : m.content,
       })),
       { role: "user", content: message },
     ];
