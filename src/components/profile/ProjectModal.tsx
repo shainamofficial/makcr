@@ -62,7 +62,7 @@ export default function ProjectModal({ open, onOpenChange, editing, userId }: Pr
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Project updated" : "Project added" });
     qc.invalidateQueries({ queryKey: ["projects"] });
     setSaving(false);
     onOpenChange(false);
