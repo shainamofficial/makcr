@@ -111,6 +111,9 @@ const Interview = () => {
 
       setChatSession(newSession);
       setMessages([aiMsg]);
+      if (sessionType === "initial_interview") {
+        setShowResumeUpload(true);
+      }
     } catch (err) {
       console.error("Failed to initialize interview session:", err);
       toast({ title: "Error", description: "Failed to load interview session.", variant: "destructive" });
