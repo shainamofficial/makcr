@@ -130,7 +130,7 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
             <Collapsible key={section.title} defaultOpen>
               <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-accent/50 transition-colors">
                 {hasEntries ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: "hsl(142, 71%, 45%)" }} />
                 ) : (
                   <section.icon className="h-4 w-4 text-muted-foreground shrink-0" />
                 )}
