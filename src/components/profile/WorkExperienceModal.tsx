@@ -98,7 +98,7 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Work experience updated" : "Work experience added" });
     qc.invalidateQueries({ queryKey: ["work_experience"] });
     setSaving(false);
     onOpenChange(false);
