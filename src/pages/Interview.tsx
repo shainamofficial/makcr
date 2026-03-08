@@ -309,6 +309,9 @@ const Interview = () => {
       <div className="flex flex-col flex-1 min-w-0">
         <ProgressStepper currentTopic={currentTopic} />
         <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
+          {showResumeUpload && (
+            <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} />
+          )}
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
@@ -318,6 +321,7 @@ const Interview = () => {
           onSend={handleSend}
           disabled={chatDisabled}
           defaultValue={pendingMessage ?? undefined}
+          onResumeFile={!isComplete ? handleResumeFile : undefined}
         />
       </div>
       <CareerSidebar refreshKey={sidebarRefreshKey} />
