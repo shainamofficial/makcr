@@ -24,7 +24,8 @@ export async function loadMessages(sessionId: string): Promise<ChatMessage[]> {
     .from("chat_message")
     .select("*")
     .eq("chat_session_id", sessionId)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true })
+    .limit(200);
 
   if (error) throw error;
   return data ?? [];

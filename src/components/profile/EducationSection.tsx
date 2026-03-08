@@ -29,6 +29,9 @@ export default function EducationSection({ data }: { data: any[] }) {
 
   const handleDelete = async () => {
     if (!deleting) return;
+    // Delete child records first to avoid FK constraint errors
+    await supabase.from("extra_curricular").delete().eq("education_id", deleting);
+    await supabase.from("position_of_responsibility").delete().eq("education_id", deleting);
     const { error } = await supabase.from("education").delete().eq("id", deleting);
     if (error) { toast({ title: "Delete failed", variant: "destructive" }); return; }
     toast({ title: "Education deleted" });

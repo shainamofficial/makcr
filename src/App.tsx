@@ -46,7 +46,7 @@ const App = () => (
                 <Route path="/interview" element={<ProtectedRoute><Interview /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/resumes" element={<ProtectedRoute><Resumes /></ProtectedRoute>} />
-                <Route path="/admin/template-previews" element={<TemplatePreviewsAdmin />} />
+                <Route path="/admin/template-previews" element={<ProtectedRoute><TemplatePreviewsAdmin /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ErrorBoundary>
