@@ -154,11 +154,7 @@ export default function GenerateResumeTab({ userId }: Props) {
       setResumeId(resume.id);
       setChatOpen(true);
 
-      await supabase.from("chat_message").insert({
-        chat_session_id: chatSession.id,
-        role: "user",
-        content: `Here is the job description I want to tailor my resume for:\n\n${jd}`,
-      });
+      // Message persistence is handled by the chat edge function — no direct insert needed
 
       const response = await fetch(
         `https://tnosyowzngwbwgmxtioh.supabase.co/functions/v1/chat`,

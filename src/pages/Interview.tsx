@@ -259,9 +259,7 @@ Let's start — what company do you currently work at, or what was your most rec
 
   const handleResumeUploaded = async (resumeText: string, fileName: string) => {
     setShowResumeUpload(false);
-    handleSend(`[RESUME_UPLOAD] File: ${fileName}\\\\
-\\\\
-${resumeText}`);
+    handleSend(`[RESUME_UPLOAD] File: ${fileName}\n\n${resumeText}`);
   };
 
   const handleResumeSkipped = () => {
