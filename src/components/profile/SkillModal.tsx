@@ -95,7 +95,7 @@ export default function SkillModal({ open, onOpenChange, editing, userId }: Prop
         <Label>Years of Experience</Label>
         <Input type="number" value={years} onChange={e => setYears(e.target.value)} placeholder="Optional" />
       </div>
-      <Button onClick={handleSave} disabled={saving} className="w-full">{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
+      <Button onClick={handleSave} disabled={saving} className="w-full">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
     </div>
   );
 
