@@ -95,6 +95,7 @@ Deno.serve(async (req: Request) => {
 
       // Convert to base64 using Deno std library (safe for large files)
       const base64 = encodeBase64(fileBytes);
+      console.log("Calling Claude for PDF extraction, base64 length:", base64.length);
 
       const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -104,7 +105,7 @@ Deno.serve(async (req: Request) => {
           "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-haiku-4-20250514",
           max_tokens: 4096,
           messages: [
             {
@@ -127,6 +128,7 @@ Deno.serve(async (req: Request) => {
           ],
         }),
       });
+      console.log("Claude response status:", claudeResponse.status);
 
       if (!claudeResponse.ok) {
         const errText = await claudeResponse.text();
