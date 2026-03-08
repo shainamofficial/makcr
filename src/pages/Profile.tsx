@@ -37,15 +37,29 @@ export default function Profile() {
 
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-6 pt-20">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-6 pt-20">
         <MessageSquare className="h-16 w-16 text-muted-foreground" />
         <h1 className="text-2xl font-bold text-foreground">Your career profile is empty</h1>
         <p className="text-muted-foreground text-center max-w-md">
-          Start your AI interview to build it! We'll guide you through capturing your work experience, education, skills, and projects.
+          Get started by uploading your existing resume or let our AI interview you to build your profile from scratch.
         </p>
-        <Button asChild>
-          <Link to="/interview">Start AI Interview</Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button asChild size="lg">
+            <Link to="/interview">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Resume & Get Interviewed
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/interview">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Start AI Interview
+            </Link>
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground max-w-sm text-center">
+          Upload your resume and the AI will read it, then ask clarifying questions to fill in the details.
+        </p>
       </div>
     );
   }
