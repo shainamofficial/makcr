@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { encode as base64Encode } from "https://deno.land/std@0.224.0/encoding/base64.ts";
+import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -94,7 +94,7 @@ Deno.serve(async (req: Request) => {
       }
 
       // Convert to base64 using Deno std library (safe for large files)
-      const base64 = base64Encode(fileBytes);
+      const base64 = encodeBase64(fileBytes);
 
       const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -151,7 +151,7 @@ Deno.serve(async (req: Request) => {
       if (extractedText.length < 50) {
         const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
         if (anthropicKey) {
-          const base64 = base64Encode(fileBytes);
+          const base64 = encodeBase64(fileBytes);
           const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: {
