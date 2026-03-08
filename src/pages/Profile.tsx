@@ -49,7 +49,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 pt-20 space-y-10">
+    <div className="max-w-5xl mx-auto px-4 sm:p-6 pt-16 sm:pt-20 pb-8 space-y-8 sm:space-y-10">
       <ProfileHeader profile={profileQuery.data as any} />
       {(workQuery.data?.length ?? 0) > 0 && <WorkExperienceSection data={workQuery.data!} />}
       {(educationQuery.data?.length ?? 0) > 0 && <EducationSection data={educationQuery.data!} />}

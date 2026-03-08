@@ -14,7 +14,7 @@ const CompletionBanner = () => (
       Great job! Your career graph has been built. You can now view your profile
       or generate a tailored resume.
     </p>
-    <div className="flex items-center justify-center gap-3">
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
       <Button asChild>
         <Link to="/profile">
           <User className="mr-2 h-4 w-4" />

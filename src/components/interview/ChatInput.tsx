@@ -33,7 +33,7 @@ const ChatInput = ({ onSend, disabled, defaultValue }: ChatInputProps) => {
   };
 
   return (
-    <div className="border-t border-border bg-background p-4">
+    <div className="border-t border-border bg-background p-3 sm:p-4 pb-[env(safe-area-inset-bottom,0.75rem)]">
       <div className="flex items-end gap-2 max-w-3xl mx-auto">
         <Textarea
           value={value}
@@ -41,7 +41,7 @@ const ChatInput = ({ onSend, disabled, defaultValue }: ChatInputProps) => {
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
           disabled={disabled}
-          className="min-h-[44px] max-h-32 resize-none rounded-xl"
+          className="min-h-[44px] max-h-32 resize-none rounded-xl text-base sm:text-sm"
           rows={1}
         />
         <Button

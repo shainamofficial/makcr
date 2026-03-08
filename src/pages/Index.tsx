@@ -132,7 +132,7 @@ const Index = () => {
           <p className="mt-3 text-muted-foreground text-center max-w-xl mx-auto">
             We're building the AI-native career platform — one milestone at a time.
           </p>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {roadmap.map(({ version, title, badge, available, icon: Icon }) => (
               <Card
                 key={version}

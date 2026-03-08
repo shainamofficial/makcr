@@ -34,7 +34,7 @@ const ProgressStepper = ({ currentTopic }: ProgressStepperProps) => {
               />
             )}
             <div
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap min-h-[32px] ${
                 isCompleted
                   ? "bg-primary/10 text-primary"
                   : isActive

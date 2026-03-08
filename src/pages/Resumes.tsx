@@ -11,7 +11,7 @@ export default function Resumes() {
   if (!user) return null;
 
   return (
-    <div className="max-w-5xl mx-auto p-6 pt-20">
+    <div className="max-w-5xl mx-auto px-4 sm:p-6 pt-16 sm:pt-20 pb-8">
       <h1 className="text-3xl font-bold text-foreground mb-6">Resumes</h1>
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
