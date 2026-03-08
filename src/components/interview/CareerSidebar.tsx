@@ -7,7 +7,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, GraduationCap, Wrench, FolderOpen, ChevronDown } from "lucide-react";
+import { Briefcase, GraduationCap, Wrench, FolderOpen, ChevronDown, CheckCircle2 } from "lucide-react";
 
 interface WorkExp {
   title: string;
@@ -73,8 +73,8 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
       icon: Briefcase,
       title: "Work Experience",
       items: workExps,
-      render: (w: WorkExp) => (
-        <div key={w.title}>
+      render: (w: WorkExp, i: number) => (
+        <div key={`work-${i}`}>
           <p className="text-sm font-medium text-foreground">{w.title}</p>
           <p className="text-xs text-muted-foreground">{w.company?.name ?? "Unknown"}</p>
         </div>
@@ -84,8 +84,8 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
       icon: GraduationCap,
       title: "Education",
       items: educations,
-      render: (e: Education) => (
-        <div key={e.institution?.institution_name}>
+      render: (e: Education, i: number) => (
+        <div key={`edu-${i}`}>
           <p className="text-sm font-medium text-foreground">
             {e.degree?.degree_name ?? "Degree"}
           </p>
@@ -99,8 +99,8 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
       icon: Wrench,
       title: "Skills",
       items: skills,
-      render: (s: Skill) => (
-        <div key={s.skill?.skill_name} className="flex items-center justify-between">
+      render: (s: Skill, i: number) => (
+        <div key={`skill-${i}`} className="flex items-center justify-between">
           <span className="text-sm text-foreground">{s.skill?.skill_name ?? "Skill"}</span>
           <Badge variant="secondary" className="text-xs">
             {s.proficiency}
@@ -112,8 +112,8 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
       icon: FolderOpen,
       title: "Projects",
       items: projects,
-      render: (p: Project) => (
-        <p key={p.title} className="text-sm text-foreground">{p.title}</p>
+      render: (p: Project, i: number) => (
+        <p key={`proj-${i}`} className="text-sm text-foreground">{p.title}</p>
       ),
     },
   ];
@@ -124,25 +124,38 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
         <h2 className="text-sm font-semibold text-foreground">Career Graph Summary</h2>
       </div>
       <div className="p-3 space-y-2">
-        {sections.map((section) => (
-          <Collapsible key={section.title} defaultOpen>
-            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-accent/50 transition-colors">
-              <section.icon className="h-4 w-4 text-muted-foreground" />
-              <span className="flex-1 text-left">{section.title}</span>
-              <span className="text-xs text-muted-foreground">{section.items.length}</span>
-              <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="px-2 pb-2">
-              {section.items.length === 0 ? (
-                <p className="text-xs text-muted-foreground pl-6 py-1">No entries yet</p>
-              ) : (
-                <div className="space-y-2 pl-6 pt-1">
-                  {section.items.map((item) => section.render(item as any))}
-                </div>
-              )}
-            </CollapsibleContent>
-          </Collapsible>
-        ))}
+        {sections.map((section) => {
+          const hasEntries = section.items.length > 0;
+          return (
+            <Collapsible key={section.title} defaultOpen>
+              <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-accent/50 transition-colors">
+                {hasEntries ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                ) : (
+                  <section.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                )}
+                <span className="flex-1 text-left">
+                  {section.title}
+                  {hasEntries && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      ({section.items.length})
+                    </span>
+                  )}
+                </span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-2 pb-2">
+                {!hasEntries ? (
+                  <p className="text-xs text-muted-foreground pl-6 py-1">No entries yet</p>
+                ) : (
+                  <div className="space-y-2 pl-6 pt-1">
+                    {section.items.map((item, i) => section.render(item as any, i))}
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })}
       </div>
     </aside>
   );
