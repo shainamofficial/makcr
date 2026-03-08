@@ -21,6 +21,11 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -67,12 +72,14 @@ Deno.serve(async (req: Request) => {
       { data: educations },
       { data: skills },
       { data: projects },
+      { data: profilePic },
     ] = await Promise.all([
       supabase.from("user").select("*").eq("id", userId).single(),
       supabase.from("work_experience").select("*, company:company_id(name), work_experience_points(*)").eq("user_id", userId),
       supabase.from("education").select("*, institution:institution_id(institution_name), degree:degree_id(degree_name), discipline:discipline_id(discipline_name)").eq("user_id", userId),
       supabase.from("user_skill_mapping").select("proficiency, years_of_experience, skill:skill_id(skill_name, category)").eq("user_id", userId),
       supabase.from("project").select("*").eq("user_id", userId),
+      supabase.from("profile_picture").select("link_to_storage").eq("user_id", userId).order("created_at", { ascending: false }).limit(1),
     ]);
 
     // Fetch gap analysis chat if exists
@@ -119,16 +126,17 @@ INSTRUCTIONS:
 2. Highlight relevant experience, skills, and achievements.
 3. Use strong action verbs and quantified results.
 4. Keep it concise and professional.
+5. For work_experience dates, use the format "Mon YYYY" (e.g. "Jan 2020").
 
-Respond with valid JSON:
+Respond with ONLY valid JSON (no markdown, no code fences):
 {
-  "title": "Generated resume title (e.g. 'Software Engineer - Company Name')",
+  "title": "Resume title e.g. 'Software Engineer - Company Name'",
   "sections": {
     "summary": "Professional summary paragraph",
-    "work_experience": [{"company": "...", "title": "...", "dates": "...", "bullets": ["..."]}],
-    "education": [{"institution": "...", "degree": "...", "dates": "..."}],
-    "skills": ["skill1", "skill2"],
-    "projects": [{"title": "...", "description": "..."}]
+    "work_experience": [{"company": "Name", "title": "Role", "start_date": "Jan 2020", "end_date": "Present", "bullets": ["Achievement 1", "Achievement 2"]}],
+    "education": [{"institution": "Name", "degree": "BS", "discipline": "CS", "start_date": "Aug 2013", "end_date": "May 2017"}],
+    "skills": [{"name": "Python", "category": "Technical", "proficiency": "Expert"}, {"name": "Leadership", "category": "Soft Skills", "proficiency": "Advanced"}],
+    "projects": [{"title": "Name", "description": "Description", "urls": []}]
   }
 }`;
 
@@ -143,7 +151,7 @@ Respond with valid JSON:
         model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
         system: systemPrompt,
-        messages: [{ role: "user", content: "Generate the resume now." }],
+        messages: [{ role: "user", content: "Generate the resume now. Respond with only the JSON." }],
       }),
     });
 
@@ -159,20 +167,51 @@ Respond with valid JSON:
     const claudeData = await claudeResponse.json();
     const rawContent = claudeData.content?.[0]?.text ?? "";
 
-    let resumeContent;
+    let resumeContent: Record<string, unknown>;
     let resumeTitle = "Untitled Resume";
     try {
       const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
       resumeContent = JSON.parse(jsonMatch ? jsonMatch[0] : rawContent);
-      resumeTitle = resumeContent.title || resumeTitle;
+      resumeTitle = (resumeContent.title as string) || resumeTitle;
     } catch {
       resumeContent = { raw: rawContent };
     }
 
+    // Add user info and profile pic to the stored content
+    const storedContent = {
+      ...resumeContent,
+      user: {
+        first_name: userProfile?.first_name,
+        last_name: userProfile?.last_name,
+        email: userProfile?.email,
+        phone_number: userProfile?.phone_number,
+      },
+      profilePictureUrl: profilePic?.[0]?.link_to_storage ?? null,
+    };
+
+    // Store resume JSON in Supabase Storage using admin client (no RLS)
+    const storagePath = `${userId}/${resumeId}.json`;
+    const jsonBlob = new Blob([JSON.stringify(storedContent)], { type: "application/json" });
+
+    const { error: uploadErr } = await supabaseAdmin.storage
+      .from("resumes")
+      .upload(storagePath, jsonBlob, { upsert: true, contentType: "application/json" });
+
+    if (uploadErr) {
+      console.error("Storage upload error:", uploadErr);
+    }
+
+    const { data: urlData } = supabaseAdmin.storage.from("resumes").getPublicUrl(storagePath);
+    const downloadUrl = urlData?.publicUrl ?? null;
+
     // Update resume record
     await supabase
       .from("resume")
-      .update({ status: "completed", title: resumeTitle })
+      .update({
+        status: "completed",
+        title: resumeTitle,
+        generated_resume_link: downloadUrl,
+      })
       .eq("id", resumeId);
 
     // Update chat session status
@@ -186,8 +225,8 @@ Respond with valid JSON:
     return new Response(
       JSON.stringify({
         title: resumeTitle,
-        resumeContent,
-        downloadUrl: null, // PDF generation would be a separate step
+        resumeContent: storedContent,
+        downloadUrl,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
