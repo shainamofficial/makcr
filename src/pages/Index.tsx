@@ -173,7 +173,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-background">
         <div className="container mx-auto px-4 md:px-6 py-8 text-center text-sm text-muted-foreground">
-          © 2025 Makcr. All rights reserved.
+          © {new Date().getFullYear()} Makcr. All rights reserved.
         </div>
       </footer>
     </div>

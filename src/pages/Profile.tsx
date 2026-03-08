@@ -10,13 +10,13 @@ import WorkExperienceSection from "@/components/profile/WorkExperienceSection";
 import EducationSection from "@/components/profile/EducationSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProjectsSection from "@/components/profile/ProjectsSection";
-import ResumeUpload from "@/components/interview/ResumeUpload";
+
 
 export default function Profile() {
   const { user } = useAuth();
-  const { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty } = useProfileData();
+  const { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty, allLoading } = useProfileData();
 
-  const loading = profileQuery.isLoading || workQuery.isLoading;
+  const loading = allLoading;
 
   if (loading) {
     return (

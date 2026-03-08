@@ -76,9 +76,12 @@ Deno.serve(async (req: Request) => {
 
     // Upload to storage for reference
     const fileName = `${userId}/${Date.now()}-${file.name}`;
-    await supabase.storage.from("resumes").upload(fileName, fileBytes, {
+    const { error: storageError } = await supabase.storage.from("resumes").upload(fileName, fileBytes, {
       contentType: file.type,
     });
+    if (storageError) {
+      console.warn("Storage upload failed (non-blocking):", storageError.message);
+    }
 
     // Extract text based on file type
     let extractedText = "";
@@ -142,42 +145,63 @@ Deno.serve(async (req: Request) => {
       const claudeData = await claudeResponse.json();
       extractedText = claudeData.content?.[0]?.text ?? "";
     } else {
-      // DOCX: extract raw text by finding XML content
-      // DOCX is a zip file; we'll do a simple text extraction from the raw bytes
-      const textDecoder = new TextDecoder();
-      const rawText = textDecoder.decode(fileBytes);
-      // Extract text between XML tags (rough but effective for DOCX)
-      extractedText = rawText.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      // DOCX: Use Claude's document processing (same as PDF) since DOCX is a zip
+      // and naive text extraction from raw bytes produces garbage
+      const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+      if (!anthropicKey) {
+        return new Response(
+          JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
-      // If extraction is too short, fall back to Claude
-      if (extractedText.length < 50) {
-        const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
-        if (anthropicKey) {
-          const base64 = encodeBase64(fileBytes);
-          const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-api-key": anthropicKey,
-              "anthropic-version": "2023-06-01",
-            },
-            body: JSON.stringify({
-              model: "claude-haiku-4-20250514",
-              max_tokens: 4096,
-              messages: [
+      const base64 = encodeBase64(fileBytes);
+      console.log("Calling Claude for DOCX extraction, base64 length:", base64.length);
+
+      const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": anthropicKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-20250514",
+          max_tokens: 4096,
+          messages: [
+            {
+              role: "user",
+              content: [
                 {
-                  role: "user",
-                  content: `Extract ALL text from this DOCX file content (base64 encoded): ${base64.substring(0, 50000)}. Return ONLY the raw text.`,
+                  type: "document",
+                  source: {
+                    type: "base64",
+                    media_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    data: base64,
+                  },
+                },
+                {
+                  type: "text",
+                  text: "Extract ALL text content from this resume document. Return ONLY the raw text content, preserving the structure (sections, bullet points, dates). Do not add any commentary.",
                 },
               ],
-            }),
-          });
-          if (claudeResponse.ok) {
-            const data = await claudeResponse.json();
-            extractedText = data.content?.[0]?.text ?? extractedText;
-          }
-        }
+            },
+          ],
+        }),
+      });
+      console.log("Claude DOCX response status:", claudeResponse.status);
+
+      if (!claudeResponse.ok) {
+        const errText = await claudeResponse.text();
+        console.error("Claude DOCX extraction error:", errText);
+        return new Response(
+          JSON.stringify({ error: "Failed to extract text from DOCX" }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
+
+      const claudeData = await claudeResponse.json();
+      extractedText = claudeData.content?.[0]?.text ?? "";
     }
 
     return new Response(

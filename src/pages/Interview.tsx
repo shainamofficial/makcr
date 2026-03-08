@@ -326,7 +326,6 @@ const Interview = () => {
           onSend={handleSend}
           disabled={chatDisabled}
           defaultValue={pendingMessage ?? undefined}
-          onResumeFile={!isComplete ? handleResumeFile : undefined}
         />
       </div>
       <CareerSidebar refreshKey={sidebarRefreshKey} />

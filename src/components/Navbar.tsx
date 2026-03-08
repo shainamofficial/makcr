@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, Settings, LogOut, MessageSquare, User, FileText } from "lucide-react";
+import { Menu, LogOut, MessageSquare, User, FileText } from "lucide-react";
 
 const navLinks = [
   { to: "/interview", label: "AI Interview", icon: MessageSquare },
@@ -84,10 +84,6 @@ const Navbar = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     )}
                   </div>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer" onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Log Out
@@ -144,14 +140,6 @@ const Navbar = () => {
 
                     {/* Bottom actions */}
                     <div className="mt-auto border-t border-border p-2">
-                      <SheetClose asChild>
-                        <button
-                          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Settings
-                        </button>
-                      </SheetClose>
                       <SheetClose asChild>
                         <button
                           onClick={signOut}

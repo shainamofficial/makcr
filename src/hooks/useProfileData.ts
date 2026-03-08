@@ -86,13 +86,16 @@ export function useProfileData() {
     },
   });
 
+  const allLoading = profileQuery.isLoading || workQuery.isLoading || educationQuery.isLoading || skillsQuery.isLoading || projectsQuery.isLoading;
+
   const isEmpty =
+    !allLoading &&
     !workQuery.data?.length &&
     !educationQuery.data?.length &&
     !skillsQuery.data?.length &&
     !projectsQuery.data?.length;
 
-  return { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty };
+  return { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty, allLoading };
 }
 
 export function useUpdateProfile() {
