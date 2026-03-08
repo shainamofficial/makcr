@@ -39,7 +39,7 @@ const Interview = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [awaitingStaleChoice, setAwaitingStaleChoice] = useState(false);
   const [showResumeUpload, setShowResumeUpload] = useState(false);
-
+  const [resumeUploading, setResumeUploading] = useState(false);
   const userInitial =
     user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() ??
     user?.email?.charAt(0)?.toUpperCase() ??
