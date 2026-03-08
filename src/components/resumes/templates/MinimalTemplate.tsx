@@ -1,0 +1,101 @@
+import type { ResumeData } from "./types";
+
+function fmtDate(d: string | null) {
+  if (!d) return "Present";
+  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+export default function MinimalTemplate({ user, summary, workExperiences, education, skills, projects }: ResumeData) {
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
+  const gray = "#6B7280";
+
+  const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
+    (acc[s.category] = acc[s.category] || []).push(s.name);
+    return acc;
+  }, {});
+
+  return (
+    <div className="resume-page minimal-template" style={{ fontFamily: "Arial, system-ui, sans-serif", width: "8.5in", minHeight: "11in", padding: "1.2in", margin: "0 auto", background: "#fff", color: "#000" }}>
+      {/* Header */}
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 300, margin: 0, letterSpacing: 0.5 }}>{fullName}</h1>
+        <p style={{ fontSize: 11, color: gray, margin: "6px 0 0" }}>
+          {[user.email, user.phone_number].filter(Boolean).join(" · ")}
+        </p>
+      </div>
+
+      {/* Summary */}
+      {summary && (
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>Summary</h2>
+          <p style={{ fontSize: 11, lineHeight: 1.7, margin: 0, color: "#333" }}>{summary}</p>
+        </section>
+      )}
+
+      {/* Work Experience */}
+      {workExperiences.length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 12px" }}>Work Experience</h2>
+          {workExperiences.map((w, i) => (
+            <div key={i} style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{w.title}</p>
+                <p style={{ fontSize: 10, color: gray, margin: 0, whiteSpace: "nowrap" }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
+              </div>
+              <p style={{ fontSize: 11, color: gray, margin: "2px 0 0" }}>{w.company}</p>
+              {w.points.length > 0 && (
+                <ul style={{ margin: "6px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.6 }}>
+                  {w.points.map((p, j) => <li key={j}>{p}</li>)}
+                </ul>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Education */}
+      {education.length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 12px" }}>Education</h2>
+          {education.map((e, i) => (
+            <div key={i} style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{e.institution}</p>
+                <p style={{ fontSize: 10, color: gray, margin: 0, whiteSpace: "nowrap" }}>{fmtDate(e.start_date)} — {fmtDate(e.end_date)}</p>
+              </div>
+              <p style={{ fontSize: 11, margin: "2px 0 0" }}>{e.degree} — {e.discipline}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Skills */}
+      {Object.keys(groupedSkills).length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>Skills</h2>
+          {Object.entries(groupedSkills).map(([cat, names]) => (
+            <p key={cat} style={{ fontSize: 11, margin: "0 0 4px", lineHeight: 1.6 }}>
+              <strong>{cat}:</strong> {names.join(", ")}
+            </p>
+          ))}
+        </section>
+      )}
+
+      {/* Projects */}
+      {projects.length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 12px" }}>Projects</h2>
+          {projects.map((p, i) => (
+            <div key={i} style={{ marginBottom: 10 }}>
+              <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{p.title}</p>
+              <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.6 }}>{p.description}</p>
+              {p.urls?.length > 0 && (
+                <p style={{ fontSize: 10, color: gray, margin: "2px 0 0" }}>{p.urls.join(" · ")}</p>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+    </div>
+  );
+}
