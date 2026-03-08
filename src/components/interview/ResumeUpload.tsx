@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { FileText, X, Upload, Loader2 } from "lucide-react";
@@ -11,19 +10,15 @@ const ACCEPTED = [
 const ACCEPT_STRING = ".pdf,.docx";
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
-const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-const PARSE_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/parse-resume`;
-
 interface ResumeUploadProps {
   onComplete: (resumeText: string, fileName: string) => void;
   onSkip: () => void;
+  uploading?: boolean;
 }
 
-const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
-  const { session } = useAuth();
+const ResumeUpload = ({ onComplete, onSkip, uploading = false }: ResumeUploadProps) => {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
 
   const handleFile = useCallback(
     (f: File) => {
@@ -49,40 +44,21 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
     [handleFile]
   );
 
-  const handleUpload = async () => {
-    if (!file || !session) return;
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch(PARSE_FN_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(data.error || "Failed to parse resume");
-      }
-
-      toast({ title: "Resume processed!", description: "Analyzing your resume..." });
-      onComplete(data.text, file.name);
-    } catch (err) {
-      console.error("Resume upload error:", err);
-      toast({ title: "Upload failed", description: "Please try again.", variant: "destructive" });
-    } finally {
-      setUploading(false);
-    }
+  const handleUpload = () => {
+    if (!file) return;
+    onComplete(file.name, file.name);
   };
 
   return (
     <div className="flex items-start gap-3 ml-11">
       <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 max-w-sm w-full">
-        {file ? (
+        {uploading ? (
+          <div className="flex flex-col items-center gap-3 py-5">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm font-medium">Processing your resume...</p>
+            <p className="text-xs text-muted-foreground">This may take a moment</p>
+          </div>
+        ) : file ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
               <FileText className="h-8 w-8 text-primary shrink-0" />
@@ -94,27 +70,17 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
               </div>
               <button
                 onClick={() => setFile(null)}
-                disabled={uploading}
                 className="text-muted-foreground hover:text-destructive transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="flex gap-2 justify-center">
-              <Button size="sm" onClick={handleUpload} disabled={uploading}>
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-3 w-3 mr-1" />
-                    Upload & Analyze
-                  </>
-                )}
+              <Button size="sm" onClick={handleUpload}>
+                <Upload className="h-3 w-3 mr-1" />
+                Upload & Analyze
               </Button>
-              <Button size="sm" variant="ghost" onClick={onSkip} disabled={uploading}>
+              <Button size="sm" variant="ghost" onClick={onSkip}>
                 Skip
               </Button>
             </div>
