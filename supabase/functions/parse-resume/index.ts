@@ -151,7 +151,7 @@ Deno.serve(async (req: Request) => {
       if (extractedText.length < 50) {
         const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
         if (anthropicKey) {
-          const base64 = base64Encode(fileBytes);
+          const base64 = encodeBase64(fileBytes);
           const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: {
