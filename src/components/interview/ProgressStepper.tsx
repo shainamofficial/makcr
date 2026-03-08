@@ -18,7 +18,7 @@ const ProgressStepper = ({ currentTopic }: ProgressStepperProps) => {
   );
 
   return (
-    <div className="flex items-center gap-1 px-4 py-3 border-b border-border bg-background overflow-x-auto">
+    <div className="flex items-center justify-center gap-1 px-2 sm:px-4 py-2 sm:py-3 border-b border-border bg-background overflow-x-auto scrollbar-none">
       {steps.map((step, i) => {
         const isCompleted = currentIndex > i;
         const isActive = currentIndex === i;
