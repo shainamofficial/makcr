@@ -302,7 +302,7 @@ ${resumeText}`);
                   <DrawerTitle>Career Graph Summary</DrawerTitle>
                 </DrawerHeader>
                 <div className="overflow-y-auto px-4 pb-6">
-                  <CareerSidebar refreshKey={sidebarRefreshKey} />
+                  <CareerSidebar refreshKey={sidebarRefreshKey} inline />
                 </div>
               </DrawerContent>
             </Drawer>
