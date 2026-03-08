@@ -1,15 +1,18 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import ChatMessages from "@/components/interview/ChatMessages";
 import ChatInput from "@/components/interview/ChatInput";
 import CareerSidebar from "@/components/interview/CareerSidebar";
 import ProgressStepper from "@/components/interview/ProgressStepper";
+import PhotoUpload from "@/components/interview/PhotoUpload";
+import CompletionBanner from "@/components/interview/CompletionBanner";
 import {
   findActiveSession,
   loadMessages,
   createSession,
+  abandonSession,
   saveMessage,
   checkHasWorkExperience,
   getUserProfile,
@@ -30,6 +33,8 @@ const Interview = () => {
   const [currentTopic, setCurrentTopic] = useState<string | null>("work_experience");
   const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [isComplete, setIsComplete] = useState(false);
+  const [awaitingStaleChoice, setAwaitingStaleChoice] = useState(false);
 
   const userInitial =
     user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() ??
@@ -44,14 +49,41 @@ const Interview = () => {
       const existing = await findActiveSession(user.id);
 
       if (existing) {
+        const msgs = await loadMessages(existing.id);
+
+        // Check if session is stale (>30 days)
+        const daysSinceUpdate = differenceInDays(new Date(), new Date(existing.updated_at));
+        if (daysSinceUpdate > 30) {
+          setChatSession(existing);
+          setCurrentTopic(existing.current_topic ?? "work_experience");
+          setMessages(msgs);
+
+          // Append stale session prompt
+          const staleMsg = await saveMessage(
+            existing.id,
+            "assistant",
+            "It's been a while since we last spoke! Would you like to continue where we left off, or start fresh?"
+          );
+          setMessages((prev) => [...prev, staleMsg]);
+          setAwaitingStaleChoice(true);
+          setLoading(false);
+          return;
+        }
+
         setChatSession(existing);
         setCurrentTopic(existing.current_topic ?? "work_experience");
-        const msgs = await loadMessages(existing.id);
         setMessages(msgs);
+
+        // Check if already completed
+        if (existing.current_topic === "completed") {
+          setIsComplete(true);
+        }
+
         setLoading(false);
         return;
       }
 
+      // No active session — create new one
       const hasWork = await checkHasWorkExperience(user.id);
       const profile = await getUserProfile(user.id);
 
@@ -87,8 +119,47 @@ const Interview = () => {
     initSession();
   }, [initSession]);
 
+  const handleStartFresh = async () => {
+    if (!chatSession || !user) return;
+    setAwaitingStaleChoice(false);
+    setLoading(true);
+
+    try {
+      await abandonSession(chatSession.id);
+
+      const hasWork = await checkHasWorkExperience(user.id);
+      const sessionType = hasWork ? "update" : "initial_interview";
+      const firstMessage = hasWork
+        ? "Let's start fresh! What's the most recent update to your career?"
+        : "Let's start fresh! What company do you currently work at, or what was your most recent employer?";
+
+      const newSession = await createSession(user.id, sessionType);
+      const aiMsg = await saveMessage(newSession.id, "assistant", firstMessage);
+
+      setChatSession(newSession);
+      setMessages([aiMsg]);
+      setCurrentTopic("work_experience");
+    } catch (err) {
+      console.error("Failed to start fresh:", err);
+      toast({ title: "Error", description: "Failed to create new session.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSend = async (content: string) => {
     if (!chatSession || !authSession) return;
+
+    // Handle stale session choice
+    if (awaitingStaleChoice) {
+      const lower = content.toLowerCase();
+      if (lower.includes("fresh") || lower.includes("start over") || lower.includes("new")) {
+        await handleStartFresh();
+        return;
+      }
+      // "Continue" — just proceed normally
+      setAwaitingStaleChoice(false);
+    }
 
     // Optimistic user message
     const tempMsg: ChatMessage = {
@@ -103,13 +174,9 @@ const Interview = () => {
     setPendingMessage(null);
 
     try {
-      // Save user message to DB
       await saveMessage(chatSession.id, "user", content);
-
-      // Show typing
       setIsTyping(true);
 
-      // Call edge function
       const response = await fetch(CHAT_FN_URL, {
         method: "POST",
         headers: {
@@ -129,7 +196,6 @@ const Interview = () => {
         throw new Error(data.error || "Request failed");
       }
 
-      // Add AI message (already saved by edge function)
       const aiMsg: ChatMessage = {
         id: crypto.randomUUID(),
         chat_session_id: chatSession.id,
@@ -140,15 +206,15 @@ const Interview = () => {
       };
       setMessages((prev) => [...prev, aiMsg]);
 
-      // Update topic
       if (data.currentTopic) {
         setCurrentTopic(data.currentTopic);
+        if (data.currentTopic === "completed") {
+          setIsComplete(true);
+        }
       }
 
-      // Refresh sidebar if data was extracted
-      if (data.extractedData) {
-        setSidebarRefreshKey((k) => k + 1);
-      }
+      // Always refresh sidebar after AI response
+      setSidebarRefreshKey((k) => k + 1);
     } catch (err) {
       console.error("Chat error:", err);
       setPendingMessage(content);
@@ -162,6 +228,23 @@ const Interview = () => {
     }
   };
 
+  const handlePhotoUploaded = async (url: string) => {
+    if (!chatSession) return;
+    const msg = await saveMessage(
+      chatSession.id,
+      "user",
+      `[Uploaded profile photo: ${url}]`
+    );
+    setMessages((prev) => [...prev, msg]);
+
+    // Send a follow-up to the AI
+    handleSend("I've uploaded my profile photo.");
+  };
+
+  const handlePhotoSkipped = async () => {
+    handleSend("I'd like to skip the photo for now.");
+  };
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -170,20 +253,25 @@ const Interview = () => {
     );
   }
 
+  const showPhotoUpload = currentTopic === "profile_photo" && !isComplete;
+  const chatDisabled = isTyping || isComplete;
+
   return (
     <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100vh - 3.5rem)" }}>
-      {/* Chat panel */}
       <div className="flex flex-col flex-1 min-w-0">
         <ProgressStepper currentTopic={currentTopic} />
-        <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping} />
+        <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
+          {showPhotoUpload && (
+            <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
+          )}
+          {isComplete && <CompletionBanner />}
+        </ChatMessages>
         <ChatInput
           onSend={handleSend}
-          disabled={isTyping}
+          disabled={chatDisabled}
           defaultValue={pendingMessage ?? undefined}
         />
       </div>
-
-      {/* Desktop sidebar */}
       <CareerSidebar refreshKey={sidebarRefreshKey} />
     </div>
   );

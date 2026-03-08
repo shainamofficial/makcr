@@ -1,12 +1,13 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, ReactNode } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot, User } from "lucide-react";
+import { Bot } from "lucide-react";
 import type { ChatMessage } from "@/lib/chat-service";
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
   userInitial: string;
   isTyping: boolean;
+  children?: ReactNode; // For inline widgets (photo upload, completion banner)
 }
 
 const TypingIndicator = () => (
@@ -26,12 +27,12 @@ const TypingIndicator = () => (
   </div>
 );
 
-const ChatMessages = ({ messages, userInitial, isTyping }: ChatMessagesProps) => {
+const ChatMessages = ({ messages, userInitial, isTyping, children }: ChatMessagesProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [messages, isTyping, children]);
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
@@ -66,6 +67,7 @@ const ChatMessages = ({ messages, userInitial, isTyping }: ChatMessagesProps) =>
         );
       })}
       {isTyping && <TypingIndicator />}
+      {children}
       <div ref={bottomRef} />
     </div>
   );
