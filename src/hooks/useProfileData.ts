@@ -19,6 +19,7 @@ export function useProfileData() {
       if (error) throw error;
       return data;
     },
+    meta: { errorMessage: "Failed to load profile data. Please refresh." },
   });
 
   const workQuery = useQuery({
