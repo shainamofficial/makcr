@@ -323,7 +323,7 @@ ${resumeText}`);
           defaultValue={pendingMessage ?? undefined}
         />
       </div>
-      {!isMobile && <CareerSidebar refreshKey={sidebarRefreshKey} />
+      {!isMobile && <CareerSidebar refreshKey={sidebarRefreshKey} />}
     </div>
   );
 };
