@@ -139,6 +139,7 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
         <Textarea value={description} onChange={e => setDescription(e.target.value)} />
       </div>
       <Button onClick={handleSave} disabled={saving} className="w-full">
+        {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
         {saving ? "Saving..." : editing ? "Update" : "Add"}
       </Button>
     </div>
