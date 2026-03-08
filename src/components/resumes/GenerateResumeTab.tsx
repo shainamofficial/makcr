@@ -293,6 +293,7 @@ export default function GenerateResumeTab({ userId }: Props) {
       </div>
 
       <Button onClick={handleGenerate} disabled={generating || !jd.trim() || !selectedTemplate} className="w-full sm:w-auto" size="lg">
+        {generating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
         {generating ? "Starting..." : "Generate Resume"}
       </Button>
 

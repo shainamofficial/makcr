@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { format, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 import ChatMessages from "@/components/interview/ChatMessages";
 import ChatInput from "@/components/interview/ChatInput";
 import CareerSidebar from "@/components/interview/CareerSidebar";
@@ -248,7 +249,10 @@ const Interview = () => {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground">Loading your interview...</p>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading your interview...</p>
+        </div>
       </div>
     );
   }

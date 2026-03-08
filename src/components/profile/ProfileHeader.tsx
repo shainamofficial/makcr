@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { useUpdateProfile } from "@/hooks/useProfileData";
+import { toast } from "@/hooks/use-toast";
 
 interface Props {
   profile: {
@@ -30,7 +31,9 @@ export default function ProfileHeader({ profile }: Props) {
   const handleSave = () => {
     setEditing(false);
     if (summary !== (profile.profile_summary ?? "")) {
-      updateProfile.mutate({ profile_summary: summary || null });
+      updateProfile.mutate({ profile_summary: summary || null }, {
+        onSuccess: () => toast({ title: "Profile updated successfully" }),
+      });
     }
   };
 

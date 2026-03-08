@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AutocompleteInput from "./AutocompleteInput";
 import { searchCompanies } from "@/hooks/useProfileData";
@@ -98,7 +99,7 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Work experience updated" : "Work experience added" });
     qc.invalidateQueries({ queryKey: ["work_experience"] });
     setSaving(false);
     onOpenChange(false);
@@ -139,6 +140,7 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
         <Textarea value={description} onChange={e => setDescription(e.target.value)} />
       </div>
       <Button onClick={handleSave} disabled={saving} className="w-full">
+        {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
         {saving ? "Saving..." : editing ? "Update" : "Add"}
       </Button>
     </div>

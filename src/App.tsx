@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -12,8 +12,22 @@ import Profile from "./pages/Profile";
 import Resumes from "./pages/Resumes";
 import NotFound from "./pages/NotFound";
 import TemplatePreviewsAdmin from "./pages/TemplatePreviewsAdmin";
+import { toast } from "@/hooks/use-toast";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (_error, query) => {
+      const msg = (query.meta as any)?.errorMessage;
+      if (msg) toast({ title: msg, variant: "destructive" });
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (_error, _variables, _context, mutation) => {
+      const msg = (mutation.meta as any)?.errorMessage;
+      if (msg) toast({ title: msg, variant: "destructive" });
+    },
+  }),
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

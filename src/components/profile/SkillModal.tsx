@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AutocompleteInput from "./AutocompleteInput";
 import { searchSkills } from "@/hooks/useProfileData";
@@ -63,7 +64,7 @@ export default function SkillModal({ open, onOpenChange, editing, userId }: Prop
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Skill updated" : "Skill added" });
     qc.invalidateQueries({ queryKey: ["skills"] });
     setSaving(false);
     onOpenChange(false);
@@ -95,7 +96,7 @@ export default function SkillModal({ open, onOpenChange, editing, userId }: Prop
         <Label>Years of Experience</Label>
         <Input type="number" value={years} onChange={e => setYears(e.target.value)} placeholder="Optional" />
       </div>
-      <Button onClick={handleSave} disabled={saving} className="w-full">{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
+      <Button onClick={handleSave} disabled={saving} className="w-full">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
     </div>
   );
 

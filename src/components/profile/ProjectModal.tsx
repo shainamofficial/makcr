@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -62,7 +63,7 @@ export default function ProjectModal({ open, onOpenChange, editing, userId }: Pr
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Project updated" : "Project added" });
     qc.invalidateQueries({ queryKey: ["projects"] });
     setSaving(false);
     onOpenChange(false);
@@ -77,7 +78,7 @@ export default function ProjectModal({ open, onOpenChange, editing, userId }: Pr
         <div><Label>End Date</Label><Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />{dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}</div>
       </div>
       <div><Label>URLs (one per line)</Label><Textarea value={urls} onChange={e => setUrls(e.target.value)} placeholder="https://github.com/..." /></div>
-      <Button onClick={handleSave} disabled={saving} className="w-full">{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
+      <Button onClick={handleSave} disabled={saving} className="w-full">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
     </div>
   );
 
