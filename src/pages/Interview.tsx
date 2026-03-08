@@ -83,12 +83,8 @@ const Interview = () => {
           setIsComplete(true);
         }
 
-        // Show resume upload for initial interviews that haven't progressed past work_experience
-        if (
-          existing.session_type === "initial_interview" &&
-          (existing.current_topic === "work_experience" || !existing.current_topic) &&
-          existing.current_topic !== "completed"
-        ) {
+        // Show resume upload for any non-completed session
+        if (existing.current_topic !== "completed") {
           setShowResumeUpload(true);
         }
 
