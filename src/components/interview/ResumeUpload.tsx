@@ -123,31 +123,40 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
           <div
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            className="flex flex-col items-center gap-2 cursor-pointer py-4"
-            onClick={() => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.accept = ACCEPT_STRING;
-              input.onchange = (e) => {
-                const f = (e.target as HTMLInputElement).files?.[0];
-                if (f) handleFile(f);
-              };
-              input.click();
-            }}
+            className="flex flex-col items-center gap-3 py-5"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-              <FileText className="h-5 w-5 text-muted-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <FileText className="h-6 w-6 text-primary" />
             </div>
-            <p className="text-sm font-medium">Upload your resume to get started faster</p>
-            <p className="text-xs text-muted-foreground text-center">
-              Drop a PDF or DOCX here or <span className="text-primary underline">browse</span>
-            </p>
-            <p className="text-xs text-muted-foreground">Max 10 MB</p>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-semibold">Have a resume? Upload it!</p>
+              <p className="text-xs text-muted-foreground max-w-[260px]">
+                The AI will read your resume and ask follow-up questions to fill in the details.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className="mt-1"
+              onClick={() => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = ACCEPT_STRING;
+                input.onchange = (e) => {
+                  const f = (e.target as HTMLInputElement).files?.[0];
+                  if (f) handleFile(f);
+                };
+                input.click();
+              }}
+            >
+              <Upload className="h-3.5 w-3.5 mr-1.5" />
+              Upload Resume (PDF / DOCX)
+            </Button>
+            <p className="text-[11px] text-muted-foreground">Max 10 MB</p>
             <Button
               size="sm"
               variant="ghost"
               onClick={(e) => { e.stopPropagation(); onSkip(); }}
-              className="mt-1"
+              className="text-xs"
             >
               Skip — I'll answer questions instead
             </Button>
