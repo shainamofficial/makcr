@@ -1,14 +1,16 @@
+import { useState } from "react";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, FileText, Upload } from "lucide-react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import WorkExperienceSection from "@/components/profile/WorkExperienceSection";
 import EducationSection from "@/components/profile/EducationSection";
 import SkillsSection from "@/components/profile/SkillsSection";
 import ProjectsSection from "@/components/profile/ProjectsSection";
+import ResumeUpload from "@/components/interview/ResumeUpload";
 
 export default function Profile() {
   const { user } = useAuth();
