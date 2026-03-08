@@ -25,7 +25,11 @@ interface Project {
   title: string;
 }
 
-const CareerSidebar = () => {
+interface CareerSidebarProps {
+  refreshKey?: number;
+}
+
+const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
   const { user } = useAuth();
   const [workExps, setWorkExps] = useState<WorkExp[]>([]);
   const [educations, setEducations] = useState<Education[]>([]);
@@ -62,7 +66,7 @@ const CareerSidebar = () => {
       .eq("user_id", uid)
       .order("start_date", { ascending: false })
       .then(({ data }) => setProjects((data as unknown as Project[]) ?? []));
-  }, [user]);
+  }, [user, refreshKey]);
 
   const sections = [
     {
