@@ -92,7 +92,7 @@ export default function EducationModal({ open, onOpenChange, editing, userId }: 
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Education updated" : "Education added" });
     qc.invalidateQueries({ queryKey: ["education"] });
     setSaving(false);
     onOpenChange(false);
