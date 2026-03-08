@@ -8,6 +8,7 @@ import ChatInput from "@/components/interview/ChatInput";
 import CareerSidebar from "@/components/interview/CareerSidebar";
 import ProgressStepper from "@/components/interview/ProgressStepper";
 import PhotoUpload from "@/components/interview/PhotoUpload";
+import ResumeUpload from "@/components/interview/ResumeUpload";
 import CompletionBanner from "@/components/interview/CompletionBanner";
 import {
   findActiveSession,
