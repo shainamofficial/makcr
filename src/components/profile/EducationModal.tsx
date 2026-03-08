@@ -116,7 +116,7 @@ export default function EducationModal({ open, onOpenChange, editing, userId }: 
         <div><Label>Start Date</Label><Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></div>
         <div><Label>End Date</Label><Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />{dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}</div>
       </div>
-      <Button onClick={handleSave} disabled={saving} className="w-full">{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
+      <Button onClick={handleSave} disabled={saving} className="w-full">{saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}{saving ? "Saving..." : editing ? "Update" : "Add"}</Button>
     </div>
   );
 
