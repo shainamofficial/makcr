@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Send, Loader2, FileCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   sessionId: string;
@@ -114,7 +115,13 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
                   : "bg-primary text-primary-foreground ml-auto"
               )}
             >
-              {msg.content}
+              {msg.role === "assistant" ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              ) : (
+                msg.content
+              )}
             </div>
           ))}
           {loading && (

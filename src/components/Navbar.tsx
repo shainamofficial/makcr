@@ -11,6 +11,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Menu, LogOut, MessageSquare, User, FileText } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navLinks = [
   { to: "/interview", label: "AI Interview", icon: MessageSquare },
@@ -38,7 +39,6 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between px-4 md:px-6">
-        {/* Logo */}
         <Link
           to={session ? "/profile" : "/"}
           className="text-xl font-bold tracking-tight text-foreground hover:text-foreground/80 transition-colors"
@@ -48,7 +48,6 @@ const Navbar = () => {
 
         {session ? (
           <>
-            {/* Desktop nav links */}
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map(({ to, label }) => (
                 <Link
@@ -65,8 +64,8 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Desktop avatar dropdown */}
-            <div className="hidden md:flex items-center">
+            <div className="hidden md:flex items-center gap-1">
+              <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -92,8 +91,8 @@ const Navbar = () => {
               </DropdownMenu>
             </div>
 
-            {/* Mobile hamburger */}
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center gap-1">
+              <ThemeToggle />
               <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -103,7 +102,6 @@ const Navbar = () => {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-64 p-0">
                   <div className="flex flex-col h-full">
-                    {/* User info */}
                     <div className="flex items-center gap-3 border-b border-border p-4">
                       <Avatar className="h-10 w-10">
                         <AvatarFallback className="bg-primary text-primary-foreground">
@@ -118,7 +116,6 @@ const Navbar = () => {
                       </div>
                     </div>
 
-                    {/* Nav links */}
                     <div className="flex flex-col gap-1 p-2">
                       {navLinks.map(({ to, label, icon: Icon }) => (
                         <SheetClose asChild key={to}>
@@ -138,7 +135,6 @@ const Navbar = () => {
                       ))}
                     </div>
 
-                    {/* Bottom actions */}
                     <div className="mt-auto border-t border-border p-2">
                       <SheetClose asChild>
                         <button
@@ -156,8 +152,8 @@ const Navbar = () => {
             </div>
           </>
         ) : (
-          /* Logged out: Sign Up + Login */
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="ghost" onClick={signInWithGoogle} disabled={loading}>
               Login
             </Button>

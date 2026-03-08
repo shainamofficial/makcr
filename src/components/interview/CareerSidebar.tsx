@@ -27,9 +27,10 @@ interface Project {
 
 interface CareerSidebarProps {
   refreshKey?: number;
+  inline?: boolean;
 }
 
-const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
+const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
   const { user } = useAuth();
   const [workExps, setWorkExps] = useState<WorkExp[]>([]);
   const [educations, setEducations] = useState<Education[]>([]);
@@ -117,6 +118,45 @@ const CareerSidebar = ({ refreshKey }: CareerSidebarProps) => {
       ),
     },
   ];
+
+  if (inline) {
+    return (
+      <div className="space-y-2">
+        {sections.map((section) => {
+          const hasEntries = section.items.length > 0;
+          return (
+            <Collapsible key={section.title} defaultOpen>
+              <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-accent/50 transition-colors">
+                {hasEntries ? (
+                  <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: "hsl(142, 71%, 45%)" }} />
+                ) : (
+                  <section.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                )}
+                <span className="flex-1 text-left">
+                  {section.title}
+                  {hasEntries && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      ({section.items.length})
+                    </span>
+                  )}
+                </span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-2 pb-2">
+                {!hasEntries ? (
+                  <p className="text-xs text-muted-foreground pl-6 py-1">No entries yet</p>
+                ) : (
+                  <div className="space-y-2 pl-6 pt-1">
+                    {section.items.map((item, i) => section.render(item as any, i))}
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <aside className="hidden md:flex md:flex-col w-[30%] border-l border-border bg-muted/30 overflow-y-auto">
