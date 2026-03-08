@@ -94,7 +94,7 @@ Deno.serve(async (req: Request) => {
       }
 
       // Convert to base64 using Deno std library (safe for large files)
-      const base64 = base64Encode(fileBytes);
+      const base64 = encodeBase64(fileBytes);
 
       const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
