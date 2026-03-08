@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { useUpdateProfile } from "@/hooks/useProfileData";
+import { toast } from "@/hooks/use-toast";
 
 interface Props {
   profile: {

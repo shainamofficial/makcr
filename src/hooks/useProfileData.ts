@@ -34,6 +34,7 @@ export function useProfileData() {
       if (error) throw error;
       return data;
     },
+    meta: { errorMessage: "Failed to load work experience. Please refresh." },
   });
 
   const educationQuery = useQuery({
