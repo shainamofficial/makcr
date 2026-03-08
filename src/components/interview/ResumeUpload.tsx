@@ -10,10 +10,36 @@ const ACCEPTED = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 const ACCEPT_STRING = ".pdf,.docx";
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE = 10 * 1024 * 1024;
 
 const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
 const PARSE_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/parse-resume`;
+
+// Module-level state that survives component unmount/remount
+let activeUpload: {
+  fileName: string;
+  fileSize: number;
+  progress: number;
+  promise: Promise<{ text: string; fileName: string }> | null;
+  listeners: Set<(p: number) => void>;
+  interval: ReturnType<typeof setInterval> | null;
+} | null = null;
+
+function startProgressSimulation() {
+  if (!activeUpload) return;
+  activeUpload.interval = setInterval(() => {
+    if (!activeUpload) return;
+    if (activeUpload.progress >= 90) return;
+    const remaining = 90 - activeUpload.progress;
+    activeUpload.progress += remaining * 0.06;
+    activeUpload.listeners.forEach((fn) => fn(activeUpload!.progress));
+  }, 300);
+}
+
+function clearActiveUpload() {
+  if (activeUpload?.interval) clearInterval(activeUpload.interval);
+  activeUpload = null;
+}
 
 interface ResumeUploadProps {
   onComplete: (resumeText: string, fileName: string) => void;
@@ -24,29 +50,42 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
   const { session } = useAuth();
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [uploading, setUploading] = useState(!!activeUpload);
+  const [progress, setProgress] = useState(activeUpload?.progress ?? 0);
+  const [uploadFileName, setUploadFileName] = useState(activeUpload?.fileName ?? "");
+  const [uploadFileSize, setUploadFileSize] = useState(activeUpload?.fileSize ?? 0);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
-  // Simulate progress that slows down as it approaches 90%
+  // Subscribe to progress updates from the module-level upload
   useEffect(() => {
-    if (uploading) {
-      setProgress(5);
-      progressRef.current = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) return prev;
-          const remaining = 90 - prev;
-          return prev + remaining * 0.06;
-        });
-      }, 300);
-    } else {
-      if (progressRef.current) clearInterval(progressRef.current);
-      progressRef.current = null;
-    }
+    if (!activeUpload) return;
+    setUploading(true);
+    setProgress(activeUpload.progress);
+    setUploadFileName(activeUpload.fileName);
+    setUploadFileSize(activeUpload.fileSize);
+
+    const listener = (p: number) => setProgress(p);
+    activeUpload.listeners.add(listener);
+
+    // Also listen for completion
+    activeUpload.promise?.then((result) => {
+      setProgress(100);
+      setTimeout(() => {
+        clearActiveUpload();
+        setUploading(false);
+        onCompleteRef.current(result.text, result.fileName);
+      }, 400);
+    }).catch(() => {
+      clearActiveUpload();
+      setUploading(false);
+      setProgress(0);
+    });
+
     return () => {
-      if (progressRef.current) clearInterval(progressRef.current);
+      activeUpload?.listeners.delete(listener);
     };
-  }, [uploading]);
+  }, []);
 
   const handleFile = useCallback(
     (f: File) => {
@@ -75,34 +114,81 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
   const handleUpload = async () => {
     if (!file || !session) return;
     setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+    setUploadFileName(file.name);
+    setUploadFileSize(file.size);
 
-      const response = await fetch(PARSE_FN_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: formData,
-      });
+    const formData = new FormData();
+    formData.append("file", file);
 
+    const uploadPromise = fetch(PARSE_FN_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: formData,
+    }).then(async (response) => {
       const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(data.error || "Failed to parse resume");
-      }
+      if (!response.ok || data.error) throw new Error(data.error || "Failed to parse resume");
+      return { text: data.text, fileName: file.name };
+    });
 
+    // Store in module-level state so it persists across unmounts
+    activeUpload = {
+      fileName: file.name,
+      fileSize: file.size,
+      progress: 5,
+      promise: uploadPromise,
+      listeners: new Set(),
+      interval: null,
+    };
+
+    const listener = (p: number) => setProgress(p);
+    activeUpload.listeners.add(listener);
+    setProgress(5);
+    startProgressSimulation();
+
+    try {
+      const result = await uploadPromise;
       setProgress(100);
       toast({ title: "Resume processed!", description: "Analyzing your resume..." });
-      onComplete(data.text, file.name);
+      setTimeout(() => {
+        clearActiveUpload();
+        setUploading(false);
+        onComplete(result.text, result.fileName);
+      }, 400);
     } catch (err) {
       console.error("Resume upload error:", err);
       toast({ title: "Upload failed", description: "Please try again.", variant: "destructive" });
-    } finally {
+      clearActiveUpload();
       setUploading(false);
       setProgress(0);
     }
   };
+
+  // Show progress UI if uploading (either fresh or resumed from module state)
+  if (uploading) {
+    return (
+      <div className="flex items-start gap-3 ml-11">
+        <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 max-w-sm w-full">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <FileText className="h-8 w-8 text-primary shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{uploadFileName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(uploadFileSize / 1024 / 1024).toFixed(1)} MB
+                </p>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Progress value={progress} className="h-2" />
+              <p className="text-xs text-muted-foreground text-center">
+                Processing your resume… {Math.round(progress)}%
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-start gap-3 ml-11">
@@ -119,31 +205,20 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
               </div>
               <button
                 onClick={() => setFile(null)}
-                disabled={uploading}
                 className="text-muted-foreground hover:text-destructive transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            {uploading && (
-              <div className="space-y-1.5">
-                <Progress value={progress} className="h-2" />
-                <p className="text-xs text-muted-foreground text-center">
-                  Processing your resume… {Math.round(progress)}%
-                </p>
-              </div>
-            )}
-            {!uploading && (
-              <div className="flex gap-2 justify-center">
-                <Button size="sm" onClick={handleUpload}>
-                  <Upload className="h-3 w-3 mr-1" />
-                  Upload & Analyze
-                </Button>
-                <Button size="sm" variant="ghost" onClick={onSkip}>
-                  Skip
-                </Button>
-              </div>
-            )}
+            <div className="flex gap-2 justify-center">
+              <Button size="sm" onClick={handleUpload}>
+                <Upload className="h-3 w-3 mr-1" />
+                Upload & Analyze
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onSkip}>
+                Skip
+              </Button>
+            </div>
           </div>
         ) : (
           <div
