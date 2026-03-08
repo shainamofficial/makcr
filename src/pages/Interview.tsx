@@ -83,6 +83,15 @@ const Interview = () => {
           setIsComplete(true);
         }
 
+        // Show resume upload if session is early (work_experience topic, few messages)
+        if (
+          existing.session_type === "initial_interview" &&
+          (existing.current_topic === "work_experience" || !existing.current_topic) &&
+          msgs.length <= 3
+        ) {
+          setShowResumeUpload(true);
+        }
+
         setLoading(false);
         return;
       }
