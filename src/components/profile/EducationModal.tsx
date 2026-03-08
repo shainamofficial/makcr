@@ -50,12 +50,24 @@ export default function EducationModal({ open, onOpenChange, editing, userId }: 
   const searchDeg = useCallback(async (q: string) => (await searchDegrees(q)).map(d => ({ id: d.id, label: d.degree_name })), []);
   const searchDisc = useCallback(async (q: string) => (await searchDisciplines(q)).map(d => ({ id: d.id, label: d.discipline_name })), []);
 
-  const resolveOrCreate = async (table: string, nameCol: string, name: string, existingId: string | null, extra?: Record<string, string>) => {
+  const resolveOrCreate = async (table: "institution" | "degree" | "discipline", nameCol: string, name: string, existingId: string | null, extra?: Record<string, string>): Promise<string | null> => {
     if (existingId) return existingId;
-    const { data: found } = await supabase.from(table).select("id").ilike(nameCol, name).limit(1);
-    if (found?.length) return found[0].id;
-    const { data: created } = await supabase.from(table).insert({ [nameCol]: name, ...extra }).select("id").single();
-    return created?.id ?? null;
+    if (table === "institution") {
+      const { data: found } = await supabase.from("institution").select("id").ilike("institution_name", name).limit(1);
+      if (found?.length) return found[0].id;
+      const { data: created } = await supabase.from("institution").insert({ institution_name: name, institution_type: extra?.institution_type ?? "University" }).select("id").single();
+      return created?.id ?? null;
+    } else if (table === "degree") {
+      const { data: found } = await supabase.from("degree").select("id").ilike("degree_name", name).limit(1);
+      if (found?.length) return found[0].id;
+      const { data: created } = await supabase.from("degree").insert({ degree_name: name }).select("id").single();
+      return created?.id ?? null;
+    } else {
+      const { data: found } = await supabase.from("discipline").select("id").ilike("discipline_name", name).limit(1);
+      if (found?.length) return found[0].id;
+      const { data: created } = await supabase.from("discipline").insert({ discipline_name: name }).select("id").single();
+      return created?.id ?? null;
+    }
   };
 
   const handleSave = async () => {
