@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { encode as base64Encode } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -92,13 +93,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      // Convert to base64 for Claude's document support (chunk to avoid stack overflow)
-      let binary = "";
-      const chunkSize = 8192;
-      for (let i = 0; i < fileBytes.length; i += chunkSize) {
-        binary += String.fromCharCode(...fileBytes.subarray(i, i + chunkSize));
-      }
-      const base64 = btoa(binary);
+      // Convert to base64 using Deno std library (safe for large files)
+      const base64 = base64Encode(fileBytes);
 
       const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -155,12 +151,7 @@ Deno.serve(async (req: Request) => {
       if (extractedText.length < 50) {
         const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
         if (anthropicKey) {
-          let binary = "";
-          const chunkSize = 8192;
-          for (let i = 0; i < fileBytes.length; i += chunkSize) {
-            binary += String.fromCharCode(...fileBytes.subarray(i, i + chunkSize));
-          }
-          const base64 = btoa(binary);
+          const base64 = base64Encode(fileBytes);
           const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: {
