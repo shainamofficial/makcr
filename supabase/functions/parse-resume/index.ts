@@ -76,9 +76,12 @@ Deno.serve(async (req: Request) => {
 
     // Upload to storage for reference
     const fileName = `${userId}/${Date.now()}-${file.name}`;
-    await supabase.storage.from("resumes").upload(fileName, fileBytes, {
+    const { error: storageError } = await supabase.storage.from("resumes").upload(fileName, fileBytes, {
       contentType: file.type,
     });
+    if (storageError) {
+      console.warn("Storage upload failed (non-blocking):", storageError.message);
+    }
 
     // Extract text based on file type
     let extractedText = "";
