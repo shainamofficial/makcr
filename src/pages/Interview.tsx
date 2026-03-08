@@ -315,7 +315,7 @@ ${resumeText}`);
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
-          {isComplete && <CompletionBanner />
+          {isComplete && <CompletionBanner />}
         </ChatMessages>
         <ChatInput
           onSend={handleSend}
