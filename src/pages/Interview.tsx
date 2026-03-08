@@ -252,6 +252,44 @@ const Interview = () => {
     handleSend("I'd like to skip the photo for now.");
   };
 
+  const handleResumeUploaded = async (resumeText: string, fileName: string) => {
+    setShowResumeUpload(false);
+    handleSend(`[RESUME_UPLOAD] File: ${fileName}\n\n${resumeText}`);
+  };
+
+  const handleResumeSkipped = () => {
+    setShowResumeUpload(false);
+  };
+
+  const handleResumeFile = async (file: File) => {
+    if (!authSession) return;
+    setIsTyping(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(PARSE_FN_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authSession.access_token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to parse resume");
+      }
+
+      handleSend(`[RESUME_UPLOAD] File: ${file.name}\n\n${data.text}`);
+    } catch (err) {
+      console.error("Resume parse error:", err);
+      toast({ title: "Failed to process resume", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
