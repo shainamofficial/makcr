@@ -103,3 +103,43 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Print styles for resume templates */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .resume-page,
+  .resume-page * {
+    visibility: visible;
+  }
+
+  .resume-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Classic + Minimal: remove backgrounds for ink saving */
+  .classic-template,
+  .minimal-template {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Modern: preserve sidebar background */
+  .modern-template {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    size: letter;
+    margin: 0;
+  }
+}
