@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { FileText, X, Upload, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { FileText, X, Upload } from "lucide-react";
 
 const ACCEPTED = [
   "application/pdf",
@@ -24,6 +25,28 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Simulate progress that slows down as it approaches 90%
+  useEffect(() => {
+    if (uploading) {
+      setProgress(5);
+      progressRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return prev;
+          const remaining = 90 - prev;
+          return prev + remaining * 0.06;
+        });
+      }, 300);
+    } else {
+      if (progressRef.current) clearInterval(progressRef.current);
+      progressRef.current = null;
+    }
+    return () => {
+      if (progressRef.current) clearInterval(progressRef.current);
+    };
+  }, [uploading]);
 
   const handleFile = useCallback(
     (f: File) => {
@@ -69,6 +92,7 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
         throw new Error(data.error || "Failed to parse resume");
       }
 
+      setProgress(100);
       toast({ title: "Resume processed!", description: "Analyzing your resume..." });
       onComplete(data.text, file.name);
     } catch (err) {
@@ -76,6 +100,7 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
       toast({ title: "Upload failed", description: "Please try again.", variant: "destructive" });
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
@@ -100,24 +125,25 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex gap-2 justify-center">
-              <Button size="sm" onClick={handleUpload} disabled={uploading}>
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-3 w-3 mr-1" />
-                    Upload & Analyze
-                  </>
-                )}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={onSkip} disabled={uploading}>
-                Skip
-              </Button>
-            </div>
+            {uploading && (
+              <div className="space-y-1.5">
+                <Progress value={progress} className="h-2" />
+                <p className="text-xs text-muted-foreground text-center">
+                  Processing your resume… {Math.round(progress)}%
+                </p>
+              </div>
+            )}
+            {!uploading && (
+              <div className="flex gap-2 justify-center">
+                <Button size="sm" onClick={handleUpload}>
+                  <Upload className="h-3 w-3 mr-1" />
+                  Upload & Analyze
+                </Button>
+                <Button size="sm" variant="ghost" onClick={onSkip}>
+                  Skip
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div
