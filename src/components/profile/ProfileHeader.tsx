@@ -30,7 +30,9 @@ export default function ProfileHeader({ profile }: Props) {
   const handleSave = () => {
     setEditing(false);
     if (summary !== (profile.profile_summary ?? "")) {
-      updateProfile.mutate({ profile_summary: summary || null });
+      updateProfile.mutate({ profile_summary: summary || null }, {
+        onSuccess: () => toast({ title: "Profile updated successfully" }),
+      });
     }
   };
 
