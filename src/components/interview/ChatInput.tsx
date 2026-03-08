@@ -1,4 +1,4 @@
-import { useState, KeyboardEvent } from "react";
+import { useState, useEffect, KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
@@ -6,10 +6,17 @@ import { Send } from "lucide-react";
 interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
+  defaultValue?: string;
 }
 
-const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
-  const [value, setValue] = useState("");
+const ChatInput = ({ onSend, disabled, defaultValue }: ChatInputProps) => {
+  const [value, setValue] = useState(defaultValue ?? "");
+
+  useEffect(() => {
+    if (defaultValue !== undefined) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   const handleSend = () => {
     const trimmed = value.trim();
