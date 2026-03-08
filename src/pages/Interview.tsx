@@ -83,11 +83,11 @@ const Interview = () => {
           setIsComplete(true);
         }
 
-        // Show resume upload if session is early (work_experience topic, few messages)
+        // Show resume upload for initial interviews that haven't progressed past work_experience
         if (
           existing.session_type === "initial_interview" &&
           (existing.current_topic === "work_experience" || !existing.current_topic) &&
-          msgs.length <= 3
+          existing.current_topic !== "completed"
         ) {
           setShowResumeUpload(true);
         }
