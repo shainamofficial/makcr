@@ -35,7 +35,7 @@ const ChatMessages = ({ messages, userInitial, isTyping, children }: ChatMessage
   }, [messages, isTyping, children]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+    <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
       {messages.map((msg) => {
         const isUser = msg.role === "user";
         return (
@@ -55,7 +55,7 @@ const ChatMessages = ({ messages, userInitial, isTyping, children }: ChatMessage
               </AvatarFallback>
             </Avatar>
             <div
-              className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm leading-relaxed whitespace-pre-wrap ${
                 isUser
                   ? "rounded-tr-sm bg-primary text-primary-foreground"
                   : "rounded-tl-sm bg-muted text-foreground"

@@ -18,7 +18,7 @@ const ProgressStepper = ({ currentTopic }: ProgressStepperProps) => {
   );
 
   return (
-    <div className="flex items-center gap-1 px-4 py-3 border-b border-border bg-background overflow-x-auto">
+    <div className="flex items-center justify-center gap-1 px-2 sm:px-4 py-2 sm:py-3 border-b border-border bg-background overflow-x-auto scrollbar-none">
       {steps.map((step, i) => {
         const isCompleted = currentIndex > i;
         const isActive = currentIndex === i;
@@ -34,7 +34,7 @@ const ProgressStepper = ({ currentTopic }: ProgressStepperProps) => {
               />
             )}
             <div
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap min-h-[32px] ${
                 isCompleted
                   ? "bg-primary/10 text-primary"
                   : isActive

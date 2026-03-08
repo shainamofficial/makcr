@@ -82,15 +82,15 @@ const Index = () => {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10" />
-        <div className="relative container mx-auto px-4 md:px-6 py-24 md:py-36 lg:py-44 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground max-w-3xl mx-auto leading-tight">
+        <div className="relative container mx-auto px-4 md:px-6 py-16 md:py-36 lg:py-44 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground max-w-3xl mx-auto leading-tight">
             Your AI Career Partner
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 md:mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Makcr uses AI to interview you, build your structured career profile,
             and generate tailored resumes for any job — in minutes.
           </p>
-          <Button size="lg" className="mt-10 text-base px-8 py-6" onClick={handleCTA}>
+          <Button size="lg" className="mt-8 md:mt-10 text-base px-8 py-6 w-full sm:w-auto" onClick={handleCTA}>
             Get Started — It's Free
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
@@ -132,7 +132,7 @@ const Index = () => {
           <p className="mt-3 text-muted-foreground text-center max-w-xl mx-auto">
             We're building the AI-native career platform — one milestone at a time.
           </p>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {roadmap.map(({ version, title, badge, available, icon: Icon }) => (
               <Card
                 key={version}

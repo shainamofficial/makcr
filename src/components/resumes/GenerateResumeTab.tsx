@@ -269,7 +269,7 @@ export default function GenerateResumeTab({ userId }: Props) {
 
       <div>
         <Label className="text-base font-semibold">Choose a Template</Label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
           {templates?.map((t) => (
             <Card key={t.id} className={cn("cursor-pointer transition-all hover:shadow-md", selectedTemplate === t.id ? "ring-2 ring-primary" : "")} onClick={() => setSelectedTemplate(t.id)}>
               <CardContent className="p-4 flex flex-col items-center gap-2">

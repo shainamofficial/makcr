@@ -97,7 +97,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl h-[90vh] sm:h-[80vh] flex flex-col mx-2 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>Resume Gap Analysis</DialogTitle>
         </DialogHeader>

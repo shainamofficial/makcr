@@ -101,6 +101,13 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Ensure no horizontal overflow on mobile */
+  html {
+    overflow-x: hidden;
   }
 }
 

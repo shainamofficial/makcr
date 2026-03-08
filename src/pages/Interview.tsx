@@ -261,7 +261,7 @@ const Interview = () => {
   const chatDisabled = isTyping || isComplete;
 
   return (
-    <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100vh - 3.5rem)" }}>
+    <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100dvh - 3.5rem)" }}>
       <div className="flex flex-col flex-1 min-w-0">
         <ProgressStepper currentTopic={currentTopic} />
         <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
