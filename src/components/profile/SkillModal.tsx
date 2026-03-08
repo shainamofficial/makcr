@@ -63,7 +63,7 @@ export default function SkillModal({ open, onOpenChange, editing, userId }: Prop
       if (error) { setSaving(false); toast({ title: "Insert failed", variant: "destructive" }); return; }
     }
 
-    toast({ title: editing ? "Updated" : "Added" });
+    toast({ title: editing ? "Skill updated" : "Skill added" });
     qc.invalidateQueries({ queryKey: ["skills"] });
     setSaving(false);
     onOpenChange(false);
