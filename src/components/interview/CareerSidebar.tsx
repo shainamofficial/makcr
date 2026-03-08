@@ -41,32 +41,36 @@ const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
     if (!user) return;
     const uid = user.id;
 
-    supabase
+    Promise.resolve(supabase
       .from("work_experience")
       .select("title, company:company_id(name)")
       .eq("user_id", uid)
-      .order("start_date", { ascending: false })
-      .then(({ data }) => setWorkExps((data as unknown as WorkExp[]) ?? []));
+      .order("start_date", { ascending: false }))
+      .then(({ data }) => setWorkExps((data as unknown as WorkExp[]) ?? []))
+      .catch(console.error);
 
-    supabase
+    Promise.resolve(supabase
       .from("education")
       .select("institution:institution_id(institution_name), degree:degree_id(degree_name)")
       .eq("user_id", uid)
-      .order("start_date", { ascending: false })
-      .then(({ data }) => setEducations((data as unknown as Education[]) ?? []));
+      .order("start_date", { ascending: false }))
+      .then(({ data }) => setEducations((data as unknown as Education[]) ?? []))
+      .catch(console.error);
 
-    supabase
+    Promise.resolve(supabase
       .from("user_skill_mapping")
       .select("proficiency, skill:skill_id(skill_name)")
-      .eq("user_id", uid)
-      .then(({ data }) => setSkills((data as unknown as Skill[]) ?? []));
+      .eq("user_id", uid))
+      .then(({ data }) => setSkills((data as unknown as Skill[]) ?? []))
+      .catch(console.error);
 
-    supabase
+    Promise.resolve(supabase
       .from("project")
       .select("title")
       .eq("user_id", uid)
-      .order("start_date", { ascending: false })
-      .then(({ data }) => setProjects((data as unknown as Project[]) ?? []));
+      .order("start_date", { ascending: false }))
+      .then(({ data }) => setProjects((data as unknown as Project[]) ?? []))
+      .catch(console.error);
   }, [user, refreshKey]);
 
   const sections = [
