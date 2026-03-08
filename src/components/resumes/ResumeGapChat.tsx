@@ -115,7 +115,13 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
                   : "bg-primary text-primary-foreground ml-auto"
               )}
             >
-              {msg.content}
+              {msg.role === "assistant" ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              ) : (
+                msg.content
+              )}
             </div>
           ))}
           {loading && (
