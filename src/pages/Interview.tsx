@@ -2,7 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { format, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, BarChart3 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import ChatMessages from "@/components/interview/ChatMessages";
 import ChatInput from "@/components/interview/ChatInput";
 import CareerSidebar from "@/components/interview/CareerSidebar";
@@ -24,11 +33,11 @@ import {
 
 const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
 const CHAT_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/chat`;
-const PARSE_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/parse-resume`;
 
 const Interview = () => {
   const { user, session: authSession } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [chatSession, setChatSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -55,14 +64,12 @@ const Interview = () => {
       if (existing) {
         const msgs = await loadMessages(existing.id);
 
-        // Check if session is stale (>30 days)
         const daysSinceUpdate = differenceInDays(new Date(), new Date(existing.updated_at));
         if (daysSinceUpdate > 30) {
           setChatSession(existing);
           setCurrentTopic(existing.current_topic ?? "work_experience");
           setMessages(msgs);
 
-          // Append stale session prompt
           const staleMsg = await saveMessage(
             existing.id,
             "assistant",
@@ -78,12 +85,10 @@ const Interview = () => {
         setCurrentTopic(existing.current_topic ?? "work_experience");
         setMessages(msgs);
 
-        // Check if already completed
         if (existing.current_topic === "completed") {
           setIsComplete(true);
         }
 
-        // Show resume upload for any non-completed session
         if (existing.current_topic !== "completed") {
           setShowResumeUpload(true);
         }
@@ -92,7 +97,6 @@ const Interview = () => {
         return;
       }
 
-      // No active session — create new one
       const hasWork = await checkHasWorkExperience(user.id);
       const profile = await getUserProfile(user.id);
 
@@ -108,7 +112,9 @@ const Interview = () => {
         firstMessage = `Welcome back, ${name}! Your career profile was last updated on ${updatedDate}. Has anything changed since then — new role, new skills, new projects?`;
       } else {
         sessionType = "initial_interview";
-        firstMessage = `Welcome to Makcr! I'm here to help build your career profile. This will take about 10-15 minutes, and everything we capture will be used to generate perfectly tailored resumes for you.\n\nLet's start — what company do you currently work at, or what was your most recent employer?`;
+        firstMessage = `Welcome to Makcr! I'm here to help build your career profile. This will take about 10-15 minutes, and everything we capture will be used to generate perfectly tailored resumes for you.\\
+\\
+Let's start — what company do you currently work at, or what was your most recent employer?`;
       }
 
       const newSession = await createSession(user.id, sessionType);
@@ -162,18 +168,15 @@ const Interview = () => {
   const handleSend = async (content: string) => {
     if (!chatSession || !authSession) return;
 
-    // Handle stale session choice
     if (awaitingStaleChoice) {
       const lower = content.toLowerCase();
       if (lower.includes("fresh") || lower.includes("start over") || lower.includes("new")) {
         await handleStartFresh();
         return;
       }
-      // "Continue" — just proceed normally
       setAwaitingStaleChoice(false);
     }
 
-    // Optimistic user message
     const tempMsg: ChatMessage = {
       id: crypto.randomUUID(),
       chat_session_id: chatSession.id,
@@ -225,7 +228,6 @@ const Interview = () => {
         }
       }
 
-      // Always refresh sidebar after AI response
       setSidebarRefreshKey((k) => k + 1);
     } catch (err) {
       console.error("Chat error:", err);
@@ -248,8 +250,6 @@ const Interview = () => {
       `[Uploaded profile photo: ${url}]`
     );
     setMessages((prev) => [...prev, msg]);
-
-    // Send a follow-up to the AI
     handleSend("I've uploaded my profile photo.");
   };
 
@@ -259,40 +259,13 @@ const Interview = () => {
 
   const handleResumeUploaded = async (resumeText: string, fileName: string) => {
     setShowResumeUpload(false);
-    handleSend(`[RESUME_UPLOAD] File: ${fileName}\n\n${resumeText}`);
+    handleSend(`[RESUME_UPLOAD] File: ${fileName}\\\\
+\\\\
+${resumeText}`);
   };
 
   const handleResumeSkipped = () => {
     setShowResumeUpload(false);
-  };
-
-  const handleResumeFile = async (file: File) => {
-    if (!authSession) return;
-    setIsTyping(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch(PARSE_FN_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authSession.access_token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(data.error || "Failed to parse resume");
-      }
-
-      handleSend(`[RESUME_UPLOAD] File: ${file.name}\n\n${data.text}`);
-    } catch (err) {
-      console.error("Resume parse error:", err);
-      toast({ title: "Failed to process resume", description: "Please try again.", variant: "destructive" });
-    } finally {
-      setIsTyping(false);
-    }
   };
 
   if (loading) {
@@ -312,7 +285,29 @@ const Interview = () => {
   return (
     <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100dvh - 3.5rem)" }}>
       <div className="flex flex-col flex-1 min-w-0">
-        <ProgressStepper currentTopic={currentTopic} />
+        <div className="flex items-center">
+          <div className="flex-1">
+            <ProgressStepper currentTopic={currentTopic} />
+          </div>
+          {isMobile && (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="ghost" size="icon" className="mr-2 shrink-0">
+                  <BarChart3 className="h-5 w-5" />
+                  <span className="sr-only">Career summary</span>
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="max-h-[75vh]">
+                <DrawerHeader>
+                  <DrawerTitle>Career Graph Summary</DrawerTitle>
+                </DrawerHeader>
+                <div className="overflow-y-auto px-4 pb-6">
+                  <CareerSidebar refreshKey={sidebarRefreshKey} />
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
+        </div>
         <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
           {showResumeUpload && (
             <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} />
@@ -320,7 +315,7 @@ const Interview = () => {
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
-          {isComplete && <CompletionBanner />}
+          {isComplete && <CompletionBanner />
         </ChatMessages>
         <ChatInput
           onSend={handleSend}
@@ -328,7 +323,7 @@ const Interview = () => {
           defaultValue={pendingMessage ?? undefined}
         />
       </div>
-      <CareerSidebar refreshKey={sidebarRefreshKey} />
+      {!isMobile && <CareerSidebar refreshKey={sidebarRefreshKey} />
     </div>
   );
 };

@@ -1,13 +1,14 @@
 import { useRef, useEffect, ReactNode } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/lib/chat-service";
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
   userInitial: string;
   isTyping: boolean;
-  children?: ReactNode; // For inline widgets (photo upload, completion banner)
+  children?: ReactNode;
 }
 
 const TypingIndicator = () => (
@@ -55,13 +56,19 @@ const ChatMessages = ({ messages, userInitial, isTyping, children }: ChatMessage
               </AvatarFallback>
             </Avatar>
             <div
-              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm leading-relaxed ${
                 isUser
                   ? "rounded-tr-sm bg-primary text-primary-foreground"
                   : "rounded-tl-sm bg-muted text-foreground"
               }`}
             >
-              {msg.content}
+              {isUser ? (
+                <span className="whitespace-pre-wrap">{msg.content}</span>
+              ) : (
+                <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&>li]:my-0.5">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              )}
             </div>
           </div>
         );
