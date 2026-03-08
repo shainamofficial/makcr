@@ -8,6 +8,7 @@ import ChatInput from "@/components/interview/ChatInput";
 import CareerSidebar from "@/components/interview/CareerSidebar";
 import ProgressStepper from "@/components/interview/ProgressStepper";
 import PhotoUpload from "@/components/interview/PhotoUpload";
+import ResumeUpload from "@/components/interview/ResumeUpload";
 import CompletionBanner from "@/components/interview/CompletionBanner";
 import {
   findActiveSession,
@@ -23,6 +24,7 @@ import {
 
 const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
 const CHAT_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/chat`;
+const PARSE_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/parse-resume`;
 
 const Interview = () => {
   const { user, session: authSession } = useAuth();
@@ -36,6 +38,7 @@ const Interview = () => {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [awaitingStaleChoice, setAwaitingStaleChoice] = useState(false);
+  const [showResumeUpload, setShowResumeUpload] = useState(false);
 
   const userInitial =
     user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() ??
@@ -108,6 +111,9 @@ const Interview = () => {
 
       setChatSession(newSession);
       setMessages([aiMsg]);
+      if (sessionType === "initial_interview") {
+        setShowResumeUpload(true);
+      }
     } catch (err) {
       console.error("Failed to initialize interview session:", err);
       toast({ title: "Error", description: "Failed to load interview session.", variant: "destructive" });
@@ -246,6 +252,44 @@ const Interview = () => {
     handleSend("I'd like to skip the photo for now.");
   };
 
+  const handleResumeUploaded = async (resumeText: string, fileName: string) => {
+    setShowResumeUpload(false);
+    handleSend(`[RESUME_UPLOAD] File: ${fileName}\n\n${resumeText}`);
+  };
+
+  const handleResumeSkipped = () => {
+    setShowResumeUpload(false);
+  };
+
+  const handleResumeFile = async (file: File) => {
+    if (!authSession) return;
+    setIsTyping(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(PARSE_FN_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authSession.access_token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to parse resume");
+      }
+
+      handleSend(`[RESUME_UPLOAD] File: ${file.name}\n\n${data.text}`);
+    } catch (err) {
+      console.error("Resume parse error:", err);
+      toast({ title: "Failed to process resume", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -265,6 +309,9 @@ const Interview = () => {
       <div className="flex flex-col flex-1 min-w-0">
         <ProgressStepper currentTopic={currentTopic} />
         <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
+          {showResumeUpload && (
+            <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} />
+          )}
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
@@ -274,6 +321,7 @@ const Interview = () => {
           onSend={handleSend}
           disabled={chatDisabled}
           defaultValue={pendingMessage ?? undefined}
+          onResumeFile={!isComplete ? handleResumeFile : undefined}
         />
       </div>
       <CareerSidebar refreshKey={sidebarRefreshKey} />
