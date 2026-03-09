@@ -1,0 +1,99 @@
+import type { ResumeData } from "./types";
+
+function fmtDate(d: string | null) {
+  if (!d) return "Present";
+  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+export default function ManhattanTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
+  const dark = "#1A1A2E";
+  const accent = "#E94560";
+
+  const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
+    (acc[s.category] = acc[s.category] || []).push(s.name);
+    return acc;
+  }, {});
+
+  return (
+    <div className="resume-page manhattan-template" style={{ fontFamily: "'Segoe UI', sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", display: "flex" }}>
+      {/* Dark sidebar */}
+      <div style={{ width: "32%", background: dark, color: "#fff", padding: "0.6in 0.4in", flexShrink: 0 }}>
+        {includePhoto && profilePictureUrl && (
+          <div style={{ textAlign: "center", marginBottom: 20 }}>
+            <img src={profilePictureUrl} alt="" style={{ width: 90, height: 90, borderRadius: "50%", objectFit: "cover", border: `3px solid ${accent}` }} />
+          </div>
+        )}
+        <div style={{ marginBottom: 24 }}>
+          <h3 style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: accent, marginBottom: 8 }}>Contact</h3>
+          {user.email && <p style={{ fontSize: 10, margin: "0 0 4px", wordBreak: "break-all", opacity: 0.9 }}>{user.email}</p>}
+          {user.phone_number && <p style={{ fontSize: 10, margin: 0, opacity: 0.9 }}>{user.phone_number}</p>}
+        </div>
+
+        {Object.keys(groupedSkills).length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <h3 style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: accent, marginBottom: 8 }}>Skills</h3>
+            {Object.entries(groupedSkills).map(([cat, names]) => (
+              <div key={cat} style={{ marginBottom: 10 }}>
+                <p style={{ fontSize: 9, fontWeight: 600, marginBottom: 3, opacity: 0.7 }}>{cat}</p>
+                <p style={{ fontSize: 10, margin: 0, lineHeight: 1.6, opacity: 0.9 }}>{names.join(", ")}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {education.length > 0 && (
+          <div>
+            <h3 style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, color: accent, marginBottom: 8 }}>Education</h3>
+            {education.map((e, i) => (
+              <div key={i} style={{ marginBottom: 10 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, margin: 0 }}>{e.institution}</p>
+                <p style={{ fontSize: 9, margin: "2px 0 0", opacity: 0.8 }}>{e.degree} — {e.discipline}</p>
+                <p style={{ fontSize: 9, margin: "2px 0 0", opacity: 0.6 }}>{fmtDate(e.start_date)} — {fmtDate(e.end_date)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Main */}
+      <div style={{ width: "68%", padding: "0.6in 0.5in" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 4px" }}>{fullName}</h1>
+        {summary && <p style={{ fontSize: 11, lineHeight: 1.6, color: "#555", margin: "8px 0 20px" }}>{summary}</p>}
+
+        {workExperiences.length > 0 && (
+          <section style={{ marginBottom: 20 }}>
+            <h2 style={{ fontSize: 13, fontWeight: 700, color: accent, margin: "0 0 10px", borderBottom: `2px solid ${accent}`, paddingBottom: 4 }}>Experience</h2>
+            {workExperiences.map((w, i) => (
+              <div key={i} style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{w.title}</p>
+                  <p style={{ fontSize: 10, color: "#888", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
+                </div>
+                <p style={{ fontSize: 11, color: accent, margin: "2px 0 0", fontWeight: 600 }}>{w.company}</p>
+                {w.points.length > 0 && (
+                  <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
+                    {w.points.map((p, j) => <li key={j}>{p}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {projects.length > 0 && (
+          <section>
+            <h2 style={{ fontSize: 13, fontWeight: 700, color: accent, margin: "0 0 10px", borderBottom: `2px solid ${accent}`, paddingBottom: 4 }}>Projects</h2>
+            {projects.map((p, i) => (
+              <div key={i} style={{ marginBottom: 10 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{p.title}</p>
+                <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.5 }}>{p.description}</p>
+                {p.urls?.length > 0 && <p style={{ fontSize: 10, color: accent, margin: "2px 0 0" }}>{p.urls.join(" · ")}</p>}
+              </div>
+            ))}
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
