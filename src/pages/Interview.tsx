@@ -307,9 +307,6 @@ Let's start — what company do you currently work at, or what was your most rec
           )}
         </div>
         <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
-          {showResumeUpload && (
-            <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} />
-          )}
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
