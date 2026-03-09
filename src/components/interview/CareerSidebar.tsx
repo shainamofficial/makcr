@@ -169,6 +169,7 @@ const CareerSidebar = ({ refreshKey, inline, resumeUpload }: CareerSidebarProps)
       <div className="p-4 border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">Career Graph Summary</h2>
       </div>
+      {resumeUpload && <div className="p-3 border-b border-border">{resumeUpload}</div>}
       <div className="p-3 space-y-2">
         {sections.map((section) => {
           const hasEntries = section.items.length > 0;
