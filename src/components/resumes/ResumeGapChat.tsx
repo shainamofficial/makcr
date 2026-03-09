@@ -27,6 +27,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +40,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
         .eq("chat_session_id", sessionId)
         .order("created_at", { ascending: true });
       if (data) setMessages(data);
+      setInitialLoading(false);
     })();
   }, [sessionId]);
 
