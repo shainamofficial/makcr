@@ -18,6 +18,8 @@ import CareerSidebar from "@/components/interview/CareerSidebar";
 import ProgressStepper from "@/components/interview/ProgressStepper";
 import PhotoUpload from "@/components/interview/PhotoUpload";
 import ResumeUpload from "@/components/interview/ResumeUpload";
+import MultiQuestionForm from "@/components/interview/MultiQuestionForm";
+import type { StructuredQuestion } from "@/components/interview/MultiQuestionForm";
 import CompletionBanner from "@/components/interview/CompletionBanner";
 import {
   findActiveSession,
@@ -48,6 +50,7 @@ const Interview = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [awaitingStaleChoice, setAwaitingStaleChoice] = useState(false);
   const [showResumeUpload, setShowResumeUpload] = useState(false);
+  const [pendingQuestions, setPendingQuestions] = useState<StructuredQuestion[] | null>(null);
 
   const userInitial =
     user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() ??
@@ -228,6 +231,12 @@ Let's start — what company do you currently work at, or what was your most rec
         }
       }
 
+      setPendingQuestions(
+        data.questions && Array.isArray(data.questions) && data.questions.length > 0
+          ? data.questions
+          : null
+      );
+
       setSidebarRefreshKey((k) => k + 1);
     } catch (err) {
       console.error("Chat error:", err);
@@ -313,6 +322,16 @@ Let's start — what company do you currently work at, or what was your most rec
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
           {isComplete && <CompletionBanner />}
+          {pendingQuestions && !isComplete && !isTyping && (
+            <MultiQuestionForm
+              questions={pendingQuestions}
+              onSubmit={(answer) => {
+                setPendingQuestions(null);
+                handleSend(answer);
+              }}
+              disabled={chatDisabled}
+            />
+          )}
         </ChatMessages>
         <ChatInput
           onSend={handleSend}
