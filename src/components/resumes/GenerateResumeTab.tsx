@@ -86,6 +86,7 @@ export default function GenerateResumeTab({ userId }: Props) {
   const [chatOpen, setChatOpen] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
+  const [previewingTemplateName, setPreviewingTemplateName] = useState<string | null>(null);
 
   // Resume generation states
   const [generatingResume, setGeneratingResume] = useState(false);
