@@ -7,13 +7,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, FileText, Loader2 } from "lucide-react";
+import { AlertTriangle, Eye, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import ResumeGapChat from "./ResumeGapChat";
 import ResumePreviewModal from "./ResumePreviewModal";
 import { cn } from "@/lib/utils";
+import { getTemplateComponent } from "./templates";
 import type { ResumeData } from "./templates/types";
+
+const SAMPLE_RESUME_DATA: ResumeData = {
+  user: { first_name: "Jane", last_name: "Doe", email: "jane@example.com", phone_number: "+1 555-0123" },
+  summary: "Experienced software engineer with 5+ years building scalable web applications and leading cross-functional teams.",
+  workExperiences: [
+    { company: "Acme Corp", title: "Senior Engineer", start_date: "2021-01-01", end_date: null, points: ["Led migration to microservices architecture", "Mentored 4 junior developers"] },
+    { company: "Startup Inc", title: "Full Stack Developer", start_date: "2018-06-01", end_date: "2020-12-01", points: ["Built customer-facing dashboard from scratch", "Reduced API latency by 40%"] },
+  ],
+  education: [{ institution: "State University", degree: "B.S.", discipline: "Computer Science", start_date: "2014-09-01", end_date: "2018-05-01" }],
+  skills: [
+    { name: "React", category: "Frontend", proficiency: "Expert" },
+    { name: "TypeScript", category: "Frontend", proficiency: "Expert" },
+    { name: "Node.js", category: "Backend", proficiency: "Advanced" },
+    { name: "PostgreSQL", category: "Database", proficiency: "Advanced" },
+  ],
+  projects: [{ title: "Open Source CLI Tool", description: "A developer productivity tool with 500+ GitHub stars", urls: ["github.com/jane/cli-tool"] }],
+  profilePictureUrl: null,
+  includePhoto: false,
+};
 
 interface Props {
   userId: string;
@@ -66,6 +86,7 @@ export default function GenerateResumeTab({ userId }: Props) {
   const [chatOpen, setChatOpen] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
+  const [previewingTemplateName, setPreviewingTemplateName] = useState<string | null>(null);
 
   // Resume generation states
   const [generatingResume, setGeneratingResume] = useState(false);
@@ -266,19 +287,30 @@ export default function GenerateResumeTab({ userId }: Props) {
       <div>
         <Label className="text-base font-semibold">Choose a Template</Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
-          {templates?.map((t) => (
-            <Card key={t.id} className={cn("cursor-pointer transition-all hover:shadow-md", selectedTemplate === t.id ? "ring-2 ring-primary" : "")} onClick={() => setSelectedTemplate(t.id)}>
-              <CardContent className="p-4 flex flex-col items-center gap-2">
-                {t.preview_image_url ? (
-                  <img src={t.preview_image_url} alt={t.name} className="h-32 w-full object-cover rounded" />
-                ) : (
-                  <div className="h-32 w-full bg-muted rounded flex items-center justify-center"><FileText className="h-8 w-8 text-muted-foreground" /></div>
-                )}
-                <p className="text-sm font-medium text-center">{t.name}</p>
-                {t.description && <p className="text-xs text-muted-foreground text-center">{t.description}</p>}
-              </CardContent>
-            </Card>
-          ))}
+          {templates?.map((t) => {
+            const TemplateComp = getTemplateComponent(t.name);
+            return (
+              <Card key={t.id} className={cn("cursor-pointer transition-all hover:shadow-md relative group", selectedTemplate === t.id ? "ring-2 ring-primary" : "")} onClick={() => setSelectedTemplate(t.id)}>
+                <CardContent className="p-4 flex flex-col items-center gap-2">
+                  <div className="relative w-full h-40 rounded overflow-hidden bg-white border">
+                    <div style={{ transform: "scale(0.12)", transformOrigin: "top left", width: "8.5in", minHeight: "11in", pointerEvents: "none" }}>
+                      <TemplateComp {...SAMPLE_RESUME_DATA} />
+                    </div>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    onClick={(e) => { e.stopPropagation(); setPreviewingTemplateName(t.name); }}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <p className="text-sm font-medium text-center">{t.name}</p>
+                  {t.description && <p className="text-xs text-muted-foreground text-center">{t.description}</p>}
+                </CardContent>
+              </Card>
+            );
+          })}
           {(!templates || templates.length === 0) && <p className="text-sm text-muted-foreground col-span-full">No templates available yet.</p>}
         </div>
       </div>
@@ -302,6 +334,14 @@ export default function GenerateResumeTab({ userId }: Props) {
           templateName={previewTemplateName}
           data={previewData}
           onClose={() => setPreviewOpen(false)}
+        />
+      )}
+
+      {previewingTemplateName && (
+        <ResumePreviewModal
+          templateName={previewingTemplateName}
+          data={SAMPLE_RESUME_DATA}
+          onClose={() => setPreviewingTemplateName(null)}
         />
       )}
     </div>
