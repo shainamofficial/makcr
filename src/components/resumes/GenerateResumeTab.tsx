@@ -287,19 +287,30 @@ export default function GenerateResumeTab({ userId }: Props) {
       <div>
         <Label className="text-base font-semibold">Choose a Template</Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
-          {templates?.map((t) => (
-            <Card key={t.id} className={cn("cursor-pointer transition-all hover:shadow-md", selectedTemplate === t.id ? "ring-2 ring-primary" : "")} onClick={() => setSelectedTemplate(t.id)}>
-              <CardContent className="p-4 flex flex-col items-center gap-2">
-                {t.preview_image_url ? (
-                  <img src={t.preview_image_url} alt={t.name} className="h-32 w-full object-cover rounded" />
-                ) : (
-                  <div className="h-32 w-full bg-muted rounded flex items-center justify-center"><FileText className="h-8 w-8 text-muted-foreground" /></div>
-                )}
-                <p className="text-sm font-medium text-center">{t.name}</p>
-                {t.description && <p className="text-xs text-muted-foreground text-center">{t.description}</p>}
-              </CardContent>
-            </Card>
-          ))}
+          {templates?.map((t) => {
+            const TemplateComp = getTemplateComponent(t.name);
+            return (
+              <Card key={t.id} className={cn("cursor-pointer transition-all hover:shadow-md relative group", selectedTemplate === t.id ? "ring-2 ring-primary" : "")} onClick={() => setSelectedTemplate(t.id)}>
+                <CardContent className="p-4 flex flex-col items-center gap-2">
+                  <div className="relative w-full h-40 rounded overflow-hidden bg-white border">
+                    <div style={{ transform: "scale(0.12)", transformOrigin: "top left", width: "8.5in", minHeight: "11in", pointerEvents: "none" }}>
+                      <TemplateComp {...SAMPLE_RESUME_DATA} />
+                    </div>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    onClick={(e) => { e.stopPropagation(); setPreviewingTemplateName(t.name); }}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <p className="text-sm font-medium text-center">{t.name}</p>
+                  {t.description && <p className="text-xs text-muted-foreground text-center">{t.description}</p>}
+                </CardContent>
+              </Card>
+            );
+          })}
           {(!templates || templates.length === 0) && <p className="text-sm text-muted-foreground col-span-full">No templates available yet.</p>}
         </div>
       </div>
