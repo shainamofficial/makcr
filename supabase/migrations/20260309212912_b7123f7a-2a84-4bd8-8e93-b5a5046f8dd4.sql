@@ -1,0 +1,18 @@
+INSERT INTO resume_template (name, description, is_active) VALUES
+('Executive', 'Dark navy header band with gold accents and serif font. Ideal for senior and executive roles.', true),
+('Professional', 'Clean two-column layout with blue accent bar. Polished and versatile for any industry.', true),
+('Creative', 'Coral/orange accents with playful dividers and rounded skill badges. Great for design and marketing roles.', true),
+('Elegant', 'Thin borders with muted gold/tan accents and generous whitespace. Refined and sophisticated.', true),
+('Bold', 'Large bold headings with black accent blocks and high contrast. Makes a strong first impression.', true),
+('Tech', 'Monospace code-style header with green terminal accent. Perfect for software and engineering roles.', true),
+('Academic', 'Traditional academic CV style with education-first layout. Ideal for research and academic positions.', true),
+('Compact', 'Dense single-column layout with smaller fonts. Fits maximum content on one page.', true),
+('Two-Column', 'Equal two-column split with experience on left and skills/education on right.', true),
+('Timeline', 'Vertical timeline with dot markers for each entry. Visually highlights career progression.', true),
+('Infographic', 'Visual skill bars and colored section icons. Data-driven and eye-catching.', true),
+('Corporate', 'Conservative gray/navy with structured grid. No-frills professional design.', true),
+('Starter', 'Entry-level focused with education-first layout highlighting projects and skills.', true),
+('Nordic', 'Scandinavian-inspired with generous whitespace and light blue accents. Clean and modern.', true),
+('Manhattan', 'Sophisticated dark sidebar with white main area and strong typography.', true),
+('Diamond', 'Diamond-shaped skill indicators with teal accent and geometric section borders.', true),
+('Ribbon', 'Colored ribbon banners for section headers with warm earth tones. Classic yet distinctive.', true);
