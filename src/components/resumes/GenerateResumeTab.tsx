@@ -7,13 +7,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, FileText, Loader2 } from "lucide-react";
+import { AlertTriangle, Eye, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import ResumeGapChat from "./ResumeGapChat";
 import ResumePreviewModal from "./ResumePreviewModal";
 import { cn } from "@/lib/utils";
+import { getTemplateComponent } from "./templates";
 import type { ResumeData } from "./templates/types";
+
+const SAMPLE_RESUME_DATA: ResumeData = {
+  user: { first_name: "Jane", last_name: "Doe", email: "jane@example.com", phone_number: "+1 555-0123" },
+  summary: "Experienced software engineer with 5+ years building scalable web applications and leading cross-functional teams.",
+  workExperiences: [
+    { company: "Acme Corp", title: "Senior Engineer", start_date: "2021-01-01", end_date: null, points: ["Led migration to microservices architecture", "Mentored 4 junior developers"] },
+    { company: "Startup Inc", title: "Full Stack Developer", start_date: "2018-06-01", end_date: "2020-12-01", points: ["Built customer-facing dashboard from scratch", "Reduced API latency by 40%"] },
+  ],
+  education: [{ institution: "State University", degree: "B.S.", discipline: "Computer Science", start_date: "2014-09-01", end_date: "2018-05-01" }],
+  skills: [
+    { name: "React", category: "Frontend", proficiency: "Expert" },
+    { name: "TypeScript", category: "Frontend", proficiency: "Expert" },
+    { name: "Node.js", category: "Backend", proficiency: "Advanced" },
+    { name: "PostgreSQL", category: "Database", proficiency: "Advanced" },
+  ],
+  projects: [{ title: "Open Source CLI Tool", description: "A developer productivity tool with 500+ GitHub stars", urls: ["github.com/jane/cli-tool"] }],
+  profilePictureUrl: null,
+  includePhoto: false,
+};
 
 interface Props {
   userId: string;
