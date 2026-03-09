@@ -31,7 +31,7 @@ interface CareerSidebarProps {
   resumeUpload?: ReactNode;
 }
 
-const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
+const CareerSidebar = ({ refreshKey, inline, resumeUpload }: CareerSidebarProps) => {
   const { user } = useAuth();
   const [workExps, setWorkExps] = useState<WorkExp[]>([]);
   const [educations, setEducations] = useState<Education[]>([]);
