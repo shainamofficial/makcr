@@ -300,7 +300,9 @@ Let's start — what company do you currently work at, or what was your most rec
                   <DrawerTitle>Career Graph Summary</DrawerTitle>
                 </DrawerHeader>
                 <div className="overflow-y-auto px-4 pb-6">
-                  <CareerSidebar refreshKey={sidebarRefreshKey} inline />
+                  <CareerSidebar refreshKey={sidebarRefreshKey} inline
+                    resumeUpload={showResumeUpload ? <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} /> : undefined}
+                  />
                 </div>
               </DrawerContent>
             </Drawer>
