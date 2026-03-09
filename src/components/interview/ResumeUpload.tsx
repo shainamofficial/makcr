@@ -172,7 +172,7 @@ const ResumeUpload = ({ onComplete, onSkip }: ResumeUploadProps) => {
   if (uploading) {
     return (
       <div className="flex items-start gap-3 ml-11">
-        <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 max-w-sm w-full">
+      <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 w-full">
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
               <FileText className="h-8 w-8 text-primary shrink-0" />
