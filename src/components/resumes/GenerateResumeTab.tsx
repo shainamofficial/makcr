@@ -336,6 +336,14 @@ export default function GenerateResumeTab({ userId }: Props) {
           onClose={() => setPreviewOpen(false)}
         />
       )}
+
+      {previewingTemplateName && (
+        <ResumePreviewModal
+          templateName={previewingTemplateName}
+          data={SAMPLE_RESUME_DATA}
+          onClose={() => setPreviewingTemplateName(null)}
+        />
+      )}
     </div>
   );
 }
