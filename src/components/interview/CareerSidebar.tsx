@@ -28,6 +28,7 @@ interface Project {
 interface CareerSidebarProps {
   refreshKey?: number;
   inline?: boolean;
+  resumeUpload?: ReactNode;
 }
 
 const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
