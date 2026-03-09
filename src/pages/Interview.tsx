@@ -322,6 +322,16 @@ Let's start — what company do you currently work at, or what was your most rec
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
           {isComplete && <CompletionBanner />}
+          {pendingQuestions && !isComplete && !isTyping && (
+            <MultiQuestionForm
+              questions={pendingQuestions}
+              onSubmit={(answer) => {
+                setPendingQuestions(null);
+                handleSend(answer);
+              }}
+              disabled={chatDisabled}
+            />
+          )}
         </ChatMessages>
         <ChatInput
           onSend={handleSend}
