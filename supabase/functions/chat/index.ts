@@ -397,8 +397,23 @@ You MUST respond with valid JSON in this exact format:
   "user_message": "Your conversational response to the user",
   "extracted_data": null | [array of extraction objects],
   "pending_confirmations": null | [{"type": "string", "message": "string", "options": ["option1", "option2"]}],
-  "current_topic": "work_experience" | "work_experience_points" | "education" | "extra_curriculars" | "positions_of_responsibility" | "projects" | "skills" | "profile_photo" | "completed"
+  "current_topic": "work_experience" | "work_experience_points" | "education" | "extra_curriculars" | "positions_of_responsibility" | "projects" | "skills" | "profile_photo" | "completed",
+  "questions": null | [array of question objects]
 }
+
+STRUCTURED QUESTIONS:
+When your message asks the user for multiple pieces of information at once (e.g. job title, start date, end date), you SHOULD return a "questions" array so the UI can render individual input fields. Each question object has:
+- "id": a short snake_case identifier (e.g. "job_title", "start_date")
+- "label": human-readable label (e.g. "Job title", "Start date")
+- "type": one of "text", "date", "select", "textarea"
+- "options": (only for type "select") array of string options, e.g. ["Yes", "No"]
+- "placeholder": (optional) placeholder text for the input
+
+Examples:
+- Asking about a new role: questions = [{"id":"company","label":"Company name","type":"text"},{"id":"title","label":"Job title","type":"text"},{"id":"start_date","label":"Start date","type":"date"},{"id":"end_date","label":"End date (leave blank if current)","type":"date"}]
+- Asking about education: questions = [{"id":"institution","label":"Institution name","type":"text"},{"id":"degree","label":"Degree","type":"text"},{"id":"discipline","label":"Field of study","type":"text"}]
+- Single yes/no question: questions = [{"id":"has_more","label":"Do you have more roles to add?","type":"select","options":["Yes","No"]}]
+If you are asking only a single simple conversational question, set questions to null and let the user type freely.
 
 CRITICAL: For extracted_data, each object must have "table", "action" ("create" or "update"), and "data" with these EXACT field structures:
 - table "work_experience": data = { "company_name": string, "title": string, "start_date": "YYYY-MM-DD" | null, "end_date": "YYYY-MM-DD" | null, "description": string | null }
