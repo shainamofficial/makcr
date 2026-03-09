@@ -173,10 +173,16 @@ export default function GenerateResumeTab({ userId }: Props) {
 
       setChatSessionId(chatSession.id);
       setResumeId(resume.id);
-      setChatOpen(true);
 
-      // Message persistence is handled by the chat edge function — no direct insert needed
+      // Save the initial user message to DB
+      const jdMessage = `Here is the job description I want to tailor my resume for:\n\n${jd}`;
+      await supabase.from("chat_message").insert({
+        chat_session_id: chatSession.id,
+        role: "user",
+        content: jdMessage,
+      });
 
+      // Call edge function and wait for response before opening chat
       const response = await fetch(
         `https://tnosyowzngwbwgmxtioh.supabase.co/functions/v1/chat`,
         {
@@ -186,7 +192,7 @@ export default function GenerateResumeTab({ userId }: Props) {
             Authorization: `Bearer ${authSession?.access_token}`,
           },
           body: JSON.stringify({
-            message: `Here is the job description I want to tailor my resume for:\n\n${jd}`,
+            message: jdMessage,
             sessionId: chatSession.id,
             userId,
           }),
@@ -194,6 +200,9 @@ export default function GenerateResumeTab({ userId }: Props) {
       );
 
       if (!response.ok) throw new Error("Failed to start gap analysis");
+
+      // Now open chat — both user message and AI response are in DB
+      setChatOpen(true);
     } catch (err) {
       console.error(err);
       toast({ title: "Failed to start resume generation", variant: "destructive" });

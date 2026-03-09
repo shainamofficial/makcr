@@ -359,7 +359,9 @@ Deno.serve(async (req: Request) => {
       projects: projects ?? [],
     });
 
-    const systemPrompt = `You are Makcr's AI career interviewer. Your job is to build a comprehensive career graph for the user through conversational questions.
+    const isResumeGeneration = currentSession?.session_type === "resume_generation";
+
+    const interviewSystemPrompt = `You are Makcr's AI career interviewer. Your job is to build a comprehensive career graph for the user through conversational questions.
 
 RULES:
 1. Ask ONE question at a time.
@@ -425,13 +427,46 @@ CRITICAL: For extracted_data, each object must have "table", "action" ("create" 
 
 IMPORTANT: Use ONLY the table names and field names listed above. Do NOT use "company", "institution", "skill", "skills", or any other table name. Use "work_experience" not "company" for work entries. Use "user_skill_mapping" not "skills" for skill entries.
 
-Dates must be in "YYYY-MM-DD" format or null. For dates where only month/year is known, use the 1st of the month (e.g., "2023-06-01").
+Dates must be in "YYYY-MM-DD" format or null. For dates where only month/year is known, use the 1st of the month (e.g., "2023-06-01").`;
+
+    const resumeGapSystemPrompt = `You are Makcr's AI resume gap analyst. The user wants to generate a tailored resume for a specific job description. Your job is to compare their career graph against the job requirements and identify gaps.
+
+RULES:
+1. Analyze the job description the user provides against their existing career graph.
+2. Identify 2-5 key gaps: missing skills, unexplained experience, weak quantification, etc.
+3. Ask ONE targeted question at a time to fill each gap.
+4. Keep the conversation focused and efficient — max 3-5 questions total.
+5. Do NOT re-interview the user about things already in their career graph.
+6. When all gaps are addressed (or the user wants to proceed), set current_topic to "resume_ready".
+
+CONVERSATION FLOW:
+1. First message: Summarize what you found in their career graph that matches the JD, and identify the top gaps.
+2. Ask targeted questions to fill each gap (skills they haven't mentioned, achievements they could quantify better, etc.).
+3. Once gaps are filled, set current_topic to "resume_ready" and tell the user they can generate their resume.
+
+You MUST respond with valid JSON in this exact format:
+{
+  "user_message": "Your conversational response to the user",
+  "extracted_data": null | [array of extraction objects],
+  "pending_confirmations": null,
+  "current_topic": "gap_analysis" | "resume_ready",
+  "questions": null | [array of question objects]
+}
+
+For extracted_data, use the same format as the career interview:
+- table "work_experience_points": data = { "work_experience_title": string, "company_name": string, "details": string, "impact": string | null }
+- table "user_skill_mapping": data = { "skill_name": string, "category": string, "proficiency": string, "years_of_experience": number | null }
+- table "project": data = { "title": string, "description": string | null, "project_urls": null, "start_date": null, "end_date": null }
+
+Dates must be in "YYYY-MM-DD" format or null.`;
+
+    const systemPrompt = `${isResumeGeneration ? resumeGapSystemPrompt : interviewSystemPrompt}
 
 CURRENT USER'S CAREER GRAPH:
 ${careerGraphContext}
 
 CURRENT SESSION TYPE: ${currentSession?.session_type ?? "initial_interview"}
-CURRENT TOPIC: ${currentSession?.current_topic ?? "work_experience"}`;
+CURRENT TOPIC: ${currentSession?.current_topic ?? (isResumeGeneration ? "gap_analysis" : "work_experience")}`;
 
     // Build Claude messages — truncate resume uploads to avoid context bloat
     const claudeMessages = [
