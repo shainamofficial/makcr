@@ -127,6 +127,7 @@ const CareerSidebar = ({ refreshKey, inline, resumeUpload }: CareerSidebarProps)
   if (inline) {
     return (
       <div className="space-y-2">
+        {resumeUpload && <div className="mb-3">{resumeUpload}</div>}
         {sections.map((section) => {
           const hasEntries = section.items.length > 0;
           return (
