@@ -320,7 +320,11 @@ Let's start — what company do you currently work at, or what was your most rec
           defaultValue={pendingMessage ?? undefined}
         />
       </div>
-      {!isMobile && <CareerSidebar refreshKey={sidebarRefreshKey} />}
+      {!isMobile && (
+        <CareerSidebar refreshKey={sidebarRefreshKey}
+          resumeUpload={showResumeUpload ? <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} /> : undefined}
+        />
+      )}
     </div>
   );
 };
