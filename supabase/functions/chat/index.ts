@@ -498,6 +498,7 @@ CURRENT TOPIC: ${currentSession?.current_topic ?? "work_experience"}`;
         extracted_data: null,
         pending_confirmations: null,
         current_topic: currentSession?.current_topic ?? "work_experience",
+        questions: null,
       };
     }
 
