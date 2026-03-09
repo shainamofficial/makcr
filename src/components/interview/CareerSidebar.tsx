@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -28,9 +28,10 @@ interface Project {
 interface CareerSidebarProps {
   refreshKey?: number;
   inline?: boolean;
+  resumeUpload?: ReactNode;
 }
 
-const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
+const CareerSidebar = ({ refreshKey, inline, resumeUpload }: CareerSidebarProps) => {
   const { user } = useAuth();
   const [workExps, setWorkExps] = useState<WorkExp[]>([]);
   const [educations, setEducations] = useState<Education[]>([]);
@@ -126,6 +127,7 @@ const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
   if (inline) {
     return (
       <div className="space-y-2">
+        {resumeUpload && <div className="mb-3">{resumeUpload}</div>}
         {sections.map((section) => {
           const hasEntries = section.items.length > 0;
           return (
@@ -167,6 +169,7 @@ const CareerSidebar = ({ refreshKey, inline }: CareerSidebarProps) => {
       <div className="p-4 border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">Career Graph Summary</h2>
       </div>
+      {resumeUpload && <div className="p-3 border-b border-border">{resumeUpload}</div>}
       <div className="p-3 space-y-2">
         {sections.map((section) => {
           const hasEntries = section.items.length > 0;

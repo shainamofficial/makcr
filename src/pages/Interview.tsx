@@ -300,16 +300,15 @@ Let's start — what company do you currently work at, or what was your most rec
                   <DrawerTitle>Career Graph Summary</DrawerTitle>
                 </DrawerHeader>
                 <div className="overflow-y-auto px-4 pb-6">
-                  <CareerSidebar refreshKey={sidebarRefreshKey} inline />
+                  <CareerSidebar refreshKey={sidebarRefreshKey} inline
+                    resumeUpload={showResumeUpload ? <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} /> : undefined}
+                  />
                 </div>
               </DrawerContent>
             </Drawer>
           )}
         </div>
         <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
-          {showResumeUpload && (
-            <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} />
-          )}
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
@@ -321,7 +320,11 @@ Let's start — what company do you currently work at, or what was your most rec
           defaultValue={pendingMessage ?? undefined}
         />
       </div>
-      {!isMobile && <CareerSidebar refreshKey={sidebarRefreshKey} />}
+      {!isMobile && (
+        <CareerSidebar refreshKey={sidebarRefreshKey}
+          resumeUpload={showResumeUpload ? <ResumeUpload onComplete={handleResumeUploaded} onSkip={handleResumeSkipped} /> : undefined}
+        />
+      )}
     </div>
   );
 };
