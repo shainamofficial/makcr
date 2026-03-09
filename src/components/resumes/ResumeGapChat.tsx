@@ -27,6 +27,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +40,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
         .eq("chat_session_id", sessionId)
         .order("created_at", { ascending: true });
       if (data) setMessages(data);
+      setInitialLoading(false);
     })();
   }, [sessionId]);
 
@@ -105,30 +107,39 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-3 py-2">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                "max-w-[80%] rounded-lg px-4 py-2 text-sm",
-                msg.role === "assistant"
-                  ? "bg-muted text-foreground mr-auto"
-                  : "bg-primary text-primary-foreground ml-auto"
-              )}
-            >
-              {msg.role === "assistant" ? (
-                <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1">
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+          {initialLoading ? (
+            <div className="flex items-center justify-center gap-2 text-muted-foreground py-8">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="text-sm">Loading conversation...</span>
+            </div>
+          ) : (
+            <>
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={cn(
+                    "max-w-[80%] rounded-lg px-4 py-2 text-sm",
+                    msg.role === "assistant"
+                      ? "bg-muted text-foreground mr-auto"
+                      : "bg-primary text-primary-foreground ml-auto"
+                  )}
+                >
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
-              ) : (
-                msg.content
+              ))}
+              {loading && (
+                <div className="flex items-center gap-2 text-muted-foreground mr-auto">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">Analyzing...</span>
+                </div>
               )}
-            </div>
-          ))}
-          {loading && (
-            <div className="flex items-center gap-2 text-muted-foreground mr-auto">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm">Analyzing...</span>
-            </div>
+            </>
           )}
           <div ref={bottomRef} />
         </div>
