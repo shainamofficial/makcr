@@ -486,6 +486,7 @@ CURRENT TOPIC: ${currentSession?.current_topic ?? "work_experience"}`;
       extracted_data: Array<{ table: string; action: string; data: Record<string, any> }> | null;
       pending_confirmations: unknown[] | null;
       current_topic: string;
+      questions: Array<{ id: string; label: string; type: string; options?: string[]; placeholder?: string }> | null;
     };
 
     try {
