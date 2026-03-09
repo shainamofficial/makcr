@@ -231,6 +231,12 @@ Let's start — what company do you currently work at, or what was your most rec
         }
       }
 
+      setPendingQuestions(
+        data.questions && Array.isArray(data.questions) && data.questions.length > 0
+          ? data.questions
+          : null
+      );
+
       setSidebarRefreshKey((k) => k + 1);
     } catch (err) {
       console.error("Chat error:", err);
