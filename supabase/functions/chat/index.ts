@@ -532,6 +532,7 @@ CURRENT TOPIC: ${currentSession?.current_topic ?? "work_experience"}`;
         currentTopic: parsed.current_topic,
         extractedData: parsed.extracted_data,
         pendingConfirmations: parsed.pending_confirmations,
+        questions: parsed.questions ?? null,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
