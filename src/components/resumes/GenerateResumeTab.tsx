@@ -234,7 +234,13 @@ export default function GenerateResumeTab({ userId }: Props) {
       const data = await response.json();
       if (data.error) throw new Error(data.error);
 
-      const picUrl = (userProfile as any)?.profile_picture?.link_to_storage ?? null;
+      // Resolve signed URL for profile picture (bucket is private)
+      let picUrl: string | null = null;
+      const storagePath = (userProfile as any)?.profile_picture?.link_to_storage;
+      if (storagePath) {
+        const { getProfilePicSignedUrl } = await import("@/hooks/useProfileData");
+        picUrl = await getProfilePicSignedUrl(storagePath);
+      }
       const transformed = transformResumeContent(data.resumeContent, userProfile, includePhoto, picUrl);
 
       setPreviewData(transformed);

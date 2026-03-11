@@ -187,8 +187,22 @@ Respond with ONLY valid JSON (no markdown, no code fences):
         email: userProfile?.email,
         phone_number: userProfile?.phone_number,
       },
-      profilePictureUrl: profilePic?.[0]?.link_to_storage ?? null,
+      // Generate signed URL for profile picture (bucket is private)
+      profilePictureUrl: null as string | null,
     };
+
+    if (profilePic?.[0]?.link_to_storage) {
+      const picPath = profilePic[0].link_to_storage;
+      // If it's a storage path (not a full URL), create a signed URL
+      if (!picPath.startsWith("http")) {
+        const { data: signedData } = await supabaseAdmin.storage
+          .from("profile-pictures")
+          .createSignedUrl(picPath, 3600);
+        storedContent.profilePictureUrl = signedData?.signedUrl ?? null;
+      } else {
+        storedContent.profilePictureUrl = picPath;
+      }
+    }
 
     // Store resume JSON in Supabase Storage using admin client (no RLS)
     const storagePath = `${userId}/${resumeId}.json`;

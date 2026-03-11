@@ -3,6 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
+/** Resolve a profile picture storage path to a signed URL */
+export async function getProfilePicSignedUrl(storagePath: string): Promise<string | null> {
+  // If it's already a full URL (legacy data), return as-is
+  if (storagePath.startsWith("http")) return storagePath;
+  const { data } = await supabase.storage
+    .from("profile-pictures")
+    .createSignedUrl(storagePath, 3600);
+  return data?.signedUrl ?? null;
+}
+
 export function useProfileData() {
   const { user } = useAuth();
   const uid = user?.id;
@@ -17,6 +27,15 @@ export function useProfileData() {
         .eq("id", uid!)
         .single();
       if (error) throw error;
+
+      // Resolve signed URL for profile picture
+      if (data?.profile_picture?.link_to_storage) {
+        const signedUrl = await getProfilePicSignedUrl(data.profile_picture.link_to_storage);
+        if (signedUrl) {
+          (data as any).profile_picture.link_to_storage = signedUrl;
+        }
+      }
+
       return data;
     },
     meta: { errorMessage: "Failed to load profile data. Please refresh." },
