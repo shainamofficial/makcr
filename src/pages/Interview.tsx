@@ -73,11 +73,15 @@ const Interview = () => {
           setCurrentTopic(existing.current_topic ?? "work_experience");
           setMessages(msgs);
 
-          const staleMsg = await saveMessage(
-            existing.id,
-            "assistant",
-            "It's been a while since we last spoke! Would you like to continue where we left off, or start fresh?"
-          );
+          // Show stale message locally only (not persisted — RLS blocks client assistant inserts)
+          const staleMsg: ChatMessage = {
+            id: crypto.randomUUID(),
+            chat_session_id: existing.id,
+            role: "assistant",
+            content: "It's been a while since we last spoke! Would you like to continue where we left off, or start fresh?",
+            created_at: new Date().toISOString(),
+            structured_data_extracted: null,
+          };
           setMessages((prev) => [...prev, staleMsg]);
           setAwaitingStaleChoice(true);
           setLoading(false);
