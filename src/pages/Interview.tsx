@@ -246,7 +246,10 @@ Let's start — what company do you currently work at, or what was your most rec
         role: "assistant",
         content: data.message,
         created_at: new Date().toISOString(),
-        structured_data_extracted: data.extractedData ?? null,
+        structured_data_extracted: {
+          extractedData: data.extractedData ?? null,
+          questions: data.questions ?? null,
+        },
       };
       setMessages((prev) => [...prev, aiMsg]);
 

@@ -41,7 +41,15 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
         .select("id, role, content")
         .eq("chat_session_id", sessionId)
         .order("created_at", { ascending: true });
-      if (data) setMessages(data);
+      if (data) {
+        setMessages(data);
+        // Restore pending questions from last assistant message
+        const lastAssistant = [...data].reverse().find((m: Message) => m.role === "assistant");
+        const stored = lastAssistant?.structured_data_extracted as any;
+        if (stored?.questions && Array.isArray(stored.questions) && stored.questions.length > 0) {
+          setPendingQuestions(stored.questions);
+        }
+      }
       setInitialLoading(false);
     })();
   }, [sessionId]);
