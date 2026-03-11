@@ -114,11 +114,8 @@ export async function uploadProfilePicture(
 
   if (uploadError) throw uploadError;
 
-  const { data: urlData } = supabase.storage
-    .from("profile-pictures")
-    .getPublicUrl(filePath);
-
-  const publicUrl = urlData.publicUrl;
+  // Store only the path (bucket is now private)
+  const storagePath = filePath;
 
   // Create profile_picture record
   const { data: picRecord, error: picError } = await supabase
