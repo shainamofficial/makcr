@@ -125,10 +125,18 @@ Let's start — what company do you currently work at, or what was your most rec
       }
 
       const newSession = await createSession(user.id, sessionType);
-      const aiMsg = await saveMessage(newSession.id, "assistant", firstMessage);
+      // Display first message locally (not persisted client-side)
+      const aiMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        chat_session_id: newSession.id,
+        role: "assistant",
+        content: firstMessage,
+        created_at: new Date().toISOString(),
+        structured_data_extracted: null,
+      };
 
-      setChatSession(newSession);
-      setMessages([aiMsg]);
+      // Send first message through edge function so it's saved server-side
+      handleSendInitial(newSession, firstMessage);
       if (sessionType === "initial_interview") {
         setShowResumeUpload(true);
       }
