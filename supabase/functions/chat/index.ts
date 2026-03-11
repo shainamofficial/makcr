@@ -357,6 +357,14 @@ Deno.serve(async (req: Request) => {
         .single(),
     ]);
 
+    // Guard: ensure the session belongs to the authenticated user (RLS returns null otherwise)
+    if (!currentSession) {
+      return new Response(JSON.stringify({ error: "Session not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const careerGraphContext = JSON.stringify({
       profile: userProfile,
       work_experience: workExps ?? [],
