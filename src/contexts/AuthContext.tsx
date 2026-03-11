@@ -21,24 +21,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (_event, session) => {
         setSession(session);
         setLoading(false);
+
+        // If this is a popup OAuth callback, notify the opener and close
+        if (session && window.opener) {
+          window.opener.postMessage({ type: "oauth-complete" }, window.location.origin);
+        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+
+      if (session && window.opener) {
+        window.opener.postMessage({ type: "oauth-complete" }, window.location.origin);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/profile`,
-      },
-    });
+    const isIframe = window.self !== window.top;
+
+    if (isIframe) {
+      // Use popup flow to bypass iframe cookie restrictions
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/profile`,
+          skipBrowserRedirect: true,
+        },
+      });
+
+      if (error || !data?.url) return;
+
+      const popup = window.open(data.url, "oauth", "width=500,height=600");
+      if (!popup) {
+        alert("Please allow popups for this site to sign in, then try again.");
+        return;
+      }
+
+      const messageHandler = (event: MessageEvent) => {
+        if (event.origin === window.location.origin && event.data?.type === "oauth-complete") {
+          popup?.close();
+          window.removeEventListener("message", messageHandler);
+          window.location.reload();
+        }
+      };
+      window.addEventListener("message", messageHandler);
+    } else {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/profile`,
+        },
+      });
+    }
   };
 
   const signOut = async () => {
