@@ -225,7 +225,7 @@ Respond with ONLY valid JSON (no markdown, no code fences):
       JSON.stringify({
         title: resumeTitle,
         resumeContent: storedContent,
-        downloadUrl,
+        storagePath,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
