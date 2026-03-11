@@ -357,6 +357,14 @@ Deno.serve(async (req: Request) => {
         .single(),
     ]);
 
+    // Guard: ensure the session belongs to the authenticated user (RLS returns null otherwise)
+    if (!currentSession) {
+      return new Response(JSON.stringify({ error: "Session not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const careerGraphContext = JSON.stringify({
       profile: userProfile,
       work_experience: workExps ?? [],
@@ -365,7 +373,7 @@ Deno.serve(async (req: Request) => {
       projects: projects ?? [],
     });
 
-    const isResumeGeneration = currentSession?.session_type === "resume_generation";
+    const isResumeGeneration = currentSession.session_type === "resume_generation";
 
     const interviewSystemPrompt = `You are Makcr's AI career interviewer. Your job is to build a comprehensive career graph for the user through conversational questions.
 
