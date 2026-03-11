@@ -403,8 +403,20 @@ You MUST respond with valid JSON in this exact format:
   "questions": null | [array of question objects]
 }
 
-STRUCTURED QUESTIONS:
-When your message asks the user for multiple pieces of information at once (e.g. job title, start date, end date), you SHOULD return a "questions" array so the UI can render individual input fields. Each question object has:
+STRUCTURED QUESTIONS — CRITICAL RULE:
+NEVER ask for multiple pieces of information in "user_message" without providing a corresponding "questions" array. If your message asks for more than one piece of information (e.g. company name AND job title, or start date AND end date), you MUST include a "questions" array so the UI renders individual input fields.
+
+You MUST return a "questions" array when:
+- Asking about a new work experience (company, title, dates)
+- Asking about education details (institution, degree, field)
+- Asking about a project (title, description, dates)
+- Asking about a skill (name, proficiency, years)
+- Asking any yes/no or multiple-choice question
+- Asking for ANY two or more data points in a single message
+
+You should set questions to null ONLY when asking a single open-ended conversational question that requires a free-text paragraph response (e.g. "Tell me about your key achievements at Google" or "Describe your role").
+
+Each question object has:
 - "id": a short snake_case identifier (e.g. "job_title", "start_date")
 - "label": human-readable label (e.g. "Job title", "Start date")
 - "type": one of "text", "date", "select", "textarea"
@@ -415,7 +427,7 @@ Examples:
 - Asking about a new role: questions = [{"id":"company","label":"Company name","type":"text"},{"id":"title","label":"Job title","type":"text"},{"id":"start_date","label":"Start date","type":"date"},{"id":"end_date","label":"End date (leave blank if current)","type":"date"}]
 - Asking about education: questions = [{"id":"institution","label":"Institution name","type":"text"},{"id":"degree","label":"Degree","type":"text"},{"id":"discipline","label":"Field of study","type":"text"}]
 - Single yes/no question: questions = [{"id":"has_more","label":"Do you have more roles to add?","type":"select","options":["Yes","No"]}]
-If you are asking only a single simple conversational question, set questions to null and let the user type freely.
+- Asking about achievements: questions = [{"id":"achievement","label":"Describe your key achievement","type":"textarea","placeholder":"e.g. Led a team of 5 to deliver..."},{"id":"impact","label":"What was the measurable impact?","type":"text","placeholder":"e.g. Increased revenue by 20%"}]
 
 CRITICAL: For extracted_data, each object must have "table", "action" ("create" or "update"), and "data" with these EXACT field structures:
 - table "work_experience": data = { "company_name": string, "title": string, "start_date": "YYYY-MM-DD" | null, "end_date": "YYYY-MM-DD" | null, "description": string | null }
