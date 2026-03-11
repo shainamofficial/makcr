@@ -294,6 +294,12 @@ Deno.serve(async (req: Request) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    // Service role client for assistant message inserts (bypasses RLS role='user' restriction)
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     const { data: { user }, error: userError } = await supabase.auth.getUser(
       authHeader.replace("Bearer ", "")
     );
