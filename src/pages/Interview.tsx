@@ -67,6 +67,13 @@ const Interview = () => {
       if (existing) {
         const msgs = await loadMessages(existing.id);
 
+        // Restore pending questions from last assistant message
+        const lastAssistant = [...msgs].reverse().find(m => m.role === "assistant");
+        const restoredQuestions = (lastAssistant?.structured_data_extracted as any)?.questions;
+        if (restoredQuestions && Array.isArray(restoredQuestions) && restoredQuestions.length > 0) {
+          setPendingQuestions(restoredQuestions);
+        }
+
         const daysSinceUpdate = differenceInDays(new Date(), new Date(existing.updated_at));
         if (daysSinceUpdate > 30) {
           setChatSession(existing);
