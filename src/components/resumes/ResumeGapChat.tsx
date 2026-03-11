@@ -39,7 +39,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
     (async () => {
       const { data } = await supabase
         .from("chat_message")
-        .select("id, role, content")
+        .select("id, role, content, structured_data_extracted")
         .eq("chat_session_id", sessionId)
         .order("created_at", { ascending: true });
       if (data) {
