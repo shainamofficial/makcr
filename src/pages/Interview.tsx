@@ -125,7 +125,7 @@ Let's start — what company do you currently work at, or what was your most rec
       }
 
       const newSession = await createSession(user.id, sessionType);
-      // Display first message locally (not persisted client-side)
+      // Display first message locally only (not persisted — welcome messages are ephemeral)
       const aiMsg: ChatMessage = {
         id: crypto.randomUUID(),
         chat_session_id: newSession.id,
@@ -135,8 +135,8 @@ Let's start — what company do you currently work at, or what was your most rec
         structured_data_extracted: null,
       };
 
-      // Send first message through edge function so it's saved server-side
-      handleSendInitial(newSession, firstMessage);
+      setChatSession(newSession);
+      setMessages([aiMsg]);
       if (sessionType === "initial_interview") {
         setShowResumeUpload(true);
       }
