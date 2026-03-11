@@ -465,6 +465,11 @@ You MUST respond with valid JSON in this exact format:
   "questions": null | [array of question objects]
 }
 
+STRUCTURED QUESTIONS — CRITICAL RULE:
+NEVER ask for multiple pieces of information in "user_message" without providing a corresponding "questions" array. If your message asks for more than one piece of information, you MUST include a "questions" array.
+Each question object has: "id" (snake_case), "label" (human-readable), "type" ("text"|"date"|"select"|"textarea"), optional "options" (for select), optional "placeholder".
+Set questions to null ONLY when asking a single open-ended conversational question requiring a free-text paragraph response.
+
 For extracted_data, use the same format as the career interview:
 - table "work_experience_points": data = { "work_experience_title": string, "company_name": string, "details": string, "impact": string | null }
 - table "user_skill_mapping": data = { "skill_name": string, "category": string, "proficiency": string, "years_of_experience": number | null }

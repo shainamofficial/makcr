@@ -8,6 +8,7 @@ import { Send, Loader2, FileCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
+import MultiQuestionForm, { type StructuredQuestion } from "@/components/interview/MultiQuestionForm";
 
 interface Props {
   sessionId: string;
@@ -29,6 +30,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
+  const [pendingQuestions, setPendingQuestions] = useState<StructuredQuestion[] | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Load existing messages
@@ -46,12 +48,12 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, pendingQuestions]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-    const content = input.trim();
+  const sendMessage = async (content: string) => {
+    if (!content.trim() || loading) return;
     setInput("");
+    setPendingQuestions(null);
 
     // Optimistic update
     const tempId = `temp-${Date.now()}`;
@@ -87,6 +89,11 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
         { id: `ai-${Date.now()}`, role: "assistant", content: data.message },
       ]);
 
+      // Handle structured questions
+      if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+        setPendingQuestions(data.questions as StructuredQuestion[]);
+      }
+
       // If the AI says gap analysis is done
       if (data.currentTopic === "completed" || data.currentTopic === "resume_ready") {
         setIsComplete(true);
@@ -96,6 +103,10 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInputSend = () => {
+    sendMessage(input.trim());
   };
 
   return (
@@ -139,6 +150,13 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
                   <span className="text-sm">Analyzing...</span>
                 </div>
               )}
+              {pendingQuestions && !loading && !isComplete && (
+                <MultiQuestionForm
+                  questions={pendingQuestions}
+                  onSubmit={(formatted) => sendMessage(formatted)}
+                  disabled={loading}
+                />
+              )}
             </>
           )}
           <div ref={bottomRef} />
@@ -151,20 +169,20 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
               <FileCheck className="h-4 w-4" />
               Generate Resume Now
             </Button>
-          ) : (
+          ) : !pendingQuestions ? (
             <>
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a message..."
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleInputSend()}
                 disabled={loading}
               />
-              <Button onClick={sendMessage} disabled={loading || !input.trim()} size="icon">
+              <Button onClick={handleInputSend} disabled={loading || !input.trim()} size="icon">
                 <Send className="h-4 w-4" />
               </Button>
             </>
-          )}
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>
