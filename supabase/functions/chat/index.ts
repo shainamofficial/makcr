@@ -373,7 +373,7 @@ Deno.serve(async (req: Request) => {
       projects: projects ?? [],
     });
 
-    const isResumeGeneration = currentSession?.session_type === "resume_generation";
+    const isResumeGeneration = currentSession.session_type === "resume_generation";
 
     const interviewSystemPrompt = `You are Makcr's AI career interviewer. Your job is to build a comprehensive career graph for the user through conversational questions.
 
