@@ -167,7 +167,14 @@ Let's start — what company do you currently work at, or what was your most rec
         : "Let's start fresh! What company do you currently work at, or what was your most recent employer?";
 
       const newSession = await createSession(user.id, sessionType);
-      const aiMsg = await saveMessage(newSession.id, "assistant", firstMessage);
+      const aiMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        chat_session_id: newSession.id,
+        role: "assistant",
+        content: firstMessage,
+        created_at: new Date().toISOString(),
+        structured_data_extracted: null,
+      };
 
       setChatSession(newSession);
       setMessages([aiMsg]);
