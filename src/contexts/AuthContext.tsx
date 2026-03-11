@@ -43,15 +43,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const isIframe = window.self !== window.top;
+    const redirectTo = `${window.location.origin}/profile`;
 
     if (isIframe) {
-      // Use popup flow to bypass iframe cookie restrictions
+      // Popup flow for iframe (Lovable preview editor)
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/profile`,
-          skipBrowserRedirect: true,
-        },
+        options: { redirectTo, skipBrowserRedirect: true },
       });
 
       if (error || !data?.url) return;
@@ -62,21 +60,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
+      // Listen for postMessage from popup
       const messageHandler = (event: MessageEvent) => {
         if (event.origin === window.location.origin && event.data?.type === "oauth-complete") {
-          popup?.close();
-          window.removeEventListener("message", messageHandler);
+          cleanup();
           window.location.reload();
         }
       };
       window.addEventListener("message", messageHandler);
+
+      // Polling fallback: check session periodically in case postMessage fails
+      const pollInterval = setInterval(async () => {
+        const { data: { session: s } } = await supabase.auth.getSession();
+        if (s) {
+          cleanup();
+          window.location.reload();
+        }
+      }, 1500);
+
+      // Timeout after 2 minutes
+      const timeout = setTimeout(() => cleanup(), 120_000);
+
+      function cleanup() {
+        clearInterval(pollInterval);
+        clearTimeout(timeout);
+        window.removeEventListener("message", messageHandler);
+        popup?.close();
+      }
     } else {
-      await supabase.auth.signInWithOAuth({
+      // Published / standard domain — use skipBrowserRedirect + manual redirect
+      // to avoid auth-bridge interference on lovable.app
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/profile`,
-        },
+        options: { redirectTo, skipBrowserRedirect: true },
       });
+
+      if (!error && data?.url) {
+        window.location.href = data.url;
+      }
     }
   };
 
