@@ -13,7 +13,6 @@ import Interview from "./pages/Interview";
 import Profile from "./pages/Profile";
 import Resumes from "./pages/Resumes";
 import NotFound from "./pages/NotFound";
-import TemplatePreviewsAdmin from "./pages/TemplatePreviewsAdmin";
 import { toast } from "@/hooks/use-toast";
 
 const queryClient = new QueryClient({
@@ -46,7 +45,7 @@ const App = () => (
                 <Route path="/interview" element={<ProtectedRoute><Interview /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/resumes" element={<ProtectedRoute><Resumes /></ProtectedRoute>} />
-                <Route path="/admin/template-previews" element={<ProtectedRoute><TemplatePreviewsAdmin /></ProtectedRoute>} />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ErrorBoundary>

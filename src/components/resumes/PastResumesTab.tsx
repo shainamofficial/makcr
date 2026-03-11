@@ -91,7 +91,14 @@ export default function PastResumesTab({ userId }: Props) {
     setLoadingPreview(resume.id);
 
     try {
-      const response = await fetch(resume.generated_resume_link);
+      // generated_resume_link now stores a storage path; create a short-lived signed URL
+      const storagePath = resume.generated_resume_link;
+      const { data: signedData, error: signedErr } = await supabase.storage
+        .from("resumes")
+        .createSignedUrl(storagePath, 300); // 5 min TTL
+      if (signedErr || !signedData?.signedUrl) throw new Error("Failed to get signed URL");
+
+      const response = await fetch(signedData.signedUrl);
       if (!response.ok) throw new Error("Failed to fetch resume content");
       const content = await response.json();
 

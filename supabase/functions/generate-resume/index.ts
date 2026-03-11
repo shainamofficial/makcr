@@ -202,16 +202,14 @@ Respond with ONLY valid JSON (no markdown, no code fences):
       console.error("Storage upload error:", uploadErr);
     }
 
-    const { data: urlData } = supabaseAdmin.storage.from("resumes").getPublicUrl(storagePath);
-    const downloadUrl = urlData?.publicUrl ?? null;
-
+    // Store the storage path (not a public URL) so the client can create signed URLs on demand
     // Update resume record
     await supabase
       .from("resume")
       .update({
         status: "completed",
         title: resumeTitle,
-        generated_resume_link: downloadUrl,
+        generated_resume_link: storagePath,
       })
       .eq("id", resumeId);
 
@@ -227,7 +225,7 @@ Respond with ONLY valid JSON (no markdown, no code fences):
       JSON.stringify({
         title: resumeTitle,
         resumeContent: storedContent,
-        downloadUrl,
+        storagePath,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
