@@ -73,11 +73,15 @@ const Interview = () => {
           setCurrentTopic(existing.current_topic ?? "work_experience");
           setMessages(msgs);
 
-          const staleMsg = await saveMessage(
-            existing.id,
-            "assistant",
-            "It's been a while since we last spoke! Would you like to continue where we left off, or start fresh?"
-          );
+          // Show stale message locally only (not persisted — RLS blocks client assistant inserts)
+          const staleMsg: ChatMessage = {
+            id: crypto.randomUUID(),
+            chat_session_id: existing.id,
+            role: "assistant",
+            content: "It's been a while since we last spoke! Would you like to continue where we left off, or start fresh?",
+            created_at: new Date().toISOString(),
+            structured_data_extracted: null,
+          };
           setMessages((prev) => [...prev, staleMsg]);
           setAwaitingStaleChoice(true);
           setLoading(false);
@@ -121,7 +125,15 @@ Let's start — what company do you currently work at, or what was your most rec
       }
 
       const newSession = await createSession(user.id, sessionType);
-      const aiMsg = await saveMessage(newSession.id, "assistant", firstMessage);
+      // Display first message locally only (not persisted — welcome messages are ephemeral)
+      const aiMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        chat_session_id: newSession.id,
+        role: "assistant",
+        content: firstMessage,
+        created_at: new Date().toISOString(),
+        structured_data_extracted: null,
+      };
 
       setChatSession(newSession);
       setMessages([aiMsg]);
@@ -155,7 +167,14 @@ Let's start — what company do you currently work at, or what was your most rec
         : "Let's start fresh! What company do you currently work at, or what was your most recent employer?";
 
       const newSession = await createSession(user.id, sessionType);
-      const aiMsg = await saveMessage(newSession.id, "assistant", firstMessage);
+      const aiMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        chat_session_id: newSession.id,
+        role: "assistant",
+        content: firstMessage,
+        created_at: new Date().toISOString(),
+        structured_data_extracted: null,
+      };
 
       setChatSession(newSession);
       setMessages([aiMsg]);

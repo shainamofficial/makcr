@@ -294,6 +294,12 @@ Deno.serve(async (req: Request) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    // Service role client for assistant message inserts (bypasses RLS role='user' restriction)
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     const { data: { user }, error: userError } = await supabase.auth.getUser(
       authHeader.replace("Bearer ", "")
     );
@@ -554,8 +560,8 @@ CURRENT TOPIC: ${currentSession?.current_topic ?? (isResumeGeneration ? "gap_ana
       };
     }
 
-    // Save AI message to chat_message
-    await supabase.from("chat_message").insert({
+    // Save AI message via service role (RLS restricts client inserts to role='user')
+    await supabaseAdmin.from("chat_message").insert({
       chat_session_id: sessionId,
       role: "assistant",
       content: parsed.user_message,
