@@ -117,10 +117,10 @@ export async function uploadProfilePicture(
   // Store only the path (bucket is now private)
   const storagePath = filePath;
 
-  // Create profile_picture record
+  // Create profile_picture record with storage path (not public URL)
   const { data: picRecord, error: picError } = await supabase
     .from("profile_picture")
-    .insert({ user_id: userId, link_to_storage: publicUrl })
+    .insert({ user_id: userId, link_to_storage: storagePath })
     .select()
     .single();
 
@@ -134,5 +134,10 @@ export async function uploadProfilePicture(
 
   if (userError) throw userError;
 
-  return publicUrl;
+  // Return a signed URL for immediate display
+  const { data: signedData } = await supabase.storage
+    .from("profile-pictures")
+    .createSignedUrl(storagePath, 3600);
+
+  return signedData?.signedUrl ?? storagePath;
 }

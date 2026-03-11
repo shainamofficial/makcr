@@ -560,8 +560,8 @@ CURRENT TOPIC: ${currentSession?.current_topic ?? (isResumeGeneration ? "gap_ana
       };
     }
 
-    // Save AI message to chat_message
-    await supabase.from("chat_message").insert({
+    // Save AI message via service role (RLS restricts client inserts to role='user')
+    await supabaseAdmin.from("chat_message").insert({
       chat_session_id: sessionId,
       role: "assistant",
       content: parsed.user_message,
