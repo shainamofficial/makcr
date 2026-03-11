@@ -13,7 +13,6 @@ import Interview from "./pages/Interview";
 import Profile from "./pages/Profile";
 import Resumes from "./pages/Resumes";
 import NotFound from "./pages/NotFound";
-import TemplatePreviewsAdmin from "./pages/TemplatePreviewsAdmin";
 import { toast } from "@/hooks/use-toast";
 
 const queryClient = new QueryClient({
