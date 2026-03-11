@@ -573,7 +573,10 @@ CURRENT TOPIC: ${currentSession?.current_topic ?? (isResumeGeneration ? "gap_ana
       chat_session_id: sessionId,
       role: "assistant",
       content: parsed.user_message,
-      structured_data_extracted: parsed.extracted_data ?? null,
+      structured_data_extracted: {
+        extractedData: parsed.extracted_data ?? null,
+        questions: parsed.questions ?? null,
+      },
     });
 
     // Update session's current_topic

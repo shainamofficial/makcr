@@ -21,6 +21,7 @@ interface Message {
   id: string;
   role: string;
   content: string;
+  structured_data_extracted?: any;
 }
 
 export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateResume }: Props) {
@@ -38,10 +39,18 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
     (async () => {
       const { data } = await supabase
         .from("chat_message")
-        .select("id, role, content")
+        .select("id, role, content, structured_data_extracted")
         .eq("chat_session_id", sessionId)
         .order("created_at", { ascending: true });
-      if (data) setMessages(data);
+      if (data) {
+        setMessages(data);
+        // Restore pending questions from last assistant message
+        const lastAssistant = [...data].reverse().find((m: Message) => m.role === "assistant");
+        const stored = lastAssistant?.structured_data_extracted as any;
+        if (stored?.questions && Array.isArray(stored.questions) && stored.questions.length > 0) {
+          setPendingQuestions(stored.questions);
+        }
+      }
       setInitialLoading(false);
     })();
   }, [sessionId]);

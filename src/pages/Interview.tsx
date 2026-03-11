@@ -67,6 +67,13 @@ const Interview = () => {
       if (existing) {
         const msgs = await loadMessages(existing.id);
 
+        // Restore pending questions from last assistant message
+        const lastAssistant = [...msgs].reverse().find(m => m.role === "assistant");
+        const restoredQuestions = (lastAssistant?.structured_data_extracted as any)?.questions;
+        if (restoredQuestions && Array.isArray(restoredQuestions) && restoredQuestions.length > 0) {
+          setPendingQuestions(restoredQuestions);
+        }
+
         const daysSinceUpdate = differenceInDays(new Date(), new Date(existing.updated_at));
         if (daysSinceUpdate > 30) {
           setChatSession(existing);
@@ -239,7 +246,10 @@ Let's start — what company do you currently work at, or what was your most rec
         role: "assistant",
         content: data.message,
         created_at: new Date().toISOString(),
-        structured_data_extracted: data.extractedData ?? null,
+        structured_data_extracted: {
+          extractedData: data.extractedData ?? null,
+          questions: data.questions ?? null,
+        },
       };
       setMessages((prev) => [...prev, aiMsg]);
 
