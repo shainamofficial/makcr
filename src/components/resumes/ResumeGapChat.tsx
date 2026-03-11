@@ -21,6 +21,7 @@ interface Message {
   id: string;
   role: string;
   content: string;
+  structured_data_extracted?: any;
 }
 
 export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateResume }: Props) {
