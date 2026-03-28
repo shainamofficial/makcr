@@ -83,6 +83,8 @@ export default function GenerateResumeTab({ userId }: Props) {
   const { session: authSession } = useAuth();
   const qc = useQueryClient();
   const [jd, setJd] = useState("");
+  const [jdUrl, setJdUrl] = useState("");
+  const [fetchingUrl, setFetchingUrl] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [includePhoto, setIncludePhoto] = useState(false);
   const [generating, setGenerating] = useState(false);
