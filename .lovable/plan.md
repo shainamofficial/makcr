@@ -1,18 +1,38 @@
 
 
-# Add "Till Date" / "Currently Working Here" Toggle to Work Experience
+# Add Job Description URL Scraping
 
-## Change
+## What
 
-Add a "Currently working here" checkbox next to the End Date field in `WorkExperienceModal.tsx`. When checked, the end date input is disabled and cleared (storing `null` in the database, which already renders as "Present" in the UI via `formatRange`).
+Add an option next to the job description textarea for users to paste a URL instead of (or in addition to) manually pasting text. The platform scrapes the URL and populates the textarea with the extracted job description.
 
-## File: `src/components/profile/WorkExperienceModal.tsx`
+## How
 
-1. Add a `currentlyWorking` boolean state, initialized from `!editing.end_date` when editing an entry that has a start date but no end date
-2. Add a Checkbox + Label ("Currently working here") below the end date field
-3. When checked: clear `endDate` state, disable the end date input
-4. When unchecked: re-enable the end date input
-5. On save: if `currentlyWorking` is true, set `end_date: null` in the payload (already handled, just ensure endDate state is empty)
+### 1. Connect Firecrawl
+Your workspace already has a Firecrawl connection. We'll link it to this project so the edge function can use the API key.
 
-No database changes needed -- `end_date` is already nullable and the `WorkExperienceSection` already displays "Present" when `end_date` is null.
+### 2. Create edge function `supabase/functions/scrape-job-description/index.ts`
+- Accepts `{ url: string }` in the request body
+- Uses Firecrawl's scrape API (`formats: ['markdown']`, `onlyMainContent: true`) to extract readable text
+- Returns the scraped content as plain text
+
+### 3. Update `src/components/resumes/GenerateResumeTab.tsx`
+- Add an `Input` field above/beside the textarea with placeholder "Or paste a job posting URL..."
+- Add a "Fetch" button next to it
+- On click, call the edge function, show a loading spinner, and populate the `jd` textarea with the scraped content
+- User can then edit the scraped text before generating
+
+## Files to change
+
+| File | Change |
+|------|--------|
+| `supabase/functions/scrape-job-description/index.ts` | New edge function using Firecrawl |
+| `src/components/resumes/GenerateResumeTab.tsx` | Add URL input + fetch button above textarea |
+
+## Technical details
+
+- Firecrawl connector is already in the workspace (connection `std_01kd7s5zhjea2tsfth5k7jh1f6`), just needs to be linked to this project
+- The edge function reads `FIRECRAWL_API_KEY` from env (auto-injected by the connector)
+- The scrape call uses `onlyMainContent: true` to strip navbars/footers and return just the job posting content
+- URL validation happens both client-side (basic format check) and server-side
 
