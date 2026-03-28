@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AutocompleteInput from "./AutocompleteInput";
@@ -32,6 +33,7 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
   const [endDate, setEndDate] = useState("");
   const [remote, setRemote] = useState(false);
   const [description, setDescription] = useState("");
+  const [currentlyWorking, setCurrentlyWorking] = useState(false);
   const [dateError, setDateError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -44,8 +46,9 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
       setEndDate(editing.end_date ?? "");
       setRemote(editing.is_full_remote ?? false);
       setDescription(editing.description ?? "");
+      setCurrentlyWorking(editing.start_date && !editing.end_date ? true : false);
     } else {
-      setCompanyName(""); setCompanyId(null); setTitle(""); setStartDate(""); setEndDate(""); setRemote(false); setDescription("");
+      setCompanyName(""); setCompanyId(null); setTitle(""); setStartDate(""); setEndDate(""); setRemote(false); setDescription(""); setCurrentlyWorking(false);
     }
     setDateError("");
   }, [editing, open]);
@@ -127,8 +130,19 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
         </div>
         <div>
           <Label>End Date</Label>
-          <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+          <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={currentlyWorking} />
           {dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}
+          <div className="flex items-center gap-2 mt-2">
+            <Checkbox
+              id="currentlyWorking"
+              checked={currentlyWorking}
+              onCheckedChange={(checked) => {
+                setCurrentlyWorking(!!checked);
+                if (checked) setEndDate("");
+              }}
+            />
+            <Label htmlFor="currentlyWorking" className="text-sm font-normal cursor-pointer">Currently working here</Label>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
