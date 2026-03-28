@@ -130,8 +130,19 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
         </div>
         <div>
           <Label>End Date</Label>
-          <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+          <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={currentlyWorking} />
           {dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}
+          <div className="flex items-center gap-2 mt-2">
+            <Checkbox
+              id="currentlyWorking"
+              checked={currentlyWorking}
+              onCheckedChange={(checked) => {
+                setCurrentlyWorking(!!checked);
+                if (checked) setEndDate("");
+              }}
+            />
+            <Label htmlFor="currentlyWorking" className="text-sm font-normal cursor-pointer">Currently working here</Label>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
