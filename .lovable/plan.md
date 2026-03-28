@@ -1,53 +1,52 @@
 
-Fix the PDF export by isolating the printable content instead of printing the whole page.
 
-1. Replace `window.print()` in:
-- `src/components/resumes/ResumePreview.tsx`
-- `src/components/resumes/ResumePreviewModal.tsx`
+# Fix: Profile Picture in PDF Export + Upload Flow on Resume Generation
 
-with a dedicated PDF/export flow that targets only the active resume container.
+## Three changes
 
-2. Add a unique export wrapper around the real resume preview
-- Give the actual rendered resume a dedicated ref or element id
-- Export only that node
-- Do not rely on global `.resume-page` print rules
+### 1. Fix PDF export to include profile pictures
 
-3. Switch to canvas/PDF generation
-- Use `html2canvas` + `jsPDF` (or `html2pdf.js`) so only the selected preview is captured
-- Generate the PDF from the mounted preview modal/content, not from the full `/resumes` page
-- Keep letter-size output and multi-page handling for long resumes
+**Problem**: `html2canvas` silently drops cross-origin images (Supabase signed URLs). The profile picture never appears in the downloaded PDF.
 
-4. Preserve UI behavior
-- Keep the existing “Download as PDF” button
-- Add a small loading state while the PDF is being prepared
-- Ensure both flows work:
-  - generated resume preview
-  - sample template preview opened from the template gallery
+**Solution**: In `src/lib/export-pdf.ts`, before calling `html2canvas`, find all `<img>` elements in the target container and convert their `src` to base64 data URLs by fetching the image and converting the blob. This inlines the image data and bypasses CORS.
 
-5. Leave sample templates visible in the page UI, but exclude them from export
-- The issue comes from `GenerateResumeTab.tsx` rendering many hidden thumbnail/sample resumes, each using `.resume-page`
-- With targeted export, those sample cards will no longer be included
-- Optionally, as extra safety, add an export-specific class instead of depending on global `.resume-page` print CSS
+### 2. Add profile picture upload on Profile page
 
-6. Clean up print styling
-- Keep `src/index.css` print rules only as fallback if needed
-- Remove any assumption that all `.resume-page` elements on the screen should be printable
-- Scope future print/export styling to the dedicated preview container only
+**File**: `src/components/profile/ProfileHeader.tsx`
 
-Technical details
+- Make the avatar clickable with a camera/upload icon overlay on hover
+- On click, open a hidden file input (accept JPG/PNG/WebP, max 5 MB)
+- Upload using the existing `uploadProfilePicture()` from `src/lib/chat-service.ts`
+- Invalidate the `["profile"]` query to refresh the avatar immediately
 
-Current root cause:
-- `window.print()` prints the full document
-- `src/index.css` makes every `.resume-page` visible during print
-- `GenerateResumeTab.tsx` renders many sample template cards using real resume markup, so they are also printed
+### 3. Profile picture confirmation/upload step before resume generation
 
-Files to update:
-- `src/components/resumes/ResumePreview.tsx`
-- `src/components/resumes/ResumePreviewModal.tsx`
-- likely `src/index.css`
-- possibly a small shared PDF helper under `src/lib/` if you want reuse
+**File**: `src/components/resumes/GenerateResumeTab.tsx`
 
-Expected result:
-- Downloaded PDF contains only the resume the user opened
-- No sample/template gallery resumes appear
-- Export works reliably from modal/preview contexts, including inside Lovable preview
+When the user toggles "Include profile picture" ON and clicks Generate Resume:
+
+- **If user has a profile picture**: Show a confirmation dialog displaying their current photo with "Use this photo" / "Upload new" / "Cancel" options
+- **If user has no profile picture**: Show an upload dialog prompting them to upload one before proceeding
+
+Create a new component `src/components/resumes/ProfilePicConfirmDialog.tsx`:
+- Uses the `Dialog` component
+- Shows the current profile pic (if exists) with confirm/replace/cancel buttons
+- Or shows a file upload zone if no pic exists
+- On confirm/upload success, proceeds with resume generation
+- Reuses `uploadProfilePicture()` from `src/lib/chat-service.ts`
+
+**Flow in GenerateResumeTab**:
+- `handleGenerate` checks `includePhoto` flag
+- If `includePhoto` is true, open `ProfilePicConfirmDialog` instead of immediately generating
+- Dialog resolves (confirm or upload complete) → proceeds with the existing generation flow
+- If `includePhoto` is false, skip the dialog entirely
+
+## Files to change
+
+| File | Change |
+|------|--------|
+| `src/lib/export-pdf.ts` | Pre-fetch images and convert to base64 before html2canvas |
+| `src/components/profile/ProfileHeader.tsx` | Add clickable avatar with file upload overlay |
+| `src/components/resumes/ProfilePicConfirmDialog.tsx` | New dialog for confirm/upload photo before generation |
+| `src/components/resumes/GenerateResumeTab.tsx` | Integrate the dialog into the generate flow |
+
