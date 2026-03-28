@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Eye, Loader2 } from "lucide-react";
+import { AlertTriangle, Eye, Link2, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import ResumeGapChat from "./ResumeGapChat";
@@ -82,6 +83,8 @@ export default function GenerateResumeTab({ userId }: Props) {
   const { session: authSession } = useAuth();
   const qc = useQueryClient();
   const [jd, setJd] = useState("");
+  const [jdUrl, setJdUrl] = useState("");
+  const [fetchingUrl, setFetchingUrl] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [includePhoto, setIncludePhoto] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -304,7 +307,41 @@ export default function GenerateResumeTab({ userId }: Props) {
     <div className="space-y-6">
       <div>
         <Label className="text-base font-semibold">Paste the full job description here</Label>
-        <Textarea value={jd} onChange={(e) => setJd(e.target.value)} placeholder="Paste the full job description..." className="mt-2 min-h-[200px]" />
+        <div className="flex items-center gap-2 mt-2 mb-2">
+          <Input
+            type="url"
+            value={jdUrl}
+            onChange={(e) => setJdUrl(e.target.value)}
+            placeholder="Or paste a job posting URL..."
+            className="flex-1"
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={fetchingUrl || !jdUrl.trim()}
+            onClick={async () => {
+              setFetchingUrl(true);
+              try {
+                const { data, error } = await supabase.functions.invoke("scrape-job-description", {
+                  body: { url: jdUrl.trim() },
+                });
+                if (error) throw error;
+                if (!data?.success) throw new Error(data?.error || "Scrape failed");
+                setJd(data.content ?? "");
+                toast({ title: "Job description fetched!" });
+              } catch (err: any) {
+                console.error(err);
+                toast({ title: err.message || "Failed to fetch job description", variant: "destructive" });
+              } finally {
+                setFetchingUrl(false);
+              }
+            }}
+          >
+            {fetchingUrl ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4 mr-1" />}
+            {fetchingUrl ? "Fetching..." : "Fetch"}
+          </Button>
+        </div>
+        <Textarea value={jd} onChange={(e) => setJd(e.target.value)} placeholder="Paste the full job description..." className="min-h-[200px]" />
         <div className="flex items-center justify-between mt-1">
           <div>
             {isShort && (
