@@ -378,6 +378,15 @@ export default function GenerateResumeTab({ userId }: Props) {
           onClose={() => setPreviewingTemplateName(null)}
         />
       )}
+
+      <ProfilePicConfirmDialog
+        open={picConfirmOpen}
+        onClose={() => setPicConfirmOpen(false)}
+        onConfirm={handlePicConfirmed}
+        userId={userId}
+        currentPicUrl={(userProfile as any)?.profile_picture?.link_to_storage ?? null}
+        userName={[userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(" ") || "User"}
+      />
     </div>
   );
 }
