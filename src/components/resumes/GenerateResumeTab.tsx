@@ -166,6 +166,7 @@ export default function GenerateResumeTab({ userId }: Props) {
   };
 
   const startGeneration = async () => {
+    setGenerating(true);
 
     try {
       const { data: chatSession, error: csErr } = await supabase
