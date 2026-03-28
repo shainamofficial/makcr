@@ -150,7 +150,22 @@ export default function GenerateResumeTab({ userId }: Props) {
       toast({ title: "Please fill in the job description and select a template", variant: "destructive" });
       return;
     }
-    setGenerating(true);
+
+    // If include photo is on, show confirmation/upload dialog first
+    if (includePhoto) {
+      setPicConfirmOpen(true);
+      return;
+    }
+
+    await startGeneration();
+  };
+
+  const handlePicConfirmed = () => {
+    setPicConfirmOpen(false);
+    startGeneration();
+  };
+
+  const startGeneration = async () => {
 
     try {
       const { data: chatSession, error: csErr } = await supabase
