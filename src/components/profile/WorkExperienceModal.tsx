@@ -33,6 +33,7 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
   const [endDate, setEndDate] = useState("");
   const [remote, setRemote] = useState(false);
   const [description, setDescription] = useState("");
+  const [currentlyWorking, setCurrentlyWorking] = useState(false);
   const [dateError, setDateError] = useState("");
   const [saving, setSaving] = useState(false);
 
