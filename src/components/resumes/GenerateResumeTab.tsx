@@ -12,9 +12,11 @@ import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import ResumeGapChat from "./ResumeGapChat";
 import ResumePreviewModal from "./ResumePreviewModal";
+import ProfilePicConfirmDialog from "./ProfilePicConfirmDialog";
 import { cn } from "@/lib/utils";
 import { getTemplateComponent } from "./templates";
 import type { ResumeData } from "./templates/types";
+import { getProfilePicSignedUrl } from "@/hooks/useProfileData";
 
 const SAMPLE_RESUME_DATA: ResumeData = {
   user: { first_name: "Jane", last_name: "Doe", email: "jane@example.com", phone_number: "+1 555-0123" },
@@ -87,6 +89,7 @@ export default function GenerateResumeTab({ userId }: Props) {
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [previewingTemplateName, setPreviewingTemplateName] = useState<string | null>(null);
+  const [picConfirmOpen, setPicConfirmOpen] = useState(false);
 
   // Resume generation states
   const [generatingResume, setGeneratingResume] = useState(false);
@@ -147,6 +150,22 @@ export default function GenerateResumeTab({ userId }: Props) {
       toast({ title: "Please fill in the job description and select a template", variant: "destructive" });
       return;
     }
+
+    // If include photo is on, show confirmation/upload dialog first
+    if (includePhoto) {
+      setPicConfirmOpen(true);
+      return;
+    }
+
+    await startGeneration();
+  };
+
+  const handlePicConfirmed = () => {
+    setPicConfirmOpen(false);
+    startGeneration();
+  };
+
+  const startGeneration = async () => {
     setGenerating(true);
 
     try {
@@ -359,6 +378,15 @@ export default function GenerateResumeTab({ userId }: Props) {
           onClose={() => setPreviewingTemplateName(null)}
         />
       )}
+
+      <ProfilePicConfirmDialog
+        open={picConfirmOpen}
+        onClose={() => setPicConfirmOpen(false)}
+        onConfirm={handlePicConfirmed}
+        userId={userId}
+        currentPicUrl={(userProfile as any)?.profile_picture?.link_to_storage ?? null}
+        userName={[userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(" ") || "User"}
+      />
     </div>
   );
 }
