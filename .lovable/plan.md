@@ -1,52 +1,18 @@
 
 
-# Fix: Profile Picture in PDF Export + Upload Flow on Resume Generation
+# Add "Till Date" / "Currently Working Here" Toggle to Work Experience
 
-## Three changes
+## Change
 
-### 1. Fix PDF export to include profile pictures
+Add a "Currently working here" checkbox next to the End Date field in `WorkExperienceModal.tsx`. When checked, the end date input is disabled and cleared (storing `null` in the database, which already renders as "Present" in the UI via `formatRange`).
 
-**Problem**: `html2canvas` silently drops cross-origin images (Supabase signed URLs). The profile picture never appears in the downloaded PDF.
+## File: `src/components/profile/WorkExperienceModal.tsx`
 
-**Solution**: In `src/lib/export-pdf.ts`, before calling `html2canvas`, find all `<img>` elements in the target container and convert their `src` to base64 data URLs by fetching the image and converting the blob. This inlines the image data and bypasses CORS.
+1. Add a `currentlyWorking` boolean state, initialized from `!editing.end_date` when editing an entry that has a start date but no end date
+2. Add a Checkbox + Label ("Currently working here") below the end date field
+3. When checked: clear `endDate` state, disable the end date input
+4. When unchecked: re-enable the end date input
+5. On save: if `currentlyWorking` is true, set `end_date: null` in the payload (already handled, just ensure endDate state is empty)
 
-### 2. Add profile picture upload on Profile page
-
-**File**: `src/components/profile/ProfileHeader.tsx`
-
-- Make the avatar clickable with a camera/upload icon overlay on hover
-- On click, open a hidden file input (accept JPG/PNG/WebP, max 5 MB)
-- Upload using the existing `uploadProfilePicture()` from `src/lib/chat-service.ts`
-- Invalidate the `["profile"]` query to refresh the avatar immediately
-
-### 3. Profile picture confirmation/upload step before resume generation
-
-**File**: `src/components/resumes/GenerateResumeTab.tsx`
-
-When the user toggles "Include profile picture" ON and clicks Generate Resume:
-
-- **If user has a profile picture**: Show a confirmation dialog displaying their current photo with "Use this photo" / "Upload new" / "Cancel" options
-- **If user has no profile picture**: Show an upload dialog prompting them to upload one before proceeding
-
-Create a new component `src/components/resumes/ProfilePicConfirmDialog.tsx`:
-- Uses the `Dialog` component
-- Shows the current profile pic (if exists) with confirm/replace/cancel buttons
-- Or shows a file upload zone if no pic exists
-- On confirm/upload success, proceeds with resume generation
-- Reuses `uploadProfilePicture()` from `src/lib/chat-service.ts`
-
-**Flow in GenerateResumeTab**:
-- `handleGenerate` checks `includePhoto` flag
-- If `includePhoto` is true, open `ProfilePicConfirmDialog` instead of immediately generating
-- Dialog resolves (confirm or upload complete) → proceeds with the existing generation flow
-- If `includePhoto` is false, skip the dialog entirely
-
-## Files to change
-
-| File | Change |
-|------|--------|
-| `src/lib/export-pdf.ts` | Pre-fetch images and convert to base64 before html2canvas |
-| `src/components/profile/ProfileHeader.tsx` | Add clickable avatar with file upload overlay |
-| `src/components/resumes/ProfilePicConfirmDialog.tsx` | New dialog for confirm/upload photo before generation |
-| `src/components/resumes/GenerateResumeTab.tsx` | Integrate the dialog into the generate flow |
+No database changes needed -- `end_date` is already nullable and the `WorkExperienceSection` already displays "Present" when `end_date` is null.
 
