@@ -46,8 +46,9 @@ export default function WorkExperienceModal({ open, onOpenChange, editing, userI
       setEndDate(editing.end_date ?? "");
       setRemote(editing.is_full_remote ?? false);
       setDescription(editing.description ?? "");
+      setCurrentlyWorking(editing.start_date && !editing.end_date ? true : false);
     } else {
-      setCompanyName(""); setCompanyId(null); setTitle(""); setStartDate(""); setEndDate(""); setRemote(false); setDescription("");
+      setCompanyName(""); setCompanyId(null); setTitle(""); setStartDate(""); setEndDate(""); setRemote(false); setDescription(""); setCurrentlyWorking(false);
     }
     setDateError("");
   }, [editing, open]);
