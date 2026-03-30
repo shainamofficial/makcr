@@ -5,7 +5,7 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
-export default function StarterTemplate({ user, summary, workExperiences, education, skills, projects }: ResumeData) {
+export default function StarterTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const accent = "#059669";
 
