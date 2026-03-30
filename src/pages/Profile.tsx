@@ -1,22 +1,36 @@
 import { useState } from "react";
-import { useProfileData } from "@/hooks/useProfileData";
+import { useProfileData, useUpdateProfile } from "@/hooks/useProfileData";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { MessageSquare, FileText, Upload } from "lucide-react";
-import ProfileHeader from "@/components/profile/ProfileHeader";
-import WorkExperienceSection from "@/components/profile/WorkExperienceSection";
-import EducationSection from "@/components/profile/EducationSection";
-import SkillsSection from "@/components/profile/SkillsSection";
-import ProjectsSection from "@/components/profile/ProjectsSection";
+import { MessageSquare, Upload } from "lucide-react";
+import LayoutPicker from "@/components/profile/LayoutPicker";
+import ClassicLayout from "@/components/profile/layouts/ClassicLayout";
+import TimelineLayout from "@/components/profile/layouts/TimelineLayout";
+import MinimalLayout from "@/components/profile/layouts/MinimalLayout";
+import HeroLayout from "@/components/profile/layouts/HeroLayout";
+import type { ProfileLayoutType } from "@/components/profile/layouts/types";
 
+const layoutComponents: Record<ProfileLayoutType, React.ComponentType<any>> = {
+  classic: ClassicLayout,
+  timeline: TimelineLayout,
+  minimal: MinimalLayout,
+  hero: HeroLayout,
+};
 
 export default function Profile() {
   const { user } = useAuth();
   const { profileQuery, workQuery, educationQuery, skillsQuery, projectsQuery, isEmpty, allLoading } = useProfileData();
+  const updateProfile = useUpdateProfile();
 
   const loading = allLoading;
+
+  const currentLayout = ((profileQuery.data as any)?.profile_layout as ProfileLayoutType) || "classic";
+
+  const handleLayoutChange = (layout: ProfileLayoutType) => {
+    updateProfile.mutate({ profile_layout: layout });
+  };
 
   if (loading) {
     return (
@@ -64,13 +78,24 @@ export default function Profile() {
     );
   }
 
+  const LayoutComponent = layoutComponents[currentLayout] || ClassicLayout;
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:p-6 pt-16 sm:pt-20 pb-8 space-y-8 sm:space-y-10">
-      <ProfileHeader profile={profileQuery.data as any} />
-      {(workQuery.data?.length ?? 0) > 0 && <WorkExperienceSection data={workQuery.data!} />}
-      {(educationQuery.data?.length ?? 0) > 0 && <EducationSection data={educationQuery.data!} />}
-      {(skillsQuery.data?.length ?? 0) > 0 && <SkillsSection data={skillsQuery.data!} />}
-      {(projectsQuery.data?.length ?? 0) > 0 && <ProjectsSection data={projectsQuery.data!} />}
+    <div className="max-w-5xl mx-auto px-4 sm:p-6 pt-16 sm:pt-20 pb-8">
+      <div className="flex justify-end mb-4">
+        <LayoutPicker
+          value={currentLayout}
+          onChange={handleLayoutChange}
+          saving={updateProfile.isPending}
+        />
+      </div>
+      <LayoutComponent
+        profile={profileQuery.data}
+        workData={workQuery.data ?? []}
+        educationData={educationQuery.data ?? []}
+        skillsData={skillsQuery.data ?? []}
+        projectsData={projectsQuery.data ?? []}
+      />
     </div>
   );
 }

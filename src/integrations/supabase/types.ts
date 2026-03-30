@@ -674,6 +674,7 @@ export type Database = {
           last_name: string | null
           middle_name: string | null
           phone_number: string | null
+          profile_layout: string
           profile_picture_id: string | null
           profile_summary: string | null
           updated_at: string
@@ -687,6 +688,7 @@ export type Database = {
           last_name?: string | null
           middle_name?: string | null
           phone_number?: string | null
+          profile_layout?: string
           profile_picture_id?: string | null
           profile_summary?: string | null
           updated_at?: string
@@ -700,6 +702,7 @@ export type Database = {
           last_name?: string | null
           middle_name?: string | null
           phone_number?: string | null
+          profile_layout?: string
           profile_picture_id?: string | null
           profile_summary?: string | null
           updated_at?: string
