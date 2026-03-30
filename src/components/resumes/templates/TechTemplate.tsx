@@ -1,4 +1,5 @@
 import type { ResumeData } from "./types";
+import { groupWorkByCompany } from "./groupWorkByCompany";
 
 function fmtDate(d: string | null) {
   if (!d) return "Present";
@@ -9,6 +10,7 @@ export default function TechTemplate({ user, summary, workExperiences, education
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const green = "#00D26A";
   const dark = "#0D1117";
+  const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] = acc[s.category] || []).push(s.name);
@@ -17,7 +19,6 @@ export default function TechTemplate({ user, summary, workExperiences, education
 
   return (
     <div className="resume-page tech-template" style={{ fontFamily: "'Fira Code', 'Courier New', monospace", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a" }}>
-      {/* Dark header */}
       <div style={{ background: dark, color: green, padding: "0.5in 0.7in", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ fontSize: 10, margin: "0 0 4px", opacity: 0.6 }}>$ whoami</p>
@@ -39,21 +40,25 @@ export default function TechTemplate({ user, summary, workExperiences, education
           </section>
         )}
 
-        {workExperiences.length > 0 && (
+        {grouped.length > 0 && (
           <section style={{ marginBottom: 18 }}>
             <h2 style={{ fontSize: 13, fontWeight: 700, color: dark, margin: "0 0 8px", fontFamily: "'Fira Code', monospace" }}><span style={{ color: green }}>#</span> experience</h2>
-            {workExperiences.map((w, i) => (
-              <div key={i} style={{ marginBottom: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{w.title}</p>
-                  <p style={{ fontSize: 10, color: "#888", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
-                </div>
-                <p style={{ fontSize: 11, color: green, margin: "2px 0 0", fontFamily: "'Fira Code', monospace", fontWeight: 600 }}>{w.company}</p>
-                {w.points.length > 0 && (
-                  <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
-                    {w.points.map((p, j) => <li key={j}>{p}</li>)}
-                  </ul>
-                )}
+            {grouped.map((g, gi) => (
+              <div key={gi} style={{ marginBottom: 12 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: green, margin: "0 0 4px", fontFamily: "'Fira Code', monospace" }}>{g.company}</p>
+                {g.roles.map((r, ri) => (
+                  <div key={ri} style={{ marginBottom: 8, paddingLeft: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, margin: 0 }}>{r.title}</p>
+                      <p style={{ fontSize: 10, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                    </div>
+                    {r.points.length > 0 && (
+                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
+                        {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </section>
