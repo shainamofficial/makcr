@@ -1,36 +1,46 @@
 
 
-# Improve Profile Picture Support Across All 20 Resume Templates
+# Save Profile Display Templates
 
-## Problem
-- 5 templates completely ignore the profile picture props (Minimal, Compact, Academic, Corporate, Starter)
-- Classic template uses absolute positioning which overlaps the header text
-- Several templates could benefit from better photo-name alignment and spacing
+## What
+Let users choose and save different visual layouts for their profile page — similar to how they pick resume templates, but for the profile view itself. For example: a "Classic" card-grid layout (current), a "Timeline" layout, a "Minimal" layout, etc.
 
-## Plan
+## How
 
-### 1. Add profile picture support to the 5 missing templates
+### 1. Create profile layout templates (client-side)
+Build 3-4 layout variants as React components, each rendering the same profile data differently:
 
-Each will get a photo placed naturally in its header area, matching the template's design language:
+| Layout | Description |
+|--------|-------------|
+| **Classic** (current) | Card grid for work/education, badge chips for skills |
+| **Timeline** | Vertical chronological timeline with a left border and dots |
+| **Minimal** | Clean single-column, no cards, just text sections with subtle dividers |
+| **Hero** | Large gradient banner header, two-column body (experience left, skills/education right) |
 
-| Template | Photo placement |
-|----------|----------------|
-| **Minimal** | Small circle (50px) next to name in header, flex row |
-| **Compact** | Small circle (40px) left of name in header row |
-| **Academic** | Small circle (55px) centered above name |
-| **Corporate** | Small circle (50px) left of name in header band |
-| **Starter** | Small circle (55px) centered above name |
+### 2. Add a `profile_layout` column to the `user` table
+A simple text column (default `'classic'`) storing the user's chosen layout. No new table needed.
 
-### 2. Fix Classic template photo overlap
+### 3. Update Profile page
+- Add a small layout picker (icon buttons or dropdown) in the top-right of the profile page
+- When the user selects a layout, save it to their profile and re-render with the chosen template
+- Each layout component receives the same props (profile, work, education, skills, projects)
 
-Replace the absolute-positioned photo with a flex layout in the header so the name and photo sit side by side without overlap.
+### 4. New files and changes
 
-### Files to update (6 files)
+| File | Change |
+|------|--------|
+| `src/components/profile/layouts/ClassicLayout.tsx` | Extract current layout into its own component |
+| `src/components/profile/layouts/TimelineLayout.tsx` | New timeline-style layout |
+| `src/components/profile/layouts/MinimalLayout.tsx` | New minimal layout |
+| `src/components/profile/layouts/HeroLayout.tsx` | New hero/two-column layout |
+| `src/components/profile/LayoutPicker.tsx` | Small UI to switch between layouts |
+| `src/pages/Profile.tsx` | Add layout picker, render selected layout component |
+| **Migration** | `ALTER TABLE "user" ADD COLUMN profile_layout text NOT NULL DEFAULT 'classic'` |
+| `src/hooks/useProfileData.ts` | Include `profile_layout` in profile query (already fetched via `select *`) |
 
-- `src/components/resumes/templates/MinimalTemplate.tsx`
-- `src/components/resumes/templates/CompactTemplate.tsx`
-- `src/components/resumes/templates/AcademicTemplate.tsx`
-- `src/components/resumes/templates/CorporateTemplate.tsx`
-- `src/components/resumes/templates/StarterTemplate.tsx`
-- `src/components/resumes/templates/ClassicTemplate.tsx`
+### Technical notes
+- All layout components share a common `ProfileLayoutProps` interface containing `profile`, `workData`, `educationData`, `skillsData`, `projectsData`
+- The existing section components (WorkExperienceSection, EducationSection, etc.) are reused inside layouts — only the arrangement and styling wrapper changes
+- Layout preference is saved via the existing `useUpdateProfile` mutation
+- No new RLS policies needed — uses the existing `user` table update policy
 
