@@ -1,38 +1,36 @@
 
 
-# Add Job Description URL Scraping
+# Improve Profile Picture Support Across All 20 Resume Templates
 
-## What
+## Problem
+- 5 templates completely ignore the profile picture props (Minimal, Compact, Academic, Corporate, Starter)
+- Classic template uses absolute positioning which overlaps the header text
+- Several templates could benefit from better photo-name alignment and spacing
 
-Add an option next to the job description textarea for users to paste a URL instead of (or in addition to) manually pasting text. The platform scrapes the URL and populates the textarea with the extracted job description.
+## Plan
 
-## How
+### 1. Add profile picture support to the 5 missing templates
 
-### 1. Connect Firecrawl
-Your workspace already has a Firecrawl connection. We'll link it to this project so the edge function can use the API key.
+Each will get a photo placed naturally in its header area, matching the template's design language:
 
-### 2. Create edge function `supabase/functions/scrape-job-description/index.ts`
-- Accepts `{ url: string }` in the request body
-- Uses Firecrawl's scrape API (`formats: ['markdown']`, `onlyMainContent: true`) to extract readable text
-- Returns the scraped content as plain text
+| Template | Photo placement |
+|----------|----------------|
+| **Minimal** | Small circle (50px) next to name in header, flex row |
+| **Compact** | Small circle (40px) left of name in header row |
+| **Academic** | Small circle (55px) centered above name |
+| **Corporate** | Small circle (50px) left of name in header band |
+| **Starter** | Small circle (55px) centered above name |
 
-### 3. Update `src/components/resumes/GenerateResumeTab.tsx`
-- Add an `Input` field above/beside the textarea with placeholder "Or paste a job posting URL..."
-- Add a "Fetch" button next to it
-- On click, call the edge function, show a loading spinner, and populate the `jd` textarea with the scraped content
-- User can then edit the scraped text before generating
+### 2. Fix Classic template photo overlap
 
-## Files to change
+Replace the absolute-positioned photo with a flex layout in the header so the name and photo sit side by side without overlap.
 
-| File | Change |
-|------|--------|
-| `supabase/functions/scrape-job-description/index.ts` | New edge function using Firecrawl |
-| `src/components/resumes/GenerateResumeTab.tsx` | Add URL input + fetch button above textarea |
+### Files to update (6 files)
 
-## Technical details
-
-- Firecrawl connector is already in the workspace (connection `std_01kd7s5zhjea2tsfth5k7jh1f6`), just needs to be linked to this project
-- The edge function reads `FIRECRAWL_API_KEY` from env (auto-injected by the connector)
-- The scrape call uses `onlyMainContent: true` to strip navbars/footers and return just the job posting content
-- URL validation happens both client-side (basic format check) and server-side
+- `src/components/resumes/templates/MinimalTemplate.tsx`
+- `src/components/resumes/templates/CompactTemplate.tsx`
+- `src/components/resumes/templates/AcademicTemplate.tsx`
+- `src/components/resumes/templates/CorporateTemplate.tsx`
+- `src/components/resumes/templates/StarterTemplate.tsx`
+- `src/components/resumes/templates/ClassicTemplate.tsx`
 
