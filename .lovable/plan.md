@@ -1,51 +1,18 @@
 
 
-# Fix Hero Layout + Group Work Experiences by Company
+# Fix Hero Layout Alignment and Overflow
 
 ## Problem
-1. The Hero layout is visually weak -- it's just a gradient box around the same `ProfileHeader` component, with no real "hero" feel (no larger typography, no visual impact)
-2. Work experiences with the same company appear as separate cards/entries everywhere (profile layouts and resume templates), instead of being grouped under one company heading with multiple roles
+The hero banner has text overflow and alignment issues at the current viewport (1000px). The `text-5xl` name can spill, the flex layout breaks at the `sm` breakpoint (~640px) leaving an awkward middle ground, and the banner padding is too generous for medium screens.
 
-## Plan
+## Changes
 
-### 1. Redesign HeroLayout component
 **File**: `src/components/profile/layouts/HeroLayout.tsx`
 
-- Replace the simple gradient wrapper with a proper hero design:
-  - Full-width gradient banner with larger avatar (size 28/32), bigger name typography (text-4xl), and email/badge inline
-  - Summary text displayed prominently inside the banner area
-  - Remove the generic `ProfileHeader` reuse -- inline a hero-specific header with photo upload support (reuse the upload logic, but custom layout)
-  - Subtle decorative elements (e.g. a pattern or accent shape)
-- Keep the two-column body grid but add card styling to the sidebar column
-
-### 2. Group work experiences by company in profile
-**File**: `src/components/profile/WorkExperienceSection.tsx`
-
-- Add a `groupByCompany` utility that groups `data` entries by `company.id`
-- Render each company as a single Card with the company name as the heading
-- Under each company, list the individual roles (title, date range, bullet points) with edit/delete buttons per role
-- The "Add" button stays at the section level
-
-### 3. Group work experiences by company in resume templates
-**Files**: All 19 template files in `src/components/resumes/templates/`
-
-- Create a shared utility `src/components/resumes/templates/groupWorkByCompany.ts`:
-  ```
-  groupWorkByCompany(workExperiences) → { company, roles: { title, start_date, end_date, points }[] }[]
-  ```
-- Update each template to use this utility, rendering company name once with roles nested underneath
-- The `ResumeData` type stays unchanged -- grouping is a display-time transformation
-
-### 4. Group work experiences in resume data transformation
-**File**: `src/components/resumes/GenerateResumeTab.tsx`
-
-- No changes needed to the data type -- grouping happens at render time in the templates
-
-### Files changed
-| File | Change |
-|------|--------|
-| `src/components/profile/layouts/HeroLayout.tsx` | Full redesign with hero-style header |
-| `src/components/profile/WorkExperienceSection.tsx` | Group roles under same company |
-| `src/components/resumes/templates/groupWorkByCompany.ts` | New shared grouping utility |
-| All 19 resume template files | Use grouped rendering for work experience |
+1. **Fix text overflow** -- add `break-words` / `overflow-hidden` on the name heading and constrain it with `min-w-0` on the flex child
+2. **Reduce font sizes** -- use `text-3xl sm:text-4xl` instead of `text-4xl sm:text-5xl` to prevent spill at medium widths
+3. **Fix flex alignment** -- change `sm:items-end` to `sm:items-center` for better vertical centering of avatar with text
+4. **Tighten padding** -- reduce from `p-10 sm:p-14` to `p-8 sm:p-10` so content has more room
+5. **Add `min-w-0`** to the `flex-1` text container to prevent flex children from overflowing
+6. **Constrain summary width** -- keep `max-w-2xl` but also add `w-full` and `overflow-hidden` for safety
 
