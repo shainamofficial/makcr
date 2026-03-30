@@ -15,9 +15,14 @@ export default function CompactTemplate({ user, summary, workExperiences, educat
 
   return (
     <div className="resume-page compact-template" style={{ fontFamily: "Arial, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#000", padding: "0.4in 0.5in" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-        <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{fullName}</h1>
-        <p style={{ fontSize: 9, margin: 0, color: "#555" }}>{[user.email, user.phone_number].filter(Boolean).join(" | ")}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        {includePhoto && profilePictureUrl && (
+          <img src={profilePictureUrl} alt="" style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+        )}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flex: 1 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{fullName}</h1>
+          <p style={{ fontSize: 9, margin: 0, color: "#555" }}>{[user.email, user.phone_number].filter(Boolean).join(" | ")}</p>
+        </div>
       </div>
       <hr style={{ border: "none", borderTop: "1px solid #ccc", margin: "0 0 8px" }} />
 

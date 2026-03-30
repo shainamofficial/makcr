@@ -17,6 +17,9 @@ export default function StarterTemplate({ user, summary, workExperiences, educat
   return (
     <div className="resume-page starter-template" style={{ fontFamily: "Arial, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", padding: "0.6in 0.8in" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
+        {includePhoto && profilePictureUrl && (
+          <img src={profilePictureUrl} alt="" style={{ width: 55, height: 55, borderRadius: "50%", objectFit: "cover", margin: "0 auto 8px" }} />
+        )}
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, color: accent }}>{fullName}</h1>
         <p style={{ fontSize: 11, color: "#666", margin: "4px 0 0" }}>{[user.email, user.phone_number].filter(Boolean).join(" | ")}</p>
       </div>

@@ -17,11 +17,16 @@ export default function MinimalTemplate({ user, summary, workExperiences, educat
   return (
     <div className="resume-page minimal-template" style={{ fontFamily: "Arial, system-ui, sans-serif", width: "8.5in", minHeight: "11in", padding: "1.2in", margin: "0 auto", background: "#fff", color: "#000" }}>
       {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 300, margin: 0, letterSpacing: 0.5 }}>{fullName}</h1>
-        <p style={{ fontSize: 11, color: gray, margin: "6px 0 0" }}>
-          {[user.email, user.phone_number].filter(Boolean).join(" · ")}
-        </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 32 }}>
+        {includePhoto && profilePictureUrl && (
+          <img src={profilePictureUrl} alt="" style={{ width: 50, height: 50, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+        )}
+        <div>
+          <h1 style={{ fontSize: 28, fontWeight: 300, margin: 0, letterSpacing: 0.5 }}>{fullName}</h1>
+          <p style={{ fontSize: 11, color: gray, margin: "6px 0 0" }}>
+            {[user.email, user.phone_number].filter(Boolean).join(" · ")}
+          </p>
+        </div>
       </div>
 
       {/* Summary */}
