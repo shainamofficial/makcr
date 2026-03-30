@@ -5,7 +5,7 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
-export default function CompactTemplate({ user, summary, workExperiences, education, skills, projects }: ResumeData) {
+export default function CompactTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
