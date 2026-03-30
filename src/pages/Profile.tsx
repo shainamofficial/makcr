@@ -15,7 +15,6 @@ const layoutComponents: Record<ProfileLayoutType, React.ComponentType<any>> = {
   classic: ClassicLayout,
   timeline: TimelineLayout,
   minimal: MinimalLayout,
-  hero: HeroLayout,
 };
 
 export default function Profile() {

@@ -7,7 +7,6 @@ const layouts: { key: ProfileLayoutType; label: string; icon: React.ReactNode }[
   { key: "classic", label: "Classic", icon: <LayoutGrid className="h-4 w-4" /> },
   { key: "timeline", label: "Timeline", icon: <Clock className="h-4 w-4" /> },
   { key: "minimal", label: "Minimal", icon: <AlignLeft className="h-4 w-4" /> },
-  { key: "hero", label: "Hero", icon: <Sparkles className="h-4 w-4" /> },
 ];
 
 interface Props {
