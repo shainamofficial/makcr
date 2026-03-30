@@ -1,4 +1,4 @@
-import { LayoutGrid, Clock, AlignLeft, Sparkles } from "lucide-react";
+import { LayoutGrid, Clock, AlignLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import type { ProfileLayoutType } from "./layouts/types";
@@ -7,7 +7,6 @@ const layouts: { key: ProfileLayoutType; label: string; icon: React.ReactNode }[
   { key: "classic", label: "Classic", icon: <LayoutGrid className="h-4 w-4" /> },
   { key: "timeline", label: "Timeline", icon: <Clock className="h-4 w-4" /> },
   { key: "minimal", label: "Minimal", icon: <AlignLeft className="h-4 w-4" /> },
-  { key: "hero", label: "Hero", icon: <Sparkles className="h-4 w-4" /> },
 ];
 
 interface Props {

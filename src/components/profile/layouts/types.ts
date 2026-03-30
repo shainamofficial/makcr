@@ -6,4 +6,4 @@ export interface ProfileLayoutProps {
   projectsData: any[];
 }
 
-export type ProfileLayoutType = "classic" | "timeline" | "minimal" | "hero";
+export type ProfileLayoutType = "classic" | "timeline" | "minimal";
