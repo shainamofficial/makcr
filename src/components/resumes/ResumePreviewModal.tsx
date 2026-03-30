@@ -29,18 +29,20 @@ export default function ResumePreviewModal({ templateName, data, onClose }: Prop
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-[9in] w-full max-h-[95vh] overflow-y-auto p-0">
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background border-b px-4 py-3 print:hidden">
-          <Button variant="ghost" size="sm" onClick={onClose} className="gap-1">
-            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+      <DialogContent className="w-[95vw] sm:max-w-[9in] max-h-[95vh] overflow-y-auto p-0">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background border-b px-3 sm:px-4 py-2 sm:py-3 print:hidden">
+          <Button variant="ghost" size="sm" onClick={onClose} className="gap-1 text-xs sm:text-sm px-2 sm:px-3">
+            <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Back to Dashboard</span><span className="sm:hidden">Back</span>
           </Button>
-          <Button size="sm" onClick={handleDownload} disabled={exporting} className="gap-1">
+          <Button size="sm" onClick={handleDownload} disabled={exporting} className="gap-1 text-xs sm:text-sm px-2 sm:px-3">
             {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
-            {exporting ? "Generating…" : "Download as PDF"}
+            {exporting ? "Generating…" : <><span className="hidden sm:inline">Download as PDF</span><span className="sm:hidden">PDF</span></>}
           </Button>
         </div>
-        <div ref={containerRef} className="resume-preview-container">
-          <Template {...data} />
+        <div ref={containerRef} className="resume-preview-container overflow-x-auto">
+          <div className="min-w-[8.5in] origin-top-left sm:origin-top sm:min-w-0">
+            <Template {...data} />
+          </div>
         </div>
       </DialogContent>
     </Dialog>

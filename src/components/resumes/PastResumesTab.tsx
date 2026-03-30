@@ -175,9 +175,9 @@ export default function PastResumesTab({ userId }: Props) {
           <div className="space-y-3">
             {drafts.map((r) => (
               <Card key={r.id}>
-                <CardContent className="flex items-center justify-between p-4">
-                  <div>
-                    <p className="font-medium text-sm">{r.title || "Untitled Resume"}</p>
+                <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{r.title || "Untitled Resume"}</p>
                     <p className="text-xs text-muted-foreground">Started {format(new Date(r.created_at), "MMM d, yyyy")}</p>
                     <Badge variant="secondary" className="mt-1">In Progress</Badge>
                   </div>
