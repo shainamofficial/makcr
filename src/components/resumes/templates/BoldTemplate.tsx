@@ -1,4 +1,5 @@
 import type { ResumeData } from "./types";
+import { groupWorkByCompany } from "./groupWorkByCompany";
 
 function fmtDate(d: string | null) {
   if (!d) return "Present";
@@ -7,6 +8,7 @@ function fmtDate(d: string | null) {
 
 export default function BoldTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
+  const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] = acc[s.category] || []).push(s.name);
@@ -32,21 +34,25 @@ export default function BoldTemplate({ user, summary, workExperiences, education
         </section>
       )}
 
-      {workExperiences.length > 0 && (
+      {grouped.length > 0 && (
         <section style={{ marginBottom: 18 }}>
           <h2 style={{ fontSize: 16, fontWeight: 900, textTransform: "uppercase", margin: "0 0 6px", borderBottom: "3px solid #000", paddingBottom: 4 }}>Experience</h2>
-          {workExperiences.map((w, i) => (
-            <div key={i} style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <p style={{ fontSize: 13, fontWeight: 900, margin: 0 }}>{w.title}</p>
-                <p style={{ fontSize: 10, color: "#666", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
-              </div>
-              <p style={{ fontSize: 11, margin: "2px 0 0", fontWeight: 600 }}>{w.company}</p>
-              {w.points.length > 0 && (
-                <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
-                  {w.points.map((p, j) => <li key={j}>{p}</li>)}
-                </ul>
-              )}
+          {grouped.map((g, gi) => (
+            <div key={gi} style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 13, fontWeight: 900, margin: "0 0 4px" }}>{g.company}</p>
+              {g.roles.map((r, ri) => (
+                <div key={ri} style={{ marginBottom: 8, paddingLeft: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, margin: 0 }}>{r.title}</p>
+                    <p style={{ fontSize: 10, color: "#666", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                  </div>
+                  {r.points.length > 0 && (
+                    <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
+                      {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                    </ul>
+                  )}
+                </div>
+              ))}
             </div>
           ))}
         </section>

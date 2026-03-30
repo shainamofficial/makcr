@@ -1,4 +1,5 @@
 import type { ResumeData } from "./types";
+import { groupWorkByCompany } from "./groupWorkByCompany";
 
 function fmtDate(d: string | null) {
   if (!d) return "Present";
@@ -8,6 +9,7 @@ function fmtDate(d: string | null) {
 export default function TimelineTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const accent = "#6366F1";
+  const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] = acc[s.category] || []).push(s.name);
@@ -32,23 +34,27 @@ export default function TimelineTemplate({ user, summary, workExperiences, educa
 
       {summary && <p style={{ fontSize: 11, lineHeight: 1.6, margin: "0 0 18px", color: "#555" }}>{summary}</p>}
 
-      {workExperiences.length > 0 && (
+      {grouped.length > 0 && (
         <section style={{ marginBottom: 18 }}>
           <h2 style={{ fontSize: 13, fontWeight: 700, color: accent, margin: "0 0 10px" }}>Experience</h2>
           <div style={{ borderLeft: `2px solid ${accent}`, marginLeft: 5, paddingLeft: 20 }}>
-            {workExperiences.map((w, i) => (
-              <div key={i} style={{ marginBottom: 14, position: "relative" }}>
+            {grouped.map((g, gi) => (
+              <div key={gi} style={{ marginBottom: 14, position: "relative" }}>
                 <TimelineDot />
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{w.title}</p>
-                  <p style={{ fontSize: 9, color: "#888", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
-                </div>
-                <p style={{ fontSize: 11, color: accent, margin: "2px 0 0" }}>{w.company}</p>
-                {w.points.length > 0 && (
-                  <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 10, lineHeight: 1.5 }}>
-                    {w.points.map((p, j) => <li key={j}>{p}</li>)}
-                  </ul>
-                )}
+                <p style={{ fontSize: 12, fontWeight: 700, color: accent, margin: "0 0 4px" }}>{g.company}</p>
+                {g.roles.map((r, ri) => (
+                  <div key={ri} style={{ marginBottom: 8, paddingLeft: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, margin: 0 }}>{r.title}</p>
+                      <p style={{ fontSize: 9, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                    </div>
+                    {r.points.length > 0 && (
+                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 10, lineHeight: 1.5 }}>
+                        {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </div>

@@ -1,4 +1,5 @@
 import type { ResumeData } from "./types";
+import { groupWorkByCompany } from "./groupWorkByCompany";
 
 function fmtDate(d: string | null) {
   if (!d) return "Present";
@@ -9,6 +10,7 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const coral = "#E8634A";
   const bg = "#FFF8F6";
+  const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] = acc[s.category] || []).push(s.name);
@@ -17,7 +19,6 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
 
   return (
     <div className="resume-page creative-template" style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: bg, color: "#333", padding: "0.6in 0.7in" }}>
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24 }}>
         {includePhoto && profilePictureUrl && (
           <img src={profilePictureUrl} alt="" style={{ width: 80, height: 80, borderRadius: 16, objectFit: "cover", border: `3px solid ${coral}` }} />
@@ -29,8 +30,6 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
           </p>
         </div>
       </div>
-
-      {/* Divider */}
       <div style={{ height: 3, background: `linear-gradient(90deg, ${coral}, #F9A825, ${coral})`, borderRadius: 2, marginBottom: 20 }} />
 
       {summary && (
@@ -40,27 +39,30 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
         </section>
       )}
 
-      {workExperiences.length > 0 && (
+      {grouped.length > 0 && (
         <section style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, color: coral, margin: "0 0 10px" }}>Experience</h2>
-          {workExperiences.map((w, i) => (
-            <div key={i} style={{ marginBottom: 14, paddingLeft: 12, borderLeft: `3px solid ${coral}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{w.title}</p>
-                <p style={{ fontSize: 10, color: "#999", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
-              </div>
-              <p style={{ fontSize: 11, color: coral, margin: "2px 0 0" }}>{w.company}</p>
-              {w.points.length > 0 && (
-                <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
-                  {w.points.map((p, j) => <li key={j}>{p}</li>)}
-                </ul>
-              )}
+          {grouped.map((g, gi) => (
+            <div key={gi} style={{ marginBottom: 14, paddingLeft: 12, borderLeft: `3px solid ${coral}` }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: coral, margin: "0 0 4px" }}>{g.company}</p>
+              {g.roles.map((r, ri) => (
+                <div key={ri} style={{ marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, margin: 0 }}>{r.title}</p>
+                    <p style={{ fontSize: 10, color: "#999", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                  </div>
+                  {r.points.length > 0 && (
+                    <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
+                      {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                    </ul>
+                  )}
+                </div>
+              ))}
             </div>
           ))}
         </section>
       )}
 
-      {/* Skills as badges */}
       {Object.keys(groupedSkills).length > 0 && (
         <section style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, color: coral, margin: "0 0 10px" }}>Skills</h2>
