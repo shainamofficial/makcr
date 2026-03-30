@@ -94,8 +94,8 @@ export default function HeroLayout({ profile, workData, educationData, skillsDat
           </div>
 
           {/* Name & info */}
-          <div className="flex-1 text-center sm:text-left">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">{fullName}</h1>
+          <div className="flex-1 min-w-0 text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight break-words overflow-hidden">{fullName}</h1>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
               <span className="flex items-center gap-1.5 text-sm text-primary-foreground/70">
                 <Mail className="h-3.5 w-3.5" />
