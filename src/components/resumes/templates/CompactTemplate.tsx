@@ -1,4 +1,5 @@
 import type { ResumeData } from "./types";
+import { groupWorkByCompany } from "./groupWorkByCompany";
 
 function fmtDate(d: string | null) {
   if (!d) return "Present";
@@ -7,6 +8,7 @@ function fmtDate(d: string | null) {
 
 export default function CompactTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
+  const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] = acc[s.category] || []).push(s.name);
@@ -30,20 +32,25 @@ export default function CompactTemplate({ user, summary, workExperiences, educat
         <p style={{ fontSize: 9, lineHeight: 1.5, margin: "0 0 8px", color: "#333" }}>{summary}</p>
       )}
 
-      {workExperiences.length > 0 && (
+      {grouped.length > 0 && (
         <section style={{ marginBottom: 8 }}>
           <h2 style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", margin: "0 0 4px", color: "#333" }}>Experience</h2>
-          {workExperiences.map((w, i) => (
-            <div key={i} style={{ marginBottom: 6 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, margin: 0 }}>{w.title} — {w.company}</p>
-                <p style={{ fontSize: 8, color: "#888", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
-              </div>
-              {w.points.length > 0 && (
-                <ul style={{ margin: "2px 0 0", paddingLeft: 14, fontSize: 9, lineHeight: 1.4 }}>
-                  {w.points.map((p, j) => <li key={j}>{p}</li>)}
-                </ul>
-              )}
+          {grouped.map((g, gi) => (
+            <div key={gi} style={{ marginBottom: 6 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, margin: "0 0 2px" }}>{g.company}</p>
+              {g.roles.map((r, ri) => (
+                <div key={ri} style={{ marginBottom: 4, paddingLeft: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <p style={{ fontSize: 9, fontWeight: 600, margin: 0 }}>{r.title}</p>
+                    <p style={{ fontSize: 8, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                  </div>
+                  {r.points.length > 0 && (
+                    <ul style={{ margin: "2px 0 0", paddingLeft: 14, fontSize: 9, lineHeight: 1.4 }}>
+                      {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                    </ul>
+                  )}
+                </div>
+              ))}
             </div>
           ))}
         </section>

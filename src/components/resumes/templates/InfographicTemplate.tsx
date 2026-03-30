@@ -1,4 +1,5 @@
 import type { ResumeData } from "./types";
+import { groupWorkByCompany } from "./groupWorkByCompany";
 
 function fmtDate(d: string | null) {
   if (!d) return "Present";
@@ -24,6 +25,7 @@ function SkillBar({ name, level }: { name: string; level: string }) {
 export default function InfographicTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const accent = "#3B82F6";
+  const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, typeof skills>>((acc, s) => {
     (acc[s.category] = acc[s.category] || []).push(s);
@@ -32,7 +34,6 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
 
   return (
     <div className="resume-page infographic-template" style={{ fontFamily: "'Segoe UI', sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", display: "flex" }}>
-      {/* Sidebar */}
       <div style={{ width: "35%", background: "#F8FAFC", padding: "0.6in 0.4in", flexShrink: 0 }}>
         {includePhoto && profilePictureUrl && (
           <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -44,7 +45,6 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
           {user.email && <p style={{ fontSize: 10, margin: "0 0 3px", wordBreak: "break-all" }}>{user.email}</p>}
           {user.phone_number && <p style={{ fontSize: 10, margin: 0 }}>{user.phone_number}</p>}
         </div>
-
         {Object.keys(groupedSkills).length > 0 && (
           <div style={{ marginBottom: 24 }}>
             <h3 style={{ fontSize: 11, fontWeight: 700, color: accent, marginBottom: 8 }}>🎯 Skills</h3>
@@ -56,7 +56,6 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
             ))}
           </div>
         )}
-
         {education.length > 0 && (
           <div>
             <h3 style={{ fontSize: 11, fontWeight: 700, color: accent, marginBottom: 8 }}>🎓 Education</h3>
@@ -71,26 +70,29 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
         )}
       </div>
 
-      {/* Main */}
       <div style={{ width: "65%", padding: "0.6in 0.5in" }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 4px", color: accent }}>{fullName}</h1>
         {summary && <p style={{ fontSize: 11, lineHeight: 1.6, color: "#555", margin: "8px 0 20px" }}>{summary}</p>}
 
-        {workExperiences.length > 0 && (
+        {grouped.length > 0 && (
           <section style={{ marginBottom: 20 }}>
             <h2 style={{ fontSize: 13, fontWeight: 700, color: accent, margin: "0 0 10px" }}>💼 Experience</h2>
-            {workExperiences.map((w, i) => (
-              <div key={i} style={{ marginBottom: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{w.title}</p>
-                  <p style={{ fontSize: 9, color: "#888", margin: 0 }}>{fmtDate(w.start_date)} — {fmtDate(w.end_date)}</p>
-                </div>
-                <p style={{ fontSize: 11, color: accent, margin: "2px 0 0" }}>{w.company}</p>
-                {w.points.length > 0 && (
-                  <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 10, lineHeight: 1.5 }}>
-                    {w.points.map((p, j) => <li key={j}>{p}</li>)}
-                  </ul>
-                )}
+            {grouped.map((g, gi) => (
+              <div key={gi} style={{ marginBottom: 14 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: accent, margin: "0 0 4px" }}>{g.company}</p>
+                {g.roles.map((r, ri) => (
+                  <div key={ri} style={{ marginBottom: 8, paddingLeft: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, margin: 0 }}>{r.title}</p>
+                      <p style={{ fontSize: 9, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                    </div>
+                    {r.points.length > 0 && (
+                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 10, lineHeight: 1.5 }}>
+                        {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </section>
