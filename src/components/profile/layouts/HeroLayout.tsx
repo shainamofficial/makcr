@@ -109,7 +109,7 @@ export default function HeroLayout({ profile, workData, educationData, skillsDat
             </div>
 
             {/* Summary */}
-            <div className="mt-4 max-w-2xl">
+            <div className="mt-4 w-full max-w-2xl overflow-hidden">
               {editing ? (
                 <Textarea
                   value={summary}
