@@ -172,7 +172,7 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
         </div>
 
         {/* Input */}
-        <div className="flex gap-2 pt-2 border-t">
+        <div className="flex gap-2 pt-2 border-t pb-[env(safe-area-inset-bottom)]">
           {isComplete ? (
             <Button onClick={onGenerateResume} className="w-full gap-2">
               <FileCheck className="h-4 w-4" />

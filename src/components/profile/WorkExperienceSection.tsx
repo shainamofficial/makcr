@@ -88,7 +88,7 @@ export default function WorkExperienceSection({ data }: { data: any[] }) {
                       <p className="text-sm font-semibold text-foreground">{we.title}</p>
                       <p className="text-xs text-muted-foreground">{formatRange(we.start_date, we.end_date)}</p>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                       {we.is_full_remote && <Badge variant="secondary">Remote</Badge>}
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(we); setModalOpen(true); }}>
                         <Pencil className="h-3.5 w-3.5" />

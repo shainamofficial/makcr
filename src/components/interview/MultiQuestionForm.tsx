@@ -49,7 +49,7 @@ const MultiQuestionForm = ({ questions, onSubmit, disabled }: MultiQuestionFormP
   const hasAnyValue = questions.some((q) => values[q.id]?.trim());
 
   return (
-    <div className="ml-11 max-w-[85%] sm:max-w-[75%] space-y-3 rounded-2xl border border-border bg-card p-4">
+    <div className="ml-2 sm:ml-11 max-w-[95%] sm:max-w-[75%] space-y-3 rounded-2xl border border-border bg-card p-4">
       {questions.map((q) => (
         <div key={q.id} className="space-y-1.5">
           <Label htmlFor={`q-${q.id}`} className="text-xs font-medium text-muted-foreground">
