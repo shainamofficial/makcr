@@ -68,7 +68,7 @@ export default function HeroLayout({ profile, workData, educationData, skillsDat
         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-primary-foreground/5" />
         <div className="absolute top-1/2 right-1/4 h-32 w-32 rounded-full bg-primary-foreground/[0.03]" />
 
-        <div className="relative z-10 flex flex-col items-center gap-6 p-10 sm:flex-row sm:items-end sm:p-14">
+        <div className="relative z-10 flex flex-col items-center gap-6 p-8 sm:flex-row sm:items-center sm:p-10">
           {/* Avatar */}
           <div className="relative group cursor-pointer shrink-0" onClick={handleAvatarClick}>
             <Avatar className="h-28 w-28 text-3xl ring-4 ring-primary-foreground/20 shadow-2xl">
