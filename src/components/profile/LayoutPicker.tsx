@@ -1,4 +1,4 @@
-import { LayoutGrid, Clock, AlignLeft, Sparkles } from "lucide-react";
+import { LayoutGrid, Clock, AlignLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import type { ProfileLayoutType } from "./layouts/types";
