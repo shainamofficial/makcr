@@ -9,7 +9,6 @@ import LayoutPicker from "@/components/profile/LayoutPicker";
 import ClassicLayout from "@/components/profile/layouts/ClassicLayout";
 import TimelineLayout from "@/components/profile/layouts/TimelineLayout";
 import MinimalLayout from "@/components/profile/layouts/MinimalLayout";
-import HeroLayout from "@/components/profile/layouts/HeroLayout";
 import type { ProfileLayoutType } from "@/components/profile/layouts/types";
 
 const layoutComponents: Record<ProfileLayoutType, React.ComponentType<any>> = {
