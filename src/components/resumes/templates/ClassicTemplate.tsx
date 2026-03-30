@@ -17,19 +17,15 @@ export default function ClassicTemplate({ user, summary, workExperiences, educat
 
   return (
     <div className="resume-page classic-template bg-white text-black" style={{ fontFamily: "Georgia, 'Times New Roman', serif", width: "8.5in", minHeight: "11in", padding: "0.75in 1in", margin: "0 auto", position: "relative" }}>
-      {/* Photo */}
-      {includePhoto && profilePictureUrl && (
-        <img
-          src={profilePictureUrl}
-          alt=""
-          style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", position: "absolute", top: "0.75in", right: "1in" }}
-        />
-      )}
-
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: 8 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: 1 }}>{fullName}</h1>
-        {contact && <p style={{ fontSize: 11, margin: "4px 0 0", color: "#333" }}>{contact}</p>}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 8 }}>
+        {includePhoto && profilePictureUrl && (
+          <img src={profilePictureUrl} alt="" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+        )}
+        <div style={{ textAlign: "center" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: 1 }}>{fullName}</h1>
+          {contact && <p style={{ fontSize: 11, margin: "4px 0 0", color: "#333" }}>{contact}</p>}
+        </div>
       </div>
       <hr style={{ border: "none", borderTop: "1px solid #000", margin: "8px 0 16px" }} />
 

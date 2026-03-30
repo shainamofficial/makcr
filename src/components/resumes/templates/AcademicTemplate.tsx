@@ -5,7 +5,7 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
-export default function AcademicTemplate({ user, summary, workExperiences, education, skills, projects }: ResumeData) {
+export default function AcademicTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
@@ -16,6 +16,9 @@ export default function AcademicTemplate({ user, summary, workExperiences, educa
   return (
     <div className="resume-page academic-template" style={{ fontFamily: "'Times New Roman', serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#000", padding: "0.75in 1in" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
+        {includePhoto && profilePictureUrl && (
+          <img src={profilePictureUrl} alt="" style={{ width: 55, height: 55, borderRadius: "50%", objectFit: "cover", margin: "0 auto 8px" }} />
+        )}
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>{fullName}</h1>
         <p style={{ fontSize: 11, margin: "4px 0 0" }}>{[user.email, user.phone_number].filter(Boolean).join(" | ")}</p>
       </div>

@@ -5,7 +5,7 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
-export default function CorporateTemplate({ user, summary, workExperiences, education, skills, projects }: ResumeData) {
+export default function CorporateTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const navy = "#2D3748";
   const gray = "#718096";
@@ -17,9 +17,14 @@ export default function CorporateTemplate({ user, summary, workExperiences, educ
 
   return (
     <div className="resume-page corporate-template" style={{ fontFamily: "'Segoe UI', Arial, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", padding: "0.6in 0.8in" }}>
-      <div style={{ borderBottom: `3px solid ${navy}`, paddingBottom: 12, marginBottom: 16 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: navy }}>{fullName}</h1>
-        <p style={{ fontSize: 10, color: gray, margin: "4px 0 0" }}>{[user.email, user.phone_number].filter(Boolean).join(" | ")}</p>
+      <div style={{ borderBottom: `3px solid ${navy}`, paddingBottom: 12, marginBottom: 16, display: "flex", alignItems: "center", gap: 14 }}>
+        {includePhoto && profilePictureUrl && (
+          <img src={profilePictureUrl} alt="" style={{ width: 50, height: 50, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+        )}
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: navy }}>{fullName}</h1>
+          <p style={{ fontSize: 10, color: gray, margin: "4px 0 0" }}>{[user.email, user.phone_number].filter(Boolean).join(" | ")}</p>
+        </div>
       </div>
 
       {summary && (
