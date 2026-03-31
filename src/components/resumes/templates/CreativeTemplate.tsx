@@ -2,10 +2,18 @@ import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
 import { fmtDate } from "./fmtDate";
 
+function UrlPill({ url, color }: { url: string; color: string }) {
+  return (
+    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, border: `1px solid ${color}`, color, fontSize: 10, marginRight: 6, marginTop: 4 }}>
+      {"🔗 "}{url.replace(/^https?:\/\//, "")}
+    </span>
+  );
+}
+
 export default function CreativeTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
-  const coral = "#E8634A";
-  const bg = "#FFF8F6";
+  const coral = "#F06449";
+  const bg = "#FFFAF8";
   const grouped = groupWorkByCompany(workExperiences);
 
   const groupedSkills = skills.reduce<Record<string, string[]>>((acc, s) => {
@@ -14,24 +22,24 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
   }, {});
 
   return (
-    <div className="resume-page creative-template" style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: bg, color: "#333", padding: "0.6in 0.7in" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24 }}>
+    <div className="resume-page creative-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: bg, color: "#1a1a1a", padding: "0.6in 0.7in", wordSpacing: "0.05em" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
         {includePhoto && profilePictureUrl && (
           <img src={profilePictureUrl} alt="" style={{ width: 80, height: 80, borderRadius: 16, objectFit: "cover", border: `3px solid ${coral}` }} />
         )}
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 800, margin: 0, color: coral }}>{fullName}</h1>
-          <p style={{ fontSize: 11, margin: "4px 0 0", color: "#777" }}>
+          <p style={{ fontSize: 11, margin: "4px 0 0", color: "#9CA3AF", lineHeight: 1.5 }}>
             {[user.email, user.phone_number].filter(Boolean).join(" · ")}
           </p>
         </div>
       </div>
-      <div style={{ height: 3, background: `linear-gradient(90deg, ${coral}, #F9A825, ${coral})`, borderRadius: 2, marginBottom: 20 }} />
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${coral}, #FBBF24, ${coral})`, borderRadius: 2, marginBottom: 20 }} />
 
       {summary && (
         <section style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, color: coral, margin: "0 0 6px" }}>About Me</h2>
-          <p style={{ fontSize: 11, lineHeight: 1.7, margin: 0 }}>{summary}</p>
+          <p style={{ fontSize: 11, lineHeight: 1.7, margin: 0, color: "#374151" }}>{summary}</p>
         </section>
       )}
 
@@ -45,15 +53,32 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
                 <div key={ri} style={{ marginBottom: 8 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     <p style={{ fontSize: 11, fontWeight: 600, margin: 0 }}>{r.title}</p>
-                    <p style={{ fontSize: 10, color: "#999", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
+                    <p style={{ fontSize: 10, color: "#9CA3AF", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                   </div>
                   {r.points.length > 0 && (
-                    <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5, listStyleType: "disc" }}>
-                      {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                    <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.6, listStyleType: "disc" }}>
+                      {r.points.map((p, j) => <li key={j} style={{ marginBottom: 2 }}>{p}</li>)}
                     </ul>
                   )}
                 </div>
               ))}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {projects.length > 0 && (
+        <section style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: coral, margin: "0 0 10px" }}>Projects</h2>
+          {projects.map((p, i) => (
+            <div key={i} style={{ marginBottom: 10, padding: "8px 12px", background: "#fff", borderRadius: 8, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{p.title}</p>
+              <p style={{ fontSize: 11, margin: "3px 0 0", lineHeight: 1.6, color: "#374151" }}>{p.description}</p>
+              {p.urls?.length > 0 && (
+                <div style={{ marginTop: 4 }}>
+                  {p.urls.map((u, j) => <UrlPill key={j} url={u} color={coral} />)}
+                </div>
+              )}
             </div>
           ))}
         </section>
@@ -64,7 +89,7 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
           <h2 style={{ fontSize: 14, fontWeight: 700, color: coral, margin: "0 0 10px" }}>Skills</h2>
           {Object.entries(groupedSkills).map(([cat, names]) => (
             <div key={cat} style={{ marginBottom: 8 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, color: "#777", margin: "0 0 4px" }}>{cat}</p>
+              <p style={{ fontSize: 10, fontWeight: 600, color: "#9CA3AF", margin: "0 0 4px" }}>{cat}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {names.map((n, i) => (
                   <span key={i} style={{ fontSize: 10, background: coral, color: "#fff", borderRadius: 12, padding: "3px 10px" }}>{n}</span>
@@ -81,20 +106,8 @@ export default function CreativeTemplate({ user, summary, workExperiences, educa
           {education.map((e, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
               <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{e.institution}</p>
-              <p style={{ fontSize: 11, margin: "2px 0 0" }}>{e.degree} — {e.discipline}</p>
-              <p style={{ fontSize: 10, color: "#999", margin: "2px 0 0" }}>{fmtDate(e.start_date)} — {fmtDate(e.end_date)}</p>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {projects.length > 0 && (
-        <section style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 700, color: coral, margin: "0 0 10px" }}>Projects</h2>
-          {projects.map((p, i) => (
-            <div key={i} style={{ marginBottom: 8 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{p.title}</p>
-              <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.5 }}>{p.description}</p>
+              <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.5 }}>{e.degree} — {e.discipline}</p>
+              <p style={{ fontSize: 10, color: "#9CA3AF", margin: "2px 0 0" }}>{fmtDate(e.start_date)} — {fmtDate(e.end_date)}</p>
             </div>
           ))}
         </section>
