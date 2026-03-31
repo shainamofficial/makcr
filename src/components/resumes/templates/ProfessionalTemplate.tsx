@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -20,7 +21,6 @@ export default function ProfessionalTemplate({ user, summary, workExperiences, e
     return acc;
   }, {});
 
-  // Main column sections controlled by sectionOrder
   const mainSections: Record<string, () => JSX.Element | null> = {
     summary: () => summary ? <p key="summary" style={{ fontSize: 11, lineHeight: 1.7, color: "#6B7280", margin: "8px 0 20px" }}>{summary}</p> : null,
     work: () => grouped.length > 0 ? (
@@ -67,8 +67,8 @@ export default function ProfessionalTemplate({ user, summary, workExperiences, e
   const mainOrder = (sectionOrder ?? ["summary", "work", "projects", "education", "skills"]).filter(k => k in mainSections);
 
   return (
-    <div className="resume-page professional-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", display: "flex", wordSpacing: "0.05em" }}>
-      <div style={{ width: "32%", background: "#F8FAFC", borderLeft: `3px solid ${accent}`, padding: "0.6in 0.35in", flexShrink: 0 }}>
+    <div className="resume-page professional-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#fff", color: "#1a1a1a", display: "flex", wordSpacing: "0.05em" }}>
+      <div style={{ width: "32%", background: "#F8FAFC", borderLeft: `3px solid ${accent}`, padding: "15mm 9mm", flexShrink: 0 }}>
         {includePhoto && profilePictureUrl && (
           <div style={{ textAlign: "center", marginBottom: 20 }}>
             <img src={profilePictureUrl} alt="" style={{ width: 85, height: 85, borderRadius: "50%", objectFit: "cover", border: `3px solid ${accent}` }} />
@@ -108,7 +108,7 @@ export default function ProfessionalTemplate({ user, summary, workExperiences, e
         )}
       </div>
 
-      <div style={{ width: "68%", padding: "0.6in 0.5in" }}>
+      <div style={{ width: "68%", padding: "15mm 12mm" }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 4px", color: accent }}>{fullName}</h1>
         {mainOrder.map(key => mainSections[key]?.())}
       </div>

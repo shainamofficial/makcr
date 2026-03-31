@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -25,12 +26,12 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
 
   const sections: Record<string, () => JSX.Element | null> = {
     summary: () => summary ? (
-      <section key="summary" style={{ marginBottom: 32 }}>
+      <section key="summary" style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 11, lineHeight: 1.8, margin: 0, color: "#64748B" }}>{summary}</p>
       </section>
     ) : null,
     work: () => grouped.length > 0 ? (
-      <section key="work" style={{ marginBottom: 32 }}>
+      <section key="work" style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Experience</h2>
         {grouped.map((g, gi) => (
           <div key={gi} style={{ marginBottom: 18 }}>
@@ -53,7 +54,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
       </section>
     ) : null,
     projects: () => projects.length > 0 ? (
-      <section key="projects" style={{ marginBottom: 32 }}>
+      <section key="projects" style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Projects</h2>
         {projects.map((p, i) => (
           <div key={i} style={{ marginBottom: 12 }}>
@@ -69,7 +70,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
       </section>
     ) : null,
     education: () => education.length > 0 ? (
-      <section key="education" style={{ marginBottom: 32 }}>
+      <section key="education" style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Education</h2>
         {education.map((e, i) => (
           <div key={i} style={{ marginBottom: 12 }}>
@@ -80,7 +81,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
       </section>
     ) : null,
     skills: () => Object.keys(groupedSkills).length > 0 ? (
-      <section key="skills" style={{ marginBottom: 32 }}>
+      <section key="skills" style={{ marginBottom: 28 }}>
         <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Skills</h2>
         {Object.entries(groupedSkills).map(([cat, names]) => (
           <p key={cat} style={{ fontSize: 11, margin: "0 0 6px", color: "#475569", lineHeight: 1.6 }}><span style={{ fontWeight: 600 }}>{cat}:</span> {names.join(", ")}</p>
@@ -92,7 +93,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
   const order = sectionOrder ?? DEFAULT_ORDER;
 
   return (
-    <div className="resume-page nordic-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#FAFBFF", color: "#1E293B", padding: "1in 1.1in", wordSpacing: "0.05em" }}>
+    <div className="resume-page nordic-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#FAFBFF", color: "#1E293B", padding: "25mm 28mm", wordSpacing: "0.05em" }}>
       <div style={{ marginBottom: 36 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           {includePhoto && profilePictureUrl && (

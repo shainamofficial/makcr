@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -103,7 +104,7 @@ export default function RibbonTemplate({ user, summary, workExperiences, educati
   const order = sectionOrder ?? DEFAULT_ORDER;
 
   return (
-    <div className="resume-page ribbon-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#FFFBF5", color: "#1a1a1a", padding: "0.6in 0.8in", wordSpacing: "0.05em" }}>
+    <div className="resume-page ribbon-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#FFFBF5", color: "#1a1a1a", padding: "15mm 20mm", wordSpacing: "0.05em" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
         {includePhoto && profilePictureUrl && (
           <img src={profilePictureUrl} alt="" style={{ width: 65, height: 65, borderRadius: "50%", objectFit: "cover", border: `2px solid ${warm}` }} />

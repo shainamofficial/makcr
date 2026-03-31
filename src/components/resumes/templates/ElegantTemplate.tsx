@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -92,7 +93,7 @@ export default function ElegantTemplate({ user, summary, workExperiences, educat
   const order = sectionOrder ?? DEFAULT_ORDER;
 
   return (
-    <div className="resume-page elegant-template" style={{ fontFamily: "Georgia, 'Palatino Linotype', serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#2a2a2a", padding: "1in", wordSpacing: "0.05em" }}>
+    <div className="resume-page elegant-template" style={{ fontFamily: "Georgia, 'Palatino Linotype', serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#fff", color: "#2a2a2a", padding: "25mm", wordSpacing: "0.05em" }}>
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         {includePhoto && profilePictureUrl && (
           <img src={profilePictureUrl} alt="" style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover", marginBottom: 10, border: `2px solid ${gold}` }} />

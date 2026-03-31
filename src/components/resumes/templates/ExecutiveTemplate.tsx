@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -96,8 +97,8 @@ export default function ExecutiveTemplate({ user, summary, workExperiences, educ
   const order = sectionOrder ?? DEFAULT_ORDER;
 
   return (
-    <div className="resume-page executive-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
-      <div style={{ background: `linear-gradient(135deg, ${navy} 0%, #334155 100%)`, color: "#fff", padding: "0.6in 0.8in", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="resume-page executive-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
+      <div style={{ background: `linear-gradient(135deg, ${navy} 0%, #334155 100%)`, color: "#fff", padding: "15mm 20mm", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h1 style={{ fontSize: 30, fontWeight: 700, margin: 0, letterSpacing: 1 }}>{fullName}</h1>
           <p style={{ fontSize: 11, margin: "6px 0 0", color: amber, letterSpacing: 0.5 }}>
@@ -108,7 +109,7 @@ export default function ExecutiveTemplate({ user, summary, workExperiences, educ
           <img src={profilePictureUrl} alt="" style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover", border: `2px solid ${amber}` }} />
         )}
       </div>
-      <div style={{ padding: "0.5in 0.8in" }}>
+      <div style={{ padding: "12mm 20mm" }}>
         {order.map(key => sections[key]?.())}
       </div>
     </div>

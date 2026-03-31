@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -20,7 +21,6 @@ export default function TwoColumnTemplate({ user, summary, workExperiences, educ
     return acc;
   }, {});
 
-  // Left column sections (main content)
   const leftSections: Record<string, () => JSX.Element | null> = {
     work: () => grouped.length > 0 ? (
       <section key="work" style={{ marginBottom: 16 }}>
@@ -64,8 +64,8 @@ export default function TwoColumnTemplate({ user, summary, workExperiences, educ
   const leftOrder = (sectionOrder ?? ["summary", "work", "projects", "education", "skills"]).filter(k => k in leftSections);
 
   return (
-    <div className="resume-page twocolumn-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
-      <div style={{ padding: "0.5in 0.6in 0.3in", borderBottom: `2px solid ${accent}` }}>
+    <div className="resume-page twocolumn-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
+      <div style={{ padding: "12mm 15mm 8mm", borderBottom: `2px solid ${accent}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {includePhoto && profilePictureUrl && (
             <img src={profilePictureUrl} alt="" style={{ width: 55, height: 55, borderRadius: "50%", objectFit: "cover" }} />
@@ -78,12 +78,12 @@ export default function TwoColumnTemplate({ user, summary, workExperiences, educ
         {summary && <p style={{ fontSize: 10, lineHeight: 1.7, margin: "10px 0 0", color: "#4B5563" }}>{summary}</p>}
       </div>
 
-      <div style={{ display: "flex", padding: "0.3in 0.6in 0.5in" }}>
-        <div style={{ width: "58%", paddingRight: "0.3in" }}>
+      <div style={{ display: "flex", padding: "8mm 15mm 12mm" }}>
+        <div style={{ width: "58%", paddingRight: "8mm" }}>
           {leftOrder.map(key => leftSections[key]?.())}
         </div>
 
-        <div style={{ width: "42%", paddingLeft: "0.3in", borderLeft: `1px solid #E5E7EB` }}>
+        <div style={{ width: "42%", paddingLeft: "8mm", borderLeft: `1px solid #E5E7EB` }}>
           {Object.keys(groupedSkills).length > 0 && (
             <section style={{ marginBottom: 16 }}>
               <h2 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: accent, margin: "0 0 8px", borderBottom: `1px solid #E5E7EB`, paddingBottom: 4 }}>Skills</h2>

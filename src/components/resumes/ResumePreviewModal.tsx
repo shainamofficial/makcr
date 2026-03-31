@@ -29,7 +29,7 @@ export default function ResumePreviewModal({ templateName, data, onClose }: Prop
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="w-[95vw] sm:max-w-[9in] max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="w-[95vw] sm:max-w-[210mm] max-h-[95vh] overflow-y-auto p-0">
         <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background border-b px-3 sm:px-4 py-2 sm:py-3 print:hidden">
           <Button variant="ghost" size="sm" onClick={onClose} className="gap-1 text-xs sm:text-sm px-2 sm:px-3">
             <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Back to Dashboard</span><span className="sm:hidden">Back</span>
