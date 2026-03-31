@@ -23,7 +23,7 @@ import type { StructuredQuestion } from "@/components/interview/MultiQuestionFor
 import CompletionBanner from "@/components/interview/CompletionBanner";
 import {
   findActiveSession,
-  loadMessages,
+  loadRecentMessages,
   createSession,
   abandonSession,
   saveMessage,
@@ -51,6 +51,9 @@ const Interview = () => {
   const [awaitingStaleChoice, setAwaitingStaleChoice] = useState(false);
   const [showResumeUpload, setShowResumeUpload] = useState(false);
   const [pendingQuestions, setPendingQuestions] = useState<StructuredQuestion[] | null>(null);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [messageOffset, setMessageOffset] = useState(0);
 
   const userInitial =
     user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() ??
@@ -65,7 +68,9 @@ const Interview = () => {
       const existing = await findActiveSession(user.id);
 
       if (existing) {
-        const msgs = await loadMessages(existing.id);
+        const { messages: msgs, hasMore } = await loadRecentMessages(existing.id, 20);
+        setHasMoreMessages(hasMore);
+        setMessageOffset(20);
 
         // Restore pending questions from last assistant message
         const lastAssistant = [...msgs].reverse().find(m => m.role === "assistant");
@@ -304,6 +309,21 @@ Let's start — what company do you currently work at, or what was your most rec
     setShowResumeUpload(false);
   };
 
+  const handleLoadMore = useCallback(async () => {
+    if (!chatSession || loadingMore || !hasMoreMessages) return;
+    setLoadingMore(true);
+    try {
+      const { messages: olderMsgs, hasMore } = await loadRecentMessages(chatSession.id, 20, messageOffset);
+      setMessages((prev) => [...olderMsgs, ...prev]);
+      setMessageOffset((prev) => prev + 20);
+      setHasMoreMessages(hasMore);
+    } catch (err) {
+      console.error("Failed to load more messages:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [chatSession, loadingMore, hasMoreMessages, messageOffset]);
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -346,7 +366,7 @@ Let's start — what company do you currently work at, or what was your most rec
             </Drawer>
           )}
         </div>
-        <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
+        <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping} onLoadMore={handleLoadMore} hasMore={hasMoreMessages} loadingMore={loadingMore}>
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
