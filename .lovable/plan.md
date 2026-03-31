@@ -1,33 +1,46 @@
 
 
-# Paginated Chat Messages with Scroll-to-Load-More
+# Fix: AI Interview Not Rendering Input Fields for Multi-Question Messages
 
-## Overview
-Load only the last 20 messages initially, then load older messages when the user scrolls to the top of the chat.
+## Problem
+The AI sometimes asks multiple questions in a single message (e.g., "What was the team size?" and "What impact did this have?") but fails to include the structured `questions` array in its JSON response. This means the UI falls back to the plain text input instead of rendering individual input fields via `MultiQuestionForm`.
 
-## Changes
+## Root Cause
+This is an LLM compliance issue -- despite strong prompting, Claude occasionally returns `questions: null` when it should return structured fields. The system prompt already instructs this behavior but the AI doesn't always comply.
 
-### 1. `src/lib/chat-service.ts` — Add paginated loading function
+## Solution
+Add a **client-side fallback** that detects when an assistant message contains multiple questions (by counting `?` characters or splitting on question patterns) but no `questions` array was provided. In that case, auto-generate textarea fields for each detected question.
 
-Add `loadRecentMessages(sessionId, limit, offset)` that fetches messages ordered by `created_at DESC` with limit/offset, then reverses the result for chronological display. Keep the existing `loadMessages` for backward compatibility (used by ResumeGapChat).
+### Changes
 
-### 2. `src/pages/Interview.tsx` — Use paginated loader
+**File: `src/pages/Interview.tsx`**
+- After receiving the AI response, if `data.questions` is null/empty but the message contains 2+ questions (detected by `?` count), extract each question line and build a synthetic `StructuredQuestion[]` array with `type: "textarea"`
+- Pass these auto-generated questions to `setPendingQuestions` as usual
 
-- Replace `loadMessages(existing.id)` call with `loadRecentMessages(existing.id, 20)` 
-- Track `hasMoreMessages` and `oldestLoadedTimestamp` state
-- Pass `onLoadMore` callback and `hasMore` flag to `ChatMessages`
+**File: `src/components/resumes/ResumeGapChat.tsx`**
+- Apply the same fallback logic for the resume gap chat flow
 
-### 3. `src/components/interview/ChatMessages.tsx` — Infinite scroll up
+**New helper: `src/lib/extract-questions.ts`**
+- Export a function `extractQuestionsFromMessage(text: string): StructuredQuestion[] | null`
+- Split the message into sentences/lines, find those ending with `?`
+- If 2+ questions found, return an array of `{ id, label, type: "textarea", placeholder }` objects
+- If 0-1 questions, return `null` (single question is fine as free-text)
 
-- Accept `onLoadMore?: () => void` and `hasMore?: boolean` props
-- Add a `topRef` with `IntersectionObserver` — when visible, call `onLoadMore`
-- Show a small spinner at the top while loading older messages
-- Preserve scroll position after prepending older messages (save `scrollHeight` before load, restore after)
+### Example
+AI message: "What was the size of these teams and delivery timelines?\nFor the Strike Through Pricing feature -- what impact did this have on adoption?"
+
+Extracted questions:
+```json
+[
+  { "id": "q_1", "label": "What was the size of these teams and delivery timelines?", "type": "textarea" },
+  { "id": "q_2", "label": "What impact did the Strike Through Pricing feature have on adoption?", "type": "textarea" }
+]
+```
 
 ### Files changed
 | File | Change |
 |------|--------|
-| `src/lib/chat-service.ts` | Add `loadRecentMessages` with limit/offset |
-| `src/pages/Interview.tsx` | Use paginated load, track pagination state, pass `onLoadMore` |
-| `src/components/interview/ChatMessages.tsx` | Add scroll-up detection + "load more" trigger |
+| `src/lib/extract-questions.ts` | New helper to detect and extract questions from plain text |
+| `src/pages/Interview.tsx` | Use fallback when AI returns no structured questions |
+| `src/components/resumes/ResumeGapChat.tsx` | Same fallback logic |
 
