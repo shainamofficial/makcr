@@ -1,11 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  const date = new Date(d);
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 export default function ClassicTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
