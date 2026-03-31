@@ -31,15 +31,61 @@ const TypingIndicator = () => (
   </div>
 );
 
-const ChatMessages = ({ messages, userInitial, isTyping, children }: ChatMessagesProps) => {
+const ChatMessages = ({ messages, userInitial, isTyping, children, onLoadMore, hasMore, loadingMore }: ChatMessagesProps) => {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const prevScrollHeightRef = useRef<number>(0);
+  const isInitialLoadRef = useRef(true);
+
+  // Auto-scroll to bottom on new messages (not when loading older ones)
+  useEffect(() => {
+    if (!loadingMore) {
+      bottomRef.current?.scrollIntoView({ behavior: isInitialLoadRef.current ? "instant" : "smooth" });
+      isInitialLoadRef.current = false;
+    }
+  }, [messages, isTyping, children, loadingMore]);
+
+  // Preserve scroll position after prepending older messages
+  useEffect(() => {
+    if (prevScrollHeightRef.current > 0 && scrollContainerRef.current) {
+      const newScrollHeight = scrollContainerRef.current.scrollHeight;
+      scrollContainerRef.current.scrollTop = newScrollHeight - prevScrollHeightRef.current;
+      prevScrollHeightRef.current = 0;
+    }
+  }, [messages]);
+
+  // IntersectionObserver for scroll-to-top loading
+  const handleLoadMore = useCallback(() => {
+    if (onLoadMore && hasMore && !loadingMore && scrollContainerRef.current) {
+      prevScrollHeightRef.current = scrollContainerRef.current.scrollHeight;
+      onLoadMore();
+    }
+  }, [onLoadMore, hasMore, loadingMore]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping, children]);
+    const sentinel = topSentinelRef.current;
+    if (!sentinel || !onLoadMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      { root: scrollContainerRef.current, threshold: 0.1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [handleLoadMore, onLoadMore]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
+    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
+      {hasMore && (
+        <div ref={topSentinelRef} className="flex justify-center py-2">
+          {loadingMore && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+        </div>
+      )}
       {messages.map((msg) => {
         const isUser = msg.role === "user";
         return (

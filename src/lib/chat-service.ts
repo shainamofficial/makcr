@@ -31,6 +31,25 @@ export async function loadMessages(sessionId: string): Promise<ChatMessage[]> {
   return data ?? [];
 }
 
+export async function loadRecentMessages(
+  sessionId: string,
+  limit = 20,
+  offset = 0
+): Promise<{ messages: ChatMessage[]; hasMore: boolean }> {
+  const { data, error, count } = await supabase
+    .from("chat_message")
+    .select("*", { count: "exact" })
+    .eq("chat_session_id", sessionId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) throw error;
+  const messages = (data ?? []).reverse();
+  const totalCount = count ?? 0;
+  const hasMore = offset + limit < totalCount;
+  return { messages, hasMore };
+}
+
 export async function createSession(
   userId: string,
   sessionType: "initial_interview" | "update"
