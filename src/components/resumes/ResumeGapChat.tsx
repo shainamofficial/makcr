@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import MultiQuestionForm, { type StructuredQuestion } from "@/components/interview/MultiQuestionForm";
+import { extractQuestionsFromMessage } from "@/lib/extract-questions";
 
 interface Props {
   sessionId: string;
@@ -101,6 +102,10 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
       // Handle structured questions
       if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
         setPendingQuestions(data.questions as StructuredQuestion[]);
+      } else {
+        // Fallback: extract questions from message text
+        const extracted = extractQuestionsFromMessage(data.message);
+        if (extracted) setPendingQuestions(extracted);
       }
 
       // If the AI says gap analysis is done
