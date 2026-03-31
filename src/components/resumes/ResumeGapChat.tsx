@@ -177,26 +177,36 @@ export default function ResumeGapChat({ sessionId, userId, onClose, onGenerateRe
         </div>
 
         {/* Input */}
-        <div className="flex gap-2 pt-2 border-t pb-[env(safe-area-inset-bottom)]">
+        <div className="flex flex-col gap-2 pt-2 border-t pb-[env(safe-area-inset-bottom)]">
           {isComplete ? (
             <Button onClick={onGenerateResume} className="w-full gap-2">
               <FileCheck className="h-4 w-4" />
               Generate Resume Now
             </Button>
-          ) : !pendingQuestions ? (
+          ) : (
             <>
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type a message..."
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleInputSend()}
-                disabled={loading}
-              />
-              <Button onClick={handleInputSend} disabled={loading || !input.trim()} size="icon">
-                <Send className="h-4 w-4" />
-              </Button>
+              {!pendingQuestions && (
+                <div className="flex gap-2">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type a message..."
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleInputSend()}
+                    disabled={loading}
+                  />
+                  <Button onClick={handleInputSend} disabled={loading || !input.trim()} size="icon">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              {!loading && !initialLoading && (
+                <Button variant="outline" onClick={onGenerateResume} className="w-full gap-2">
+                  <SkipForward className="h-4 w-4" />
+                  Skip & Generate Resume
+                </Button>
+              )}
             </>
-          ) : null}
+          )}
         </div>
       </DialogContent>
     </Dialog>
