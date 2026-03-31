@@ -23,7 +23,7 @@ import type { StructuredQuestion } from "@/components/interview/MultiQuestionFor
 import CompletionBanner from "@/components/interview/CompletionBanner";
 import {
   findActiveSession,
-  loadMessages,
+  loadRecentMessages,
   createSession,
   abandonSession,
   saveMessage,
