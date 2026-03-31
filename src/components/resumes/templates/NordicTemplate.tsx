@@ -2,9 +2,17 @@ import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
 import { fmtDate } from "./fmtDate";
 
+function UrlPill({ url, color }: { url: string; color: string }) {
+  return (
+    <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 12, border: `1px solid ${color}`, color, fontSize: 10, marginRight: 6, marginTop: 4 }}>
+      {"🔗 "}{url.replace(/^https?:\/\//, "")}
+    </span>
+  );
+}
+
 export default function NordicTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
-  const blue = "#93C5FD";
+  const blue = "#60A5FA";
   const darkBlue = "#1E40AF";
   const grouped = groupWorkByCompany(workExperiences);
 
@@ -14,7 +22,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
   }, {});
 
   return (
-    <div className="resume-page nordic-template" style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#FAFBFF", color: "#1E293B", padding: "1in 1.1in" }}>
+    <div className="resume-page nordic-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#FAFBFF", color: "#1E293B", padding: "1in 1.1in", wordSpacing: "0.05em" }}>
       <div style={{ marginBottom: 36 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           {includePhoto && profilePictureUrl && (
@@ -22,7 +30,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
           )}
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 300, margin: 0, letterSpacing: 1 }}>{fullName}</h1>
-            <p style={{ fontSize: 11, color: "#94A3B8", margin: "6px 0 0" }}>
+            <p style={{ fontSize: 11, color: "#94A3B8", margin: "6px 0 0", lineHeight: 1.5 }}>
               {[user.email, user.phone_number].filter(Boolean).join("  ·  ")}
             </p>
           </div>
@@ -50,33 +58,12 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
                   </div>
                   {r.points.length > 0 && (
                     <ul style={{ margin: "6px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.7, color: "#475569", listStyleType: "disc" }}>
-                      {r.points.map((p, j) => <li key={j}>{p}</li>)}
+                      {r.points.map((p, j) => <li key={j} style={{ marginBottom: 2 }}>{p}</li>)}
                     </ul>
                   )}
                 </div>
               ))}
             </div>
-          ))}
-        </section>
-      )}
-
-      {education.length > 0 && (
-        <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Education</h2>
-          {education.map((e, i) => (
-            <div key={i} style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, margin: 0 }}>{e.institution}</p>
-              <p style={{ fontSize: 11, color: "#64748B", margin: "3px 0 0" }}>{e.degree} — {e.discipline} | {fmtDate(e.start_date)} — {fmtDate(e.end_date)}</p>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {Object.keys(groupedSkills).length > 0 && (
-        <section style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Skills</h2>
-          {Object.entries(groupedSkills).map(([cat, names]) => (
-            <p key={cat} style={{ fontSize: 11, margin: "0 0 6px", color: "#475569" }}><span style={{ fontWeight: 600 }}>{cat}:</span> {names.join(", ")}</p>
           ))}
         </section>
       )}
@@ -88,7 +75,33 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
             <div key={i} style={{ marginBottom: 12 }}>
               <p style={{ fontSize: 12, fontWeight: 600, margin: 0 }}>{p.title}</p>
               <p style={{ fontSize: 11, color: "#64748B", margin: "3px 0 0", lineHeight: 1.7 }}>{p.description}</p>
+              {p.urls?.length > 0 && (
+                <div style={{ marginTop: 4 }}>
+                  {p.urls.map((u, j) => <UrlPill key={j} url={u} color={darkBlue} />)}
+                </div>
+              )}
             </div>
+          ))}
+        </section>
+      )}
+
+      {education.length > 0 && (
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Education</h2>
+          {education.map((e, i) => (
+            <div key={i} style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, margin: 0 }}>{e.institution}</p>
+              <p style={{ fontSize: 11, color: "#64748B", margin: "3px 0 0", lineHeight: 1.5 }}>{e.degree} — {e.discipline} | {fmtDate(e.start_date)} — {fmtDate(e.end_date)}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {Object.keys(groupedSkills).length > 0 && (
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 3, color: darkBlue, margin: "0 0 14px" }}>Skills</h2>
+          {Object.entries(groupedSkills).map(([cat, names]) => (
+            <p key={cat} style={{ fontSize: 11, margin: "0 0 6px", color: "#475569", lineHeight: 1.6 }}><span style={{ fontWeight: 600 }}>{cat}:</span> {names.join(", ")}</p>
           ))}
         </section>
       )}
