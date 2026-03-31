@@ -16,9 +16,10 @@ function ProficiencyDots({ level }: { level: string }) {
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -34,7 +35,6 @@ export default function ModernTemplate({ user, summary, workExperiences, educati
   const accent = "#3B82F6";
   const sidebar = "#1E293B";
 
-  // For two-column, sectionOrder controls main column (summary, work, projects, education)
   const mainSections: Record<string, () => JSX.Element | null> = {
     summary: () => summary ? <p key="summary" style={{ fontSize: 11, lineHeight: 1.7, color: "#6B7280", margin: "0 0 20px" }}>{summary}</p> : null,
     work: () => grouped.length > 0 ? (
@@ -95,8 +95,8 @@ export default function ModernTemplate({ user, summary, workExperiences, educati
   const mainOrder = (sectionOrder ?? ["summary", "work", "projects", "education", "skills"]).filter(k => k in mainSections);
 
   return (
-    <div className="resume-page modern-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", display: "flex", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
-      <div style={{ width: "30%", background: `linear-gradient(180deg, ${sidebar} 0%, #0F172A 100%)`, color: "#fff", padding: "0.6in 0.4in", flexShrink: 0 }}>
+    <div className="resume-page modern-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", display: "flex", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
+      <div style={{ width: "30%", background: `linear-gradient(180deg, ${sidebar} 0%, #0F172A 100%)`, color: "#fff", padding: "15mm 10mm", flexShrink: 0 }}>
         {includePhoto && profilePictureUrl && (
           <div style={{ textAlign: "center", marginBottom: 20 }}>
             <img src={profilePictureUrl} alt="" style={{ width: 90, height: 90, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(255,255,255,0.2)" }} />
@@ -125,7 +125,7 @@ export default function ModernTemplate({ user, summary, workExperiences, educati
         )}
       </div>
 
-      <div style={{ width: "70%", padding: "0.6in 0.5in" }}>
+      <div style={{ width: "70%", padding: "15mm 12mm" }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, margin: "0 0 4px", color: "#1a1a1a" }}>{fullName}</h1>
         <div style={{ height: 3, width: 50, background: accent, borderRadius: 2, marginBottom: 12 }} />
         {mainOrder.map(key => mainSections[key]?.())}

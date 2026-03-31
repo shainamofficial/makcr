@@ -20,9 +20,10 @@ function SkillBar({ name, level }: { name: string; level: string }) {
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -36,7 +37,6 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
     return acc;
   }, {});
 
-  // Main column sections
   const mainSections: Record<string, () => JSX.Element | null> = {
     summary: () => summary ? <p key="summary" style={{ fontSize: 11, lineHeight: 1.7, color: "#4B5563", margin: "0 0 20px" }}>{summary}</p> : null,
     work: () => grouped.length > 0 ? (
@@ -83,8 +83,8 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
   const mainOrder = (sectionOrder ?? ["summary", "work", "projects", "education", "skills"]).filter(k => k in mainSections);
 
   return (
-    <div className="resume-page infographic-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", display: "flex", wordSpacing: "0.05em" }}>
-      <div style={{ width: "35%", background: "#F8FAFC", padding: "0.6in 0.4in", flexShrink: 0, borderRight: `1px solid #E5E7EB` }}>
+    <div className="resume-page infographic-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#fff", color: "#1a1a1a", display: "flex", wordSpacing: "0.05em" }}>
+      <div style={{ width: "35%", background: "#F8FAFC", padding: "15mm 10mm", flexShrink: 0, borderRight: `1px solid #E5E7EB` }}>
         {includePhoto && profilePictureUrl && (
           <div style={{ textAlign: "center", marginBottom: 20 }}>
             <img src={profilePictureUrl} alt="" style={{ width: 90, height: 90, borderRadius: "50%", objectFit: "cover", border: `3px solid ${accent}` }} />
@@ -120,7 +120,7 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
         )}
       </div>
 
-      <div style={{ width: "65%", padding: "0.6in 0.5in" }}>
+      <div style={{ width: "65%", padding: "15mm 12mm" }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 4px", color: accent }}>{fullName}</h1>
         <div style={{ height: 3, width: 40, background: accent, borderRadius: 2, marginBottom: 12 }} />
         {mainOrder.map(key => mainSections[key]?.())}

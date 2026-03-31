@@ -4,9 +4,10 @@ import { fmtDate } from "./fmtDate";
 
 function UrlPill({ url, color }: { url: string; color: string }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", fontFamily: "'Fira Code', 'Courier New', monospace" }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
+       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none", fontFamily: "'Fira Code', 'Courier New', monospace" }}>
       {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </span>
+    </a>
   );
 }
 
@@ -101,8 +102,8 @@ export default function TechTemplate({ user, summary, workExperiences, education
   const order = sectionOrder ?? DEFAULT_ORDER;
 
   return (
-    <div className="resume-page tech-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "8.5in", minHeight: "11in", margin: "0 auto", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
-      <div style={{ background: `linear-gradient(135deg, ${dark} 0%, #1E293B 100%)`, color: green, padding: "0.5in 0.7in", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="resume-page tech-template" style={{ fontFamily: "Inter, system-ui, sans-serif", width: "210mm", minHeight: "297mm", margin: "0 auto", background: "#fff", color: "#1a1a1a", wordSpacing: "0.05em" }}>
+      <div style={{ background: `linear-gradient(135deg, ${dark} 0%, #1E293B 100%)`, color: green, padding: "12mm 18mm", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <p style={{ fontSize: 10, margin: "0 0 4px", opacity: 0.5, fontFamily: "'Fira Code', monospace", lineHeight: 1.5 }}>$ whoami</p>
           <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, color: "#fff" }}>{fullName}</h1>
@@ -114,7 +115,7 @@ export default function TechTemplate({ user, summary, workExperiences, education
           <img src={profilePictureUrl} alt="" style={{ width: 65, height: 65, borderRadius: 8, objectFit: "cover", border: `2px solid ${green}` }} />
         )}
       </div>
-      <div style={{ padding: "0.5in 0.7in" }}>
+      <div style={{ padding: "12mm 18mm" }}>
         {order.map(key => sections[key]?.())}
       </div>
     </div>
