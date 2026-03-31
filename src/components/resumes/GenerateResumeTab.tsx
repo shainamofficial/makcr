@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Eye, Link2, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, Eye, Link2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -18,6 +18,16 @@ import { cn } from "@/lib/utils";
 import { getTemplateComponent } from "./templates";
 import type { ResumeData } from "./templates/types";
 import { getProfilePicSignedUrl } from "@/hooks/useProfileData";
+
+const SECTION_LABELS: Record<string, string> = {
+  summary: "Summary",
+  projects: "Projects",
+  work: "Work Experience",
+  education: "Education",
+  skills: "Skills",
+};
+
+const DEFAULT_SECTION_ORDER = ["summary", "projects", "work", "education", "skills"];
 
 const SAMPLE_RESUME_DATA: ResumeData = {
   user: { first_name: "Jane", last_name: "Doe", email: "jane@example.com", phone_number: "+1 555-0123" },
@@ -36,13 +46,14 @@ const SAMPLE_RESUME_DATA: ResumeData = {
   projects: [{ title: "Open Source CLI Tool", description: "A developer productivity tool with 500+ GitHub stars", urls: ["github.com/jane/cli-tool"] }],
   profilePictureUrl: null,
   includePhoto: false,
+  sectionOrder: DEFAULT_SECTION_ORDER,
 };
 
 interface Props {
   userId: string;
 }
 
-function transformResumeContent(content: any, userProfile: any, includePhoto: boolean, profilePicUrl: string | null): ResumeData {
+function transformResumeContent(content: any, userProfile: any, includePhoto: boolean, profilePicUrl: string | null, sectionOrder: string[]): ResumeData {
   const sections = content?.sections || content;
   return {
     user: {
@@ -76,7 +87,35 @@ function transformResumeContent(content: any, userProfile: any, includePhoto: bo
     })),
     profilePictureUrl: includePhoto ? profilePicUrl : null,
     includePhoto,
+    sectionOrder,
   };
+}
+
+function SectionOrderEditor({ order, onChange }: { order: string[]; onChange: (o: string[]) => void }) {
+  const move = (idx: number, dir: -1 | 1) => {
+    const next = [...order];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-1">
+      {order.map((key, idx) => (
+        <div key={key} className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5">
+          <span className="text-xs text-muted-foreground w-4 text-center">{idx + 1}</span>
+          <span className="text-sm flex-1">{SECTION_LABELS[key] ?? key}</span>
+          <Button variant="ghost" size="icon" className="h-6 w-6" disabled={idx === 0} onClick={() => move(idx, -1)}>
+            <ArrowUp className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-6 w-6" disabled={idx === order.length - 1} onClick={() => move(idx, 1)}>
+            <ArrowDown className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function GenerateResumeTab({ userId }: Props) {
@@ -93,6 +132,7 @@ export default function GenerateResumeTab({ userId }: Props) {
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [previewingTemplateName, setPreviewingTemplateName] = useState<string | null>(null);
   const [picConfirmOpen, setPicConfirmOpen] = useState(false);
+  const [sectionOrder, setSectionOrder] = useState<string[]>(DEFAULT_SECTION_ORDER);
 
   // Resume generation states
   const [generatingResume, setGeneratingResume] = useState(false);
@@ -148,13 +188,14 @@ export default function GenerateResumeTab({ userId }: Props) {
 
   const selectedTemplateName = templates?.find((t) => t.id === selectedTemplate)?.name ?? "Classic";
 
+  const sampleWithOrder = { ...SAMPLE_RESUME_DATA, sectionOrder };
+
   const handleGenerate = async () => {
     if (!jd.trim() || !selectedTemplate) {
       toast({ title: "Please fill in the job description and select a template", variant: "destructive" });
       return;
     }
 
-    // If include photo is on, show confirmation/upload dialog first
     if (includePhoto) {
       setPicConfirmOpen(true);
       return;
@@ -196,7 +237,6 @@ export default function GenerateResumeTab({ userId }: Props) {
       setChatSessionId(chatSession.id);
       setResumeId(resume.id);
 
-      // Save the initial user message to DB
       const jdMessage = `Here is the job description I want to tailor my resume for:\n\n${jd}`;
       await supabase.from("chat_message").insert({
         chat_session_id: chatSession.id,
@@ -204,7 +244,6 @@ export default function GenerateResumeTab({ userId }: Props) {
         content: jdMessage,
       });
 
-      // Call edge function and wait for response before opening chat
       const response = await fetch(
         `https://tnosyowzngwbwgmxtioh.supabase.co/functions/v1/chat`,
         {
@@ -223,7 +262,6 @@ export default function GenerateResumeTab({ userId }: Props) {
 
       if (!response.ok) throw new Error("Failed to start gap analysis");
 
-      // Now open chat — both user message and AI response are in DB
       setChatOpen(true);
     } catch (err) {
       console.error(err);
@@ -256,14 +294,13 @@ export default function GenerateResumeTab({ userId }: Props) {
       const data = await response.json();
       if (data.error) throw new Error(data.error);
 
-      // Resolve signed URL for profile picture (bucket is private)
       let picUrl: string | null = null;
       const storagePath = (userProfile as any)?.profile_picture?.link_to_storage;
       if (storagePath) {
         const { getProfilePicSignedUrl } = await import("@/hooks/useProfileData");
         picUrl = await getProfilePicSignedUrl(storagePath);
       }
-      const transformed = transformResumeContent(data.resumeContent, userProfile, includePhoto, picUrl);
+      const transformed = transformResumeContent(data.resumeContent, userProfile, includePhoto, picUrl, sectionOrder);
 
       setPreviewData(transformed);
       setPreviewTemplateName(selectedTemplateName);
@@ -292,7 +329,6 @@ export default function GenerateResumeTab({ userId }: Props) {
     );
   }
 
-  // Generating state overlay
   if (generatingResume) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24">
@@ -365,7 +401,7 @@ export default function GenerateResumeTab({ userId }: Props) {
                 <CardContent className="p-4 flex flex-col items-center gap-2">
                   <div className="relative w-full h-40 rounded overflow-hidden bg-white border">
                     <div style={{ transform: "scale(0.12)", transformOrigin: "top left", width: "8.5in", minHeight: "11in", pointerEvents: "none" }}>
-                      <TemplateComp {...SAMPLE_RESUME_DATA} />
+                      <TemplateComp {...sampleWithOrder} />
                     </div>
                   </div>
                   <Button
@@ -384,6 +420,12 @@ export default function GenerateResumeTab({ userId }: Props) {
           })}
           {(!templates || templates.length === 0) && <p className="text-sm text-muted-foreground col-span-full">No templates available yet.</p>}
         </div>
+      </div>
+
+      <div>
+        <Label className="text-base font-semibold">Section Order</Label>
+        <p className="text-xs text-muted-foreground mb-2">Drag sections up or down to control their order on the resume.</p>
+        <SectionOrderEditor order={sectionOrder} onChange={setSectionOrder} />
       </div>
 
       <div className="flex items-center gap-3">
@@ -411,7 +453,7 @@ export default function GenerateResumeTab({ userId }: Props) {
       {previewingTemplateName && (
         <ResumePreviewModal
           templateName={previewingTemplateName}
-          data={SAMPLE_RESUME_DATA}
+          data={sampleWithOrder}
           onClose={() => setPreviewingTemplateName(null)}
         />
       )}
