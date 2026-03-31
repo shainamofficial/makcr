@@ -32,4 +32,5 @@ export interface ResumeData {
   }[];
   profilePictureUrl: string | null;
   includePhoto: boolean;
+  sectionOrder?: string[];
 }
