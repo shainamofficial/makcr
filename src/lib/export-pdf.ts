@@ -44,23 +44,26 @@ export async function exportElementAsPdf(
   // Letter size in mm
   const pageWidth = 215.9;
   const pageHeight = 279.4;
+  const margin = 10; // mm
+  const usableWidth = pageWidth - 2 * margin;
+  const usableHeight = pageHeight - 2 * margin;
 
-  const imgWidth = pageWidth;
+  const imgWidth = usableWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   const pdf = new jsPDF("p", "mm", "letter");
 
   let heightLeft = imgHeight;
-  let position = 0;
+  let position = margin;
 
-  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+  pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+  heightLeft -= usableHeight;
 
   while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
+    position = margin - (imgHeight - heightLeft);
     pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    heightLeft -= usableHeight;
   }
 
   pdf.save(filename);
