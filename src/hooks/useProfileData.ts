@@ -51,7 +51,13 @@ export function useProfileData() {
         .eq("user_id", uid!)
         .order("start_date", { ascending: false });
       if (error) throw error;
-      return data;
+      // Deduplicate work_experience_points by id as a safeguard
+      return (data ?? []).map(we => ({
+        ...we,
+        work_experience_points: we.work_experience_points
+          ? [...new Map(we.work_experience_points.map((p: any) => [p.id, p])).values()]
+          : [],
+      }));
     },
     meta: { errorMessage: "Failed to load work experience. Please refresh." },
   });
