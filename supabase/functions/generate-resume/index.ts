@@ -128,6 +128,9 @@ INSTRUCTIONS:
 3. Use strong action verbs and quantified results.
 4. Keep it concise and professional.
 5. For work_experience dates, use the format "Mon YYYY" (e.g. "Jan 2020").
+6. You MUST include ALL work experiences from the career graph. Do NOT skip or omit any company or role.
+7. You MUST include ALL education entries from the career graph. Do NOT skip or omit any institution or degree.
+8. You may reorder or adjust bullet points for relevance, but every position and degree must appear.
 
 Respond with ONLY valid JSON (no markdown, no code fences):
 {
