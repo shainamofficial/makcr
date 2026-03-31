@@ -1,10 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 function RibbonHeader({ children }: { children: React.ReactNode }) {
   return (
