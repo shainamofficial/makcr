@@ -366,7 +366,7 @@ Let's start — what company do you currently work at, or what was your most rec
             </Drawer>
           )}
         </div>
-        <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping}>
+        <ChatMessages messages={messages} userInitial={userInitial} isTyping={isTyping} onLoadMore={handleLoadMore} hasMore={hasMoreMessages} loadingMore={loadingMore}>
           {showPhotoUpload && (
             <PhotoUpload onComplete={handlePhotoUploaded} onSkip={handlePhotoSkipped} />
           )}
