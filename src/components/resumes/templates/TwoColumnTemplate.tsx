@@ -1,10 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 export default function TwoColumnTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
@@ -44,7 +40,7 @@ export default function TwoColumnTemplate({ user, summary, workExperiences, educ
                       <p style={{ fontSize: 10, fontWeight: 600, margin: 0 }}>{r.title}</p>
                       <p style={{ fontSize: 9, color: accent, margin: "1px 0 0" }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                       {r.points.length > 0 && (
-                        <ul style={{ margin: "3px 0 0", paddingLeft: 14, fontSize: 10, lineHeight: 1.5 }}>
+                        <ul style={{ margin: "3px 0 0", paddingLeft: 14, fontSize: 10, lineHeight: 1.5, listStyleType: "disc" }}>
                           {r.points.map((p, j) => <li key={j}>{p}</li>)}
                         </ul>
                       )}

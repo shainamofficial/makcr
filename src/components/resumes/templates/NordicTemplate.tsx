@@ -1,10 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 export default function NordicTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
@@ -53,7 +49,7 @@ export default function NordicTemplate({ user, summary, workExperiences, educati
                     <p style={{ fontSize: 10, color: "#94A3B8", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                   </div>
                   {r.points.length > 0 && (
-                    <ul style={{ margin: "6px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.7, color: "#475569" }}>
+                    <ul style={{ margin: "6px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.7, color: "#475569", listStyleType: "disc" }}>
                       {r.points.map((p, j) => <li key={j}>{p}</li>)}
                     </ul>
                   )}

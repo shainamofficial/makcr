@@ -1,10 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 function RibbonHeader({ children }: { children: React.ReactNode }) {
   return (
@@ -57,7 +53,7 @@ export default function RibbonTemplate({ user, summary, workExperiences, educati
                     <p style={{ fontSize: 10, color: "#A8A29E", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                   </div>
                   {r.points.length > 0 && (
-                    <ul style={{ margin: "4px 0 0", paddingLeft: 18, fontSize: 11, lineHeight: 1.5 }}>
+                    <ul style={{ margin: "4px 0 0", paddingLeft: 18, fontSize: 11, lineHeight: 1.5, listStyleType: "disc" }}>
                       {r.points.map((p, j) => <li key={j}>{p}</li>)}
                     </ul>
                   )}

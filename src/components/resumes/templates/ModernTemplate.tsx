@@ -1,10 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 function ProficiencyDots({ level }: { level: string }) {
   const map: Record<string, number> = { Beginner: 1, Intermediate: 2, Advanced: 3, Expert: 4 };
@@ -78,7 +74,7 @@ export default function ModernTemplate({ user, summary, workExperiences, educati
                       <p style={{ fontSize: 10, color: "#888", margin: 0, whiteSpace: "nowrap" }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                     </div>
                     {r.points.length > 0 && (
-                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
+                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5, listStyleType: "disc" }}>
                         {r.points.map((p, j) => <li key={j}>{p}</li>)}
                       </ul>
                     )}

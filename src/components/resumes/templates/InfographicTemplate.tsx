@@ -1,10 +1,6 @@
 import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
-
-function fmtDate(d: string | null) {
-  if (!d) return "Present";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { fmtDate } from "./fmtDate";
 
 function SkillBar({ name, level }: { name: string; level: string }) {
   const map: Record<string, number> = { Beginner: 25, Intermediate: 50, Advanced: 75, Expert: 100 };
@@ -87,7 +83,7 @@ export default function InfographicTemplate({ user, summary, workExperiences, ed
                       <p style={{ fontSize: 9, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                     </div>
                     {r.points.length > 0 && (
-                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 10, lineHeight: 1.5 }}>
+                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 10, lineHeight: 1.5, listStyleType: "disc" }}>
                         {r.points.map((p, j) => <li key={j}>{p}</li>)}
                       </ul>
                     )}
