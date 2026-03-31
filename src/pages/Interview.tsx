@@ -32,6 +32,7 @@ import {
   type ChatMessage,
   type ChatSession,
 } from "@/lib/chat-service";
+import { extractQuestionsFromMessage } from "@/lib/extract-questions";
 
 const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
 const CHAT_FN_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/chat`;
