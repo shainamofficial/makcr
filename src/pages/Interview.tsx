@@ -68,7 +68,9 @@ const Interview = () => {
       const existing = await findActiveSession(user.id);
 
       if (existing) {
-        const msgs = await loadMessages(existing.id);
+        const { messages: msgs, hasMore } = await loadRecentMessages(existing.id, 20);
+        setHasMoreMessages(hasMore);
+        setMessageOffset(20);
 
         // Restore pending questions from last assistant message
         const lastAssistant = [...msgs].reverse().find(m => m.role === "assistant");
