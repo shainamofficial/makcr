@@ -51,6 +51,9 @@ const Interview = () => {
   const [awaitingStaleChoice, setAwaitingStaleChoice] = useState(false);
   const [showResumeUpload, setShowResumeUpload] = useState(false);
   const [pendingQuestions, setPendingQuestions] = useState<StructuredQuestion[] | null>(null);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [messageOffset, setMessageOffset] = useState(0);
 
   const userInitial =
     user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() ??
