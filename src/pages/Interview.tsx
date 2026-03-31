@@ -309,6 +309,21 @@ Let's start — what company do you currently work at, or what was your most rec
     setShowResumeUpload(false);
   };
 
+  const handleLoadMore = useCallback(async () => {
+    if (!chatSession || loadingMore || !hasMoreMessages) return;
+    setLoadingMore(true);
+    try {
+      const { messages: olderMsgs, hasMore } = await loadRecentMessages(chatSession.id, 20, messageOffset);
+      setMessages((prev) => [...olderMsgs, ...prev]);
+      setMessageOffset((prev) => prev + 20);
+      setHasMoreMessages(hasMore);
+    } catch (err) {
+      console.error("Failed to load more messages:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [chatSession, loadingMore, hasMoreMessages, messageOffset]);
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
