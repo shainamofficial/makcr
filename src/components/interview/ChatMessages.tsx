@@ -1,6 +1,6 @@
-import { useRef, useEffect, ReactNode } from "react";
+import { useRef, useEffect, useCallback, ReactNode } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot } from "lucide-react";
+import { Bot, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/lib/chat-service";
 
@@ -9,6 +9,9 @@ interface ChatMessagesProps {
   userInitial: string;
   isTyping: boolean;
   children?: ReactNode;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
 }
 
 const TypingIndicator = () => (
