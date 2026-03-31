@@ -1,20 +1,47 @@
 
 
-# Add "Skip and Generate Resume" Button to Resume Gap Analysis
+# Fix Resume PDF Page Borders
 
-## Change
+## Problem
 
-Add a "Skip & Generate Resume" button in the bottom input area of `ResumeGapChat` that's always visible during the conversation (when not loading and not already complete). This lets users bypass remaining questions and go straight to resume generation.
+The current `exportElementAsPdf` function renders the captured image at the full page width (215.9mm) starting at x=0, y=0 with no margins. This causes the resume content to bleed to the very edge of the PDF page, resulting in missing or improper page borders. Additionally, multi-page positioning math is incorrect, causing content to shift on subsequent pages.
 
-## File: `src/components/resumes/ResumeGapChat.tsx`
+## Solution
 
-- Import `SkipForward` icon from lucide-react
-- In the bottom input section, add a "Skip & Generate Resume" button that calls `onGenerateResume` directly
-- Show it alongside the text input (when no pending questions) and below the form (when pending questions are showing)
-- Hide it when `isComplete` is true (the full-width "Generate Resume Now" button already shows) or during initial loading
+Add consistent margins around the image on every page and fix the multi-page slicing logic so content flows cleanly across page breaks.
 
-### Layout
-- When **text input** is showing: add a secondary/outline button next to the send button
-- When **multi-question form** is showing: show the skip button in the bottom bar (currently empty in that state)
-- Always use `variant="outline"` to differentiate from the primary generate button
+## File: `src/lib/export-pdf.ts`
+
+- Define a margin (e.g. 10mm) on all sides
+- Calculate usable width/height as page dimensions minus 2x margin
+- Scale the image to fit within the usable width
+- Fix multi-page loop: on each subsequent page, offset the image so the correct slice is visible within the usable area
+
+### Key change
+
+```typescript
+const margin = 10; // mm
+const usableWidth = pageWidth - 2 * margin;
+const usableHeight = pageHeight - 2 * margin;
+
+const imgWidth = usableWidth;
+const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+let heightLeft = imgHeight;
+let position = margin;
+
+pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+heightLeft -= usableHeight;
+
+while (heightLeft > 0) {
+  position = margin - (imgHeight - heightLeft);
+  pdf.addPage();
+  pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+  heightLeft -= usableHeight;
+}
+```
+
+| File | Change |
+|------|--------|
+| `src/lib/export-pdf.ts` | Add 10mm margins, fix multi-page position math |
 
