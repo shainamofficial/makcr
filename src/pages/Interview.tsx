@@ -266,11 +266,13 @@ Let's start — what company do you currently work at, or what was your most rec
         }
       }
 
-      setPendingQuestions(
-        data.questions && Array.isArray(data.questions) && data.questions.length > 0
-          ? data.questions
-          : null
-      );
+      if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+        setPendingQuestions(data.questions);
+      } else {
+        // Fallback: extract questions from message text when AI doesn't return structured questions
+        const extracted = extractQuestionsFromMessage(data.message);
+        setPendingQuestions(extracted);
+      }
 
       setSidebarRefreshKey((k) => k + 1);
     } catch (err) {
