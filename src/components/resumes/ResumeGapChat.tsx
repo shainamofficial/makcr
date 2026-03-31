@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import MultiQuestionForm, { type StructuredQuestion } from "@/components/interview/MultiQuestionForm";
+import { extractQuestionsFromMessage } from "@/lib/extract-questions";
 
 interface Props {
   sessionId: string;
