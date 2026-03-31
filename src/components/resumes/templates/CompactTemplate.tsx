@@ -41,7 +41,7 @@ export default function CompactTemplate({ user, summary, workExperiences, educat
                     <p style={{ fontSize: 8, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                   </div>
                   {r.points.length > 0 && (
-                    <ul style={{ margin: "2px 0 0", paddingLeft: 14, fontSize: 9, lineHeight: 1.4 }}>
+                    <ul style={{ margin: "2px 0 0", paddingLeft: 14, fontSize: 9, lineHeight: 1.4, listStyleType: "disc" }}>
                       {r.points.map((p, j) => <li key={j}>{p}</li>)}
                     </ul>
                   )}

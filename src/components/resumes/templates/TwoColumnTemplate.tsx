@@ -40,7 +40,7 @@ export default function TwoColumnTemplate({ user, summary, workExperiences, educ
                       <p style={{ fontSize: 10, fontWeight: 600, margin: 0 }}>{r.title}</p>
                       <p style={{ fontSize: 9, color: accent, margin: "1px 0 0" }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                       {r.points.length > 0 && (
-                        <ul style={{ margin: "3px 0 0", paddingLeft: 14, fontSize: 10, lineHeight: 1.5 }}>
+                        <ul style={{ margin: "3px 0 0", paddingLeft: 14, fontSize: 10, lineHeight: 1.5, listStyleType: "disc" }}>
                           {r.points.map((p, j) => <li key={j}>{p}</li>)}
                         </ul>
                       )}

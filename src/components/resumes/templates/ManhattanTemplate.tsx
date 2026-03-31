@@ -68,7 +68,7 @@ export default function ManhattanTemplate({ user, summary, workExperiences, educ
                       <p style={{ fontSize: 10, color: "#888", margin: 0 }}>{fmtDate(r.start_date)} — {fmtDate(r.end_date)}</p>
                     </div>
                     {r.points.length > 0 && (
-                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5 }}>
+                      <ul style={{ margin: "4px 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5, listStyleType: "disc" }}>
                         {r.points.map((p, j) => <li key={j}>{p}</li>)}
                       </ul>
                     )}
