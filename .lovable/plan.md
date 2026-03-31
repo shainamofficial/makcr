@@ -1,36 +1,20 @@
 
 
-# Deduplicate Work Experience Points — DB Cleanup + Prevention
+# Add "Skip and Generate Resume" Button to Resume Gap Analysis
 
-## Problem
-There are confirmed duplicate rows in `work_experience_points` where the same `(work_experience_id, details)` combination appears multiple times (up to 4x). This causes duplicate bullet points in the profile view.
+## Change
 
-## Solution
+Add a "Skip & Generate Resume" button in the bottom input area of `ResumeGapChat` that's always visible during the conversation (when not loading and not already complete). This lets users bypass remaining questions and go straight to resume generation.
 
-### 1. Delete duplicate rows from the database
-Run a SQL migration that keeps only one row per `(work_experience_id, details)` pair — the oldest one (smallest `created_at`) — and deletes the rest.
+## File: `src/components/resumes/ResumeGapChat.tsx`
 
-```sql
-DELETE FROM work_experience_points
-WHERE id NOT IN (
-  SELECT DISTINCT ON (work_experience_id, details) id
-  FROM work_experience_points
-  ORDER BY work_experience_id, details, created_at ASC
-);
-```
+- Import `SkipForward` icon from lucide-react
+- In the bottom input section, add a "Skip & Generate Resume" button that calls `onGenerateResume` directly
+- Show it alongside the text input (when no pending questions) and below the form (when pending questions are showing)
+- Hide it when `isComplete` is true (the full-width "Generate Resume Now" button already shows) or during initial loading
 
-### 2. Add a unique constraint to prevent future duplicates
-```sql
-ALTER TABLE work_experience_points
-ADD CONSTRAINT unique_work_exp_point UNIQUE (work_experience_id, details);
-```
-
-### 3. Client-side dedup safeguard in `useProfileData.ts`
-Deduplicate `work_experience_points` by `id` in the `workQuery` result, so even if edge cases occur, the UI never shows duplicates.
-
-### Files changed
-| File | Change |
-|------|--------|
-| Migration SQL | Delete duplicates + add unique constraint |
-| `src/hooks/useProfileData.ts` | Deduplicate points in workQuery after fetch |
+### Layout
+- When **text input** is showing: add a secondary/outline button next to the send button
+- When **multi-question form** is showing: show the skip button in the bottom bar (currently empty in that state)
+- Always use `variant="outline"` to differentiate from the primary generate button
 
