@@ -1,76 +1,107 @@
 
 
-# Fix PDF Page Breaks (Line Repetition) & Clickable Links
+# Replace URL Pills with Inline Text Links & Fix PDF Clickability
 
-## Root Cause Analysis
+## Problems
 
-### 1. Line Repetition Across Pages
-The current approach renders the entire resume as **one large image**, then places that same full image on every page with a negative Y offset to simulate pagination:
+1. **Pills look bad** — Bordered pill badges with `↗` arrows take up too much space, misalign vertically, and look cluttered next to project descriptions.
+2. **Links not clickable in PDF** — The coordinate mapping in `export-pdf.ts` converts link positions from mm back to px then back to mm, introducing rounding errors. The `collectPdfLinks` function calculates coordinates in mm (via `scaleX/scaleY`), but then the overlay code converts them back to px — double conversion breaks positioning.
+
+## Solution
+
+### 1. Replace UrlPill with inline underlined text
+
+Instead of pill badges, render project URLs as simple **underlined text** appended after the project description, like professional resumes do:
+
 ```
-position = margin - (imgHeight - heightLeft);
-pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-```
-This causes content near page boundaries to appear on **both** pages -- the bottom of page N and the top of page N+1 show the same lines.
-
-**Fix**: Slice the source canvas into page-sized chunks. Each chunk becomes its own cropped image placed at the top of its respective page. No overlap possible.
-
-### 2. Links Not Clickable
-Two issues:
-- `containerRef` points to `.resume-preview-container` (the scroll wrapper), not the actual template element passed to `html2canvas`. When the dialog is scrolled, `getBoundingClientRect()` returns viewport-relative coordinates that don't match the canvas coordinate space.
-- The template is nested inside an extra `<div className="min-w-[8.5in]...">` wrapper, creating a mismatch between what's captured and what's measured.
-
-**Fix**: Move `containerRef` to the actual template element and collect link coordinates before any scroll offset interferes.
-
-## Changes
-
-### File: `src/lib/export-pdf.ts`
-Replace the multi-page loop with canvas-slicing:
-
-```typescript
-// For each page, crop a horizontal strip from the full canvas
-const pxPerPage = (usableHeight / imgHeight) * canvas.height;
-
-let pageIndex = 0;
-let srcY = 0;
-
-while (srcY < canvas.height) {
-  const sliceHeight = Math.min(pxPerPage, canvas.height - srcY);
-  
-  // Create a temp canvas for this page's slice
-  const pageCanvas = document.createElement("canvas");
-  pageCanvas.width = canvas.width;
-  pageCanvas.height = sliceHeight;
-  const ctx = pageCanvas.getContext("2d")!;
-  ctx.drawImage(canvas, 0, srcY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-  
-  const pageImg = pageCanvas.toDataURL("image/png");
-  const sliceHeightMm = (sliceHeight * imgWidth) / canvas.width;
-  
-  if (pageIndex > 0) pdf.addPage();
-  pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, sliceHeightMm);
-  
-  srcY += pxPerPage;
-  pageIndex++;
-}
+ProjectName — Description text here. github.com/user/repo · demo.example.com
 ```
 
-For links, adjust Y coordinate calculation to account for which page-slice the link falls in, using the same `pxPerPage` math.
+Each URL is a subtle, colored, underlined `<a>` tag (no border, no pill shape, no ↗ icon). This is cleaner, takes less space, and reads naturally.
 
-### File: `src/components/resumes/ResumePreviewModal.tsx`
-Move `containerRef` from the scroll wrapper to the inner template wrapper so coordinates align with what `html2canvas` captures:
+### 2. Fix PDF link coordinate math
 
-```tsx
-<div className="resume-preview-container overflow-x-auto">
-  <div ref={containerRef} className="min-w-[8.5in] origin-top-left sm:origin-top sm:min-w-0">
-    <Template {...data} />
-  </div>
-</div>
-```
+The bug: `collectPdfLinks` returns coordinates already in **PDF mm** (scaled by `imgWidth/containerRect.width`). But the overlay loop then treats `link.y` as mm and converts it *again* through `(linkYInImage / imgHeight) * canvas.height` — a mm→px conversion that produces wrong values.
+
+**Fix**: Collect link positions in **pixel space** (relative to container, in CSS pixels), then convert to PDF coordinates once during the overlay step. This single-conversion approach eliminates the double-mapping error.
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/lib/export-pdf.ts` | Replace full-image offset pagination with canvas-slicing per page; fix link coordinate mapping for sliced pages |
-| `src/components/resumes/ResumePreviewModal.tsx` | Move `containerRef` to inner template wrapper |
+| `src/lib/export-pdf.ts` | Fix `collectPdfLinks` to return CSS-pixel coordinates; fix overlay loop to do a single px→mm conversion per link |
+| All 20 template files | Replace `UrlPill` component with inline underlined `<a>` tags after project description, keeping `data-pdf-url` attribute |
+
+### Template URL rendering (all 20 files)
+
+Before:
+```tsx
+<div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+  {p.urls.map((u, j) => <UrlPill key={j} url={u} color={accent} />)}
+</div>
+```
+
+After:
+```tsx
+// URLs rendered inline after description
+<p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.6 }}>
+  {p.description}
+  {p.urls?.length > 0 && (
+    <span style={{ marginLeft: 6 }}>
+      {p.urls.map((u, j) => (
+        <span key={j}>
+          {j > 0 && " · "}
+          <a href={u} target="_blank" rel="noopener noreferrer" data-pdf-url={u}
+             style={{ color: accent, textDecoration: "underline", fontSize: 10 }}>
+            {u.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+          </a>
+        </span>
+      ))}
+    </span>
+  )}
+</p>
+```
+
+### PDF export fix (`export-pdf.ts`)
+
+```typescript
+// collectPdfLinks returns CSS-pixel positions (not mm)
+function collectPdfLinks(element: HTMLElement, containerRect: DOMRect): PdfLinkRect[] {
+  const links: PdfLinkRect[] = [];
+  const els = element.querySelectorAll<HTMLElement>("[data-pdf-url]");
+  for (const el of els) {
+    const url = el.getAttribute("data-pdf-url");
+    if (!url) continue;
+    const rect = el.getBoundingClientRect();
+    links.push({
+      url,
+      x: rect.left - containerRect.left,  // CSS pixels
+      y: rect.top - containerRect.top,      // CSS pixels
+      w: rect.width,
+      h: rect.height,
+    });
+  }
+  return links;
+}
+
+// In overlay loop — single conversion from CSS px → PDF mm
+const pdfLinks = collectPdfLinks(element, containerRect);
+const cssToMmX = imgWidth / containerRect.width;   // mm per CSS px
+const cssToMmY = imgHeight / containerRect.height;
+const cssPxPerPage = containerRect.height * (usableHeight / imgHeight);
+
+for (const link of pdfLinks) {
+  const pageIdx = Math.floor(link.y / cssPxPerPage);
+  const yOnPage = link.y - pageIdx * cssPxPerPage;
+  const linkX = margin + link.x * cssToMmX;
+  const linkY = margin + yOnPage * cssToMmY;
+  const linkW = link.w * cssToMmX;
+  const linkH = link.h * cssToMmY;
+
+  if (pageIdx < pdf.getNumberOfPages()) {
+    pdf.setPage(pageIdx + 1);
+    pdf.link(linkX, linkY, linkW, linkH, { url: link.url });
+  }
+}
+```
 
