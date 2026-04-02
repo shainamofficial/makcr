@@ -28,17 +28,19 @@ async function inlineImages(element: HTMLElement): Promise<void> {
 
 interface PdfLinkRect {
   url: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
+  x: number; // CSS pixels relative to container
+  y: number; // CSS pixels relative to container
+  w: number; // CSS pixels
+  h: number; // CSS pixels
 }
 
+/**
+ * Collect link positions in CSS-pixel space relative to the container element.
+ * No mm conversion here — that happens once during the overlay step.
+ */
 function collectPdfLinks(
   element: HTMLElement,
-  containerRect: DOMRect,
-  scaleX: number,
-  scaleY: number
+  containerRect: DOMRect
 ): PdfLinkRect[] {
   const links: PdfLinkRect[] = [];
   const els = element.querySelectorAll<HTMLElement>("[data-pdf-url]");
@@ -48,10 +50,10 @@ function collectPdfLinks(
     const rect = el.getBoundingClientRect();
     links.push({
       url,
-      x: (rect.left - containerRect.left) * scaleX,
-      y: (rect.top - containerRect.top) * scaleY,
-      w: rect.width * scaleX,
-      h: rect.height * scaleY,
+      x: rect.left - containerRect.left,
+      y: rect.top - containerRect.top,
+      w: rect.width,
+      h: rect.height,
     });
   }
   return links;
@@ -61,9 +63,11 @@ export async function exportElementAsPdf(
   element: HTMLElement,
   filename = "resume.pdf"
 ) {
-  await inlineImages(element);
-
+  // Collect link positions BEFORE html2canvas (which may clone/move elements)
   const containerRect = element.getBoundingClientRect();
+  const pdfLinks = collectPdfLinks(element, containerRect);
+
+  await inlineImages(element);
 
   const canvas = await html2canvas(element, {
     scale: 2,
@@ -109,25 +113,25 @@ export async function exportElementAsPdf(
   }
 
   // Overlay clickable link rectangles
-  const scaleX = imgWidth / containerRect.width;
-  const scaleY = imgHeight / containerRect.height;
-  const pdfLinks = collectPdfLinks(element, containerRect, scaleX, scaleY);
+  // Convert CSS pixels → PDF mm with a single conversion
+  const cssToMmX = imgWidth / containerRect.width;
+  const cssToMmY = imgHeight / containerRect.height;
+  // How many CSS pixels tall is one page of content
+  const cssPxPerPage = (pxPerPage / canvas.height) * containerRect.height;
 
   for (const link of pdfLinks) {
-    const linkYInImage = link.y; // mm within the full image
-    const linkX = margin + link.x;
+    const pageIdx = Math.floor(link.y / cssPxPerPage);
+    const yOnPage = link.y - pageIdx * cssPxPerPage;
 
-    // Determine which page this link falls on
-    const usableHeightPx = pxPerPage;
-    const linkYPx = (linkYInImage / imgHeight) * canvas.height;
-    const pageIdx = Math.floor(linkYPx / usableHeightPx);
-    const remainderPx = linkYPx - pageIdx * usableHeightPx;
-    const linkYOnPage = margin + (remainderPx / usableHeightPx) * usableHeight;
+    const linkX = margin + link.x * cssToMmX;
+    const linkY = margin + yOnPage * cssToMmY;
+    const linkW = link.w * cssToMmX;
+    const linkH = link.h * cssToMmY;
 
     const totalPages = pdf.getNumberOfPages();
     if (pageIdx < totalPages) {
       pdf.setPage(pageIdx + 1);
-      pdf.link(linkX, linkYOnPage, link.w, link.h, { url: link.url });
+      pdf.link(linkX, linkY, linkW, linkH, { url: link.url });
     }
   }
 
