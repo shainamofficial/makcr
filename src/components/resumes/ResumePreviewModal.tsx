@@ -39,8 +39,8 @@ export default function ResumePreviewModal({ templateName, data, onClose }: Prop
             {exporting ? "Generating…" : <><span className="hidden sm:inline">Download as PDF</span><span className="sm:hidden">PDF</span></>}
           </Button>
         </div>
-        <div ref={containerRef} className="resume-preview-container overflow-x-auto">
-          <div className="min-w-[8.5in] origin-top-left sm:origin-top sm:min-w-0">
+        <div className="resume-preview-container overflow-x-auto">
+          <div ref={containerRef} className="origin-top-left sm:origin-top">
             <Template {...data} />
           </div>
         </div>
