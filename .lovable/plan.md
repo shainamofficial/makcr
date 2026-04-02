@@ -1,62 +1,76 @@
 
 
-# Fix Clickable Links in PDF & Improve A4 Margins
+# Fix PDF Page Breaks (Line Repetition) & Clickable Links
 
-## Problems
+## Root Cause Analysis
 
-1. **Links not clickable in PDF** — `html2canvas` rasterizes the DOM into a flat image, destroying all interactivity. Links become pixels. This is a fundamental limitation — the only fix is to overlay invisible PDF link annotations on top of the image using `jsPDF.link()`.
+### 1. Line Repetition Across Pages
+The current approach renders the entire resume as **one large image**, then places that same full image on every page with a negative Y offset to simulate pagination:
+```
+position = margin - (imgHeight - heightLeft);
+pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+```
+This causes content near page boundaries to appear on **both** pages -- the bottom of page N and the top of page N+1 show the same lines.
 
-2. **Margins/sizing for A4** — Templates use `width: "8.5in"` (US Letter) and the PDF export uses Letter dimensions (215.9 × 279.4mm). Standard A4 (210 × 297mm) is narrower and taller. Templates need to target A4 and the export needs A4 dimensions with proper margins.
+**Fix**: Slice the source canvas into page-sized chunks. Each chunk becomes its own cropped image placed at the top of its respective page. No overlap possible.
 
-## Solution
+### 2. Links Not Clickable
+Two issues:
+- `containerRef` points to `.resume-preview-container` (the scroll wrapper), not the actual template element passed to `html2canvas`. When the dialog is scrolled, `getBoundingClientRect()` returns viewport-relative coordinates that don't match the canvas coordinate space.
+- The template is nested inside an extra `<div className="min-w-[8.5in]...">` wrapper, creating a mismatch between what's captured and what's measured.
 
-### Part 1: Make project URL pills clickable in the PDF
+**Fix**: Move `containerRef` to the actual template element and collect link coordinates before any scroll offset interferes.
 
-After rendering the html2canvas image onto the PDF, scan the source DOM for all URL pill elements, calculate their position relative to the container, convert to PDF coordinates, and add invisible `jsPDF.link()` rectangles on top. This makes the links clickable in the downloaded PDF.
+## Changes
 
-**`src/lib/export-pdf.ts`** changes:
-- After `addImage`, query all `[data-pdf-url]` elements from the source DOM
-- Calculate each element's bounding rect relative to the container
-- Map pixel coordinates → PDF mm coordinates (accounting for scale, margins, and page offsets)
-- Call `pdf.link(x, y, w, h, { url })` for each
+### File: `src/lib/export-pdf.ts`
+Replace the multi-page loop with canvas-slicing:
 
-**All 20 templates** — add `data-pdf-url={url}` attribute to each `UrlPill` span so the export function can discover them and their target URLs.
+```typescript
+// For each page, crop a horizontal strip from the full canvas
+const pxPerPage = (usableHeight / imgHeight) * canvas.height;
 
-### Part 2: Switch to A4 sizing
+let pageIndex = 0;
+let srcY = 0;
 
-**`src/lib/export-pdf.ts`**:
-- Change page format from `"letter"` to `"a4"`
-- Update dimensions: `pageWidth = 210`, `pageHeight = 297`
-- Increase margin from `10` to `15mm` for better aesthetics
+while (srcY < canvas.height) {
+  const sliceHeight = Math.min(pxPerPage, canvas.height - srcY);
+  
+  // Create a temp canvas for this page's slice
+  const pageCanvas = document.createElement("canvas");
+  pageCanvas.width = canvas.width;
+  pageCanvas.height = sliceHeight;
+  const ctx = pageCanvas.getContext("2d")!;
+  ctx.drawImage(canvas, 0, srcY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+  
+  const pageImg = pageCanvas.toDataURL("image/png");
+  const sliceHeightMm = (sliceHeight * imgWidth) / canvas.width;
+  
+  if (pageIndex > 0) pdf.addPage();
+  pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, sliceHeightMm);
+  
+  srcY += pxPerPage;
+  pageIndex++;
+}
+```
 
-**All 20 templates** — change container `width` from `"8.5in"` to `"210mm"` (or `"8.27in"`) and `minHeight` from `"11in"` to `"297mm"` (or `"11.69in"`), and adjust internal padding to `"15mm"` or equivalent for consistent margins.
+For links, adjust Y coordinate calculation to account for which page-slice the link falls in, using the same `pxPerPage` math.
 
-### Part 3: Refined UrlPill component
-
-Update the shared `UrlPill` pattern across all templates to include the `data-pdf-url` attribute and use `<a>` tag for on-screen clickability too:
+### File: `src/components/resumes/ResumePreviewModal.tsx`
+Move `containerRef` from the scroll wrapper to the inner template wrapper so coordinates align with what `html2canvas` captures:
 
 ```tsx
-function UrlPill({ url, color }: { url: string; color: string }) {
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer"
-       data-pdf-url={url}
-       style={{
-         display: "inline-flex", alignItems: "center", gap: 3,
-         padding: "1px 8px", borderRadius: 9999,
-         border: `1px solid ${color}`, color, fontSize: 9,
-         lineHeight: "18px", verticalAlign: "middle",
-         textDecoration: "none",
-       }}>
-      {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </a>
-  );
-}
+<div className="resume-preview-container overflow-x-auto">
+  <div ref={containerRef} className="min-w-[8.5in] origin-top-left sm:origin-top sm:min-w-0">
+    <Template {...data} />
+  </div>
+</div>
 ```
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/lib/export-pdf.ts` | Switch to A4, 15mm margins, add link overlay logic scanning `[data-pdf-url]` elements |
-| All 20 template files | Change container to A4 dimensions, update padding, change `UrlPill` to `<a>` with `data-pdf-url` |
+| `src/lib/export-pdf.ts` | Replace full-image offset pagination with canvas-slicing per page; fix link coordinate mapping for sliced pages |
+| `src/components/resumes/ResumePreviewModal.tsx` | Move `containerRef` to inner template wrapper |
 
