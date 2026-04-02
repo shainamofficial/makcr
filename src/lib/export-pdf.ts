@@ -61,7 +61,6 @@ export async function exportElementAsPdf(
   element: HTMLElement,
   filename = "resume.pdf"
 ) {
-  // Pre-fetch cross-origin images and convert to base64 data URLs
   await inlineImages(element);
 
   const containerRect = element.getBoundingClientRect();
@@ -72,12 +71,10 @@ export async function exportElementAsPdf(
     logging: false,
   });
 
-  const imgData = canvas.toDataURL("image/png");
-
   // A4 size in mm
   const pageWidth = 210;
   const pageHeight = 297;
-  const margin = 15; // mm
+  const margin = 15;
   const usableWidth = pageWidth - 2 * margin;
   const usableHeight = pageHeight - 2 * margin;
 
@@ -86,41 +83,50 @@ export async function exportElementAsPdf(
 
   const pdf = new jsPDF("p", "mm", "a4");
 
-  let heightLeft = imgHeight;
-  let position = margin;
+  // Canvas pixels per PDF page (usable area)
+  const pxPerPage = (usableHeight / imgHeight) * canvas.height;
 
-  pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-  heightLeft -= usableHeight;
+  let pageIndex = 0;
+  let srcY = 0;
 
-  while (heightLeft > 0) {
-    position = margin - (imgHeight - heightLeft);
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-    heightLeft -= usableHeight;
+  while (srcY < canvas.height) {
+    const sliceHeight = Math.min(pxPerPage, canvas.height - srcY);
+
+    const pageCanvas = document.createElement("canvas");
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
+    const ctx = pageCanvas.getContext("2d")!;
+    ctx.drawImage(canvas, 0, srcY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+    const pageImg = pageCanvas.toDataURL("image/png");
+    const sliceHeightMm = (sliceHeight * imgWidth) / canvas.width;
+
+    if (pageIndex > 0) pdf.addPage();
+    pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, sliceHeightMm);
+
+    srcY += pxPerPage;
+    pageIndex++;
   }
 
-  // Overlay clickable link rectangles from [data-pdf-url] elements
+  // Overlay clickable link rectangles
   const scaleX = imgWidth / containerRect.width;
   const scaleY = imgHeight / containerRect.height;
   const pdfLinks = collectPdfLinks(element, containerRect, scaleX, scaleY);
 
   for (const link of pdfLinks) {
-    const linkYInImage = link.y; // y position within the full image (mm)
+    const linkYInImage = link.y; // mm within the full image
     const linkX = margin + link.x;
 
-    // Determine which page(s) this link falls on
-    let remaining = linkYInImage;
-    let pageIndex = 0;
-    while (remaining > usableHeight) {
-      remaining -= usableHeight;
-      pageIndex++;
-    }
+    // Determine which page this link falls on
+    const usableHeightPx = pxPerPage;
+    const linkYPx = (linkYInImage / imgHeight) * canvas.height;
+    const pageIdx = Math.floor(linkYPx / usableHeightPx);
+    const remainderPx = linkYPx - pageIdx * usableHeightPx;
+    const linkYOnPage = margin + (remainderPx / usableHeightPx) * usableHeight;
 
-    // Only add if the link is within rendered pages
     const totalPages = pdf.getNumberOfPages();
-    if (pageIndex < totalPages) {
-      pdf.setPage(pageIndex + 1);
-      const linkYOnPage = margin + remaining;
+    if (pageIdx < totalPages) {
+      pdf.setPage(pageIdx + 1);
       pdf.link(linkX, linkYOnPage, link.w, link.h, { url: link.url });
     }
   }
