@@ -100,11 +100,8 @@ const Index = () => {
       {/* How It Works */}
       <section className="container mx-auto px-4 md:px-6 py-20 md:py-28">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-          How It Works
+          Three Steps. One Career Platform.
         </h2>
-        <p className="mt-3 text-muted-foreground text-center max-w-xl mx-auto">
-          Three simple steps to a stronger career profile and better resumes.
-        </p>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map(({ icon: Icon, title, description }, i) => (
             <div key={title} className="flex flex-col items-center text-center">
