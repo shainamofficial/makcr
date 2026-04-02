@@ -16,21 +16,21 @@ import {
 const steps = [
   {
     icon: MessageSquare,
-    title: "AI Career Interview",
+    title: "Smart Interview",
     description:
-      "Our AI asks the right questions to understand your full career story — skills, impact, and achievements.",
+      "Our AI conducts a smart interview to capture your skills, impact, and career highlights.",
   },
   {
     icon: Network,
-    title: "Build Your Career Graph",
+    title: "Career Graph",
     description:
-      "Your experience is structured into a rich career graph — the foundation for everything.",
+      "Your answers become a structured career graph — the single source of truth for every resume.",
   },
   {
     icon: FileText,
-    title: "Generate Tailored Resumes",
+    title: "Instant Tailoring",
     description:
-      "Paste any job description. Get a perfectly tailored resume in seconds.",
+      "Paste a job description. Get a tailored, ATS-ready resume in seconds.",
   },
 ];
 
@@ -84,11 +84,11 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10" />
         <div className="relative container mx-auto px-4 md:px-6 py-16 md:py-36 lg:py-44 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground max-w-3xl mx-auto leading-tight">
-            Your AI Career Partner
+            Make Your Career
+            <span className="block text-primary mt-2">with Makcr</span>
           </h1>
           <p className="mt-4 md:mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Makcr uses AI to interview you, build your structured career profile,
-            and generate tailored resumes for any job — in minutes.
+            Tell your story once. Get tailored resumes for every opportunity — powered by AI.
           </p>
           <Button size="lg" className="mt-8 md:mt-10 text-base px-8 py-6 w-full sm:w-auto" onClick={handleCTA}>
             Get Started — It's Free
@@ -100,11 +100,8 @@ const Index = () => {
       {/* How It Works */}
       <section className="container mx-auto px-4 md:px-6 py-20 md:py-28">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-          How It Works
+          Three Steps. One Career Platform.
         </h2>
-        <p className="mt-3 text-muted-foreground text-center max-w-xl mx-auto">
-          Three simple steps to a stronger career profile and better resumes.
-        </p>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map(({ icon: Icon, title, description }, i) => (
             <div key={title} className="flex flex-col items-center text-center">
@@ -127,10 +124,10 @@ const Index = () => {
       <section className="bg-muted/50">
         <div className="container mx-auto px-4 md:px-6 py-20 md:py-28">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-            Product Roadmap
+            What's Next
           </h2>
           <p className="mt-3 text-muted-foreground text-center max-w-xl mx-auto">
-            We're building the AI-native career platform — one milestone at a time.
+            One platform, many possibilities. Here's where we're headed.
           </p>
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {roadmap.map(({ version, title, badge, available, icon: Icon }) => (
