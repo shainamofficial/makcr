@@ -14,15 +14,6 @@ function ProficiencyDots({ level }: { level: string }) {
   );
 }
 
-function UrlPill({ url, color }: { url: string; color: string }) {
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
-       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
-      {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </a>
-  );
-}
-
 export default function ModernTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto, sectionOrder }: ResumeData) {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Your Name";
   const grouped = groupWorkByCompany(workExperiences);

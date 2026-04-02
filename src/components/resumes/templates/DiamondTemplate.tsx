@@ -14,15 +14,6 @@ function DiamondIndicator({ level }: { level: string }) {
   );
 }
 
-function UrlPill({ url, color }: { url: string; color: string }) {
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
-       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px dashed ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
-      {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </a>
-  );
-}
-
 const DEFAULT_ORDER = ["summary", "work", "projects", "skills", "education"];
 
 export default function DiamondTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto, sectionOrder }: ResumeData) {
