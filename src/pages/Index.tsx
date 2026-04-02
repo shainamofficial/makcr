@@ -84,11 +84,11 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10" />
         <div className="relative container mx-auto px-4 md:px-6 py-16 md:py-36 lg:py-44 text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground max-w-3xl mx-auto leading-tight">
-            Your AI Career Partner
+            Make Your Career
+            <span className="block text-primary mt-2">with Makcr</span>
           </h1>
           <p className="mt-4 md:mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Makcr uses AI to interview you, build your structured career profile,
-            and generate tailored resumes for any job — in minutes.
+            Tell your story once. Get tailored resumes for every opportunity — powered by AI.
           </p>
           <Button size="lg" className="mt-8 md:mt-10 text-base px-8 py-6 w-full sm:w-auto" onClick={handleCTA}>
             Get Started — It's Free
