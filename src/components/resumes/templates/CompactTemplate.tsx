@@ -2,15 +2,6 @@ import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
 import { fmtDate } from "./fmtDate";
 
-function UrlPill({ url, color }: { url: string; color: string }) {
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
-       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 8, lineHeight: "16px", verticalAlign: "middle", textDecoration: "none" }}>
-      {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </a>
-  );
-}
-
 const DEFAULT_ORDER = ["summary", "work", "projects", "education", "skills"];
 
 export default function CompactTemplate({ user, summary, workExperiences, education, skills, projects, profilePictureUrl, includePhoto, sectionOrder }: ResumeData) {
@@ -55,10 +46,18 @@ export default function CompactTemplate({ user, summary, workExperiences, educat
           <div key={i} style={{ marginBottom: 5 }}>
             <p style={{ fontSize: 9, margin: 0, lineHeight: 1.5 }}><strong>{p.title}</strong> — {p.description}</p>
             {p.urls?.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
-                {p.urls.map((u, j) => <UrlPill key={j} url={u} color={accent} />)}
-              </div>
-            )}
+                <div style={{ marginTop: 3 }}>
+                  {p.urls.map((u, j) => (
+                    <span key={j}>
+                      {j > 0 && " · "}
+                      <a href={u} target="_blank" rel="noopener noreferrer" data-pdf-url={u}
+                         style={{ color: "inherit", fontSize: 10, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {u.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </section>

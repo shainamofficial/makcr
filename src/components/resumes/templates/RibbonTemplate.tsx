@@ -2,15 +2,6 @@ import type { ResumeData } from "./types";
 import { groupWorkByCompany } from "./groupWorkByCompany";
 import { fmtDate } from "./fmtDate";
 
-function UrlPill({ url, color }: { url: string; color: string }) {
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer" data-pdf-url={url}
-       style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "1px 8px", borderRadius: 9999, border: `1px solid ${color}`, color, fontSize: 9, lineHeight: "18px", verticalAlign: "middle", textDecoration: "none" }}>
-      {"↗ "}{url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-    </a>
-  );
-}
-
 function RibbonHeader({ children, color }: { children: React.ReactNode; color: string }) {
   return (
     <div style={{ background: color, color: "#fff", padding: "5px 16px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 10, borderRadius: "0 4px 4px 0", marginLeft: -16, position: "relative" }}>
@@ -69,10 +60,18 @@ export default function RibbonTemplate({ user, summary, workExperiences, educati
             <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{p.title}</p>
             <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.6, color: "#374151" }}>{p.description}</p>
             {p.urls?.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
-                {p.urls.map((u, j) => <UrlPill key={j} url={u} color={warm} />)}
-              </div>
-            )}
+                <div style={{ marginTop: 3 }}>
+                  {p.urls.map((u, j) => (
+                    <span key={j}>
+                      {j > 0 && " · "}
+                      <a href={u} target="_blank" rel="noopener noreferrer" data-pdf-url={u}
+                         style={{ color: "inherit", fontSize: 10, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {u.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </section>
