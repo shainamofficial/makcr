@@ -124,10 +124,10 @@ const Index = () => {
       <section className="bg-muted/50">
         <div className="container mx-auto px-4 md:px-6 py-20 md:py-28">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center">
-            Product Roadmap
+            What's Next
           </h2>
           <p className="mt-3 text-muted-foreground text-center max-w-xl mx-auto">
-            We're building the AI-native career platform — one milestone at a time.
+            One platform, many possibilities. Here's where we're headed.
           </p>
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {roadmap.map(({ version, title, badge, available, icon: Icon }) => (
