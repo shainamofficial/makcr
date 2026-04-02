@@ -51,10 +51,18 @@ export default function TwoColumnTemplate({ user, summary, workExperiences, educ
             <p style={{ fontSize: 11, fontWeight: 700, margin: 0 }}>{p.title}</p>
             <p style={{ fontSize: 10, margin: "2px 0 0", lineHeight: 1.6, color: "#374151" }}>{p.description}</p>
             {p.urls?.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 3 }}>
-                {p.urls.map((u, j) => <UrlPill key={j} url={u} color={accent} />)}
-              </div>
-            )}
+                <div style={{ marginTop: 3 }}>
+                  {p.urls.map((u, j) => (
+                    <span key={j}>
+                      {j > 0 && " · "}
+                      <a href={u} target="_blank" rel="noopener noreferrer" data-pdf-url={u}
+                         style={{ color: "inherit", fontSize: 10, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {u.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </section>

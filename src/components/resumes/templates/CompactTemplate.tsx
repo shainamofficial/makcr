@@ -55,10 +55,18 @@ export default function CompactTemplate({ user, summary, workExperiences, educat
           <div key={i} style={{ marginBottom: 5 }}>
             <p style={{ fontSize: 9, margin: 0, lineHeight: 1.5 }}><strong>{p.title}</strong> — {p.description}</p>
             {p.urls?.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
-                {p.urls.map((u, j) => <UrlPill key={j} url={u} color={accent} />)}
-              </div>
-            )}
+                <div style={{ marginTop: 3 }}>
+                  {p.urls.map((u, j) => (
+                    <span key={j}>
+                      {j > 0 && " · "}
+                      <a href={u} target="_blank" rel="noopener noreferrer" data-pdf-url={u}
+                         style={{ color: "inherit", fontSize: 10, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {u.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </section>

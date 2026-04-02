@@ -73,10 +73,18 @@ export default function DiamondTemplate({ user, summary, workExperiences, educat
             <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{p.title}</p>
             <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.6, color: "#374151" }}>{p.description}</p>
             {p.urls?.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
-                {p.urls.map((u, j) => <UrlPill key={j} url={u} color={teal} />)}
-              </div>
-            )}
+                <div style={{ marginTop: 3 }}>
+                  {p.urls.map((u, j) => (
+                    <span key={j}>
+                      {j > 0 && " · "}
+                      <a href={u} target="_blank" rel="noopener noreferrer" data-pdf-url={u}
+                         style={{ color: "inherit", fontSize: 10, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {u.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </section>
