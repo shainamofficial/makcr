@@ -16,21 +16,21 @@ import {
 const steps = [
   {
     icon: MessageSquare,
-    title: "AI Career Interview",
+    title: "Smart Interview",
     description:
-      "Our AI asks the right questions to understand your full career story — skills, impact, and achievements.",
+      "Our AI conducts a smart interview to capture your skills, impact, and career highlights.",
   },
   {
     icon: Network,
-    title: "Build Your Career Graph",
+    title: "Career Graph",
     description:
-      "Your experience is structured into a rich career graph — the foundation for everything.",
+      "Your answers become a structured career graph — the single source of truth for every resume.",
   },
   {
     icon: FileText,
-    title: "Generate Tailored Resumes",
+    title: "Instant Tailoring",
     description:
-      "Paste any job description. Get a perfectly tailored resume in seconds.",
+      "Paste a job description. Get a tailored, ATS-ready resume in seconds.",
   },
 ];
 
