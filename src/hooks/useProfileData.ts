@@ -127,7 +127,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (updates: Record<string, unknown>) => {
+    mutationFn: async (updates: Record<string, any>) => {
       const { error } = await supabase.from("user").update(updates).eq("id", user!.id);
       if (error) throw error;
     },
