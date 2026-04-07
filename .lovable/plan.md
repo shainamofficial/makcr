@@ -1,32 +1,18 @@
 
 
-# Revamp Landing Page Copy
+# Fix "Failed to construct 'URL': Invalid URL" on Profile Page
 
-## Changes to `src/pages/Index.tsx`
+## Root Cause
 
-### Hero Section
-- **Headline**: Change from "Your AI Career Partner" to **"Make Your Career"** with "with Makcr" styled as a secondary accent line beneath it
-- **Tagline**: Tighten the subtitle — "Tell your story once. Get tailored resumes for every opportunity — powered by AI."
-- **CTA**: Keep as-is
+In `src/components/profile/ProjectsSection.tsx` line 76, `new URL(url).hostname` is called on every project URL. If any URL in the database is malformed (empty string, missing protocol, etc.), this throws an unhandled error that bubbles up to the ErrorBoundary and crashes the entire Profile page.
 
-### How It Works Section
-- **Section title**: "How It Works" → **"Three Steps. One Career Platform."**
-- **Subtitle**: Remove the current one (redundant with the title)
-- Tweak step descriptions slightly for punchiness:
-  1. "Our AI conducts a smart interview to capture your skills, impact, and career highlights."
-  2. "Your answers become a structured career graph — the single source of truth for every resume."
-  3. "Paste a job description. Get a tailored, ATS-ready resume in seconds."
+## Fix
 
-### Roadmap Section
-- **Title**: "Product Roadmap" → **"What's Next"**
-- **Subtitle**: "We're building the AI-native career platform — one milestone at a time." → "One platform, many possibilities. Here's where we're headed."
+Wrap the `new URL()` call in a try-catch helper that falls back to displaying the raw URL string when parsing fails.
 
-### Footer
-- No changes
-
-## Files Changed
+## Changes
 
 | File | Change |
 |------|--------|
-| `src/pages/Index.tsx` | Update hero headline/subtitle, section titles, and step descriptions |
+| `src/components/profile/ProjectsSection.tsx` | Replace `new URL(url).hostname` with a safe helper: `try { return new URL(url).hostname } catch { return url }` |
 
