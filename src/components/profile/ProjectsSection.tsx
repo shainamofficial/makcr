@@ -73,7 +73,7 @@ export default function ProjectsSection({ data }: { data: any[] }) {
                 <div className="flex flex-wrap gap-2">
                   {p.project_urls.map((url: string, i: number) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-                      <ExternalLink className="h-3 w-3" /> {new URL(url).hostname}
+                      <ExternalLink className="h-3 w-3" /> {(() => { try { return new URL(url).hostname; } catch { return url; } })()}
                     </a>
                   ))}
                 </div>

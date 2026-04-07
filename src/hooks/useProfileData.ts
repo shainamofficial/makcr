@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Database } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -127,8 +128,8 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (updates: Record<string, unknown>) => {
-      const { error } = await supabase.from("user").update(updates).eq("id", user!.id);
+    mutationFn: async (updates: Partial<Database['public']['Tables']['user']['Update']>) => {
+      const { error } = await supabase.from("user").update(updates as any).eq("id", user!.id);
       if (error) throw error;
     },
     onSuccess: () => {
