@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   session: Session | null;
@@ -42,21 +43,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signInWithGoogle = async () => {
-    const isIframe = window.self !== window.top;
-    const redirectTo = `${window.location.origin}/profile`;
+    try {
+      const isIframe = window.self !== window.top;
+      const redirectTo = `${window.location.origin}/profile`;
 
-    if (isIframe) {
-      // Popup flow for iframe (Lovable preview editor)
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo, skipBrowserRedirect: true },
-      });
+      if (isIframe) {
+        // Popup flow for iframe (Lovable preview editor)
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo, skipBrowserRedirect: true },
+        });
 
-      if (error || !data?.url) return;
+        if (error) {
+          console.error("[auth] signInWithOAuth error:", error);
+          toast({ title: "Sign-in failed", description: error.message, variant: "destructive" });
+          return;
+        }
+        if (!data?.url) {
+          toast({ title: "Could not start Google sign-in", description: "No OAuth URL returned.", variant: "destructive" });
+          return;
+        }
 
       const popup = window.open(data.url, "oauth", "width=500,height=600");
       if (!popup) {
-        alert("Please allow popups for this site to sign in, then try again.");
+          toast({ title: "Popup blocked", description: "Please allow popups for this site to sign in, then try again.", variant: "destructive" });
         return;
       }
 
@@ -87,17 +97,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         window.removeEventListener("message", messageHandler);
         popup?.close();
       }
-    } else {
-      // Published / standard domain — use skipBrowserRedirect + manual redirect
-      // to avoid auth-bridge interference on lovable.app
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo, skipBrowserRedirect: true },
-      });
+      } else {
+        // Published / standard domain — use skipBrowserRedirect + manual redirect
+        // to avoid auth-bridge interference on lovable.app
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo, skipBrowserRedirect: true },
+        });
 
-      if (!error && data?.url) {
+        if (error) {
+          console.error("[auth] signInWithOAuth error:", error);
+          toast({ title: "Sign-in failed", description: error.message, variant: "destructive" });
+          return;
+        }
+        if (!data?.url) {
+          toast({ title: "Could not start Google sign-in", description: "No OAuth URL returned. Check Supabase URL configuration.", variant: "destructive" });
+          return;
+        }
         window.location.href = data.url;
       }
+    } catch (err: any) {
+      console.error("[auth] unexpected sign-in error:", err);
+      toast({ title: "Sign-in failed", description: err?.message ?? "Unexpected error", variant: "destructive" });
     }
   };
 
